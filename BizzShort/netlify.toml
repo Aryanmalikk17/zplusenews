@@ -1,0 +1,16 @@
+# Netlify Configuration (NOT RECOMMENDED - Netlify doesn't support full Express servers well)
+# Use Render or Vercel instead for backend support
+
+[build]
+  command = "npm install"
+  publish = "."
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

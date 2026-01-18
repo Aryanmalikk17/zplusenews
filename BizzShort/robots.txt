@@ -1,0 +1,24 @@
+# robots.txt for BizzShort
+# www.bizzshort.com
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /article-detail.html
+Allow: /about.html
+Allow: /contact.html
+Allow: /events.html
+Allow: /assets/css/
+Allow: /assets/js/
+Allow: /assets/images/
+
+# Disallow admin pages
+Disallow: /admin-login.html
+Disallow: /admin.html
+Disallow: /admin/
+
+# Disallow API endpoints from crawling
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://bizzshort.onrender.com/sitemap.xml

@@ -1,0 +1,18 @@
+# Cyclic Deployment Configuration
+# Cyclic auto-detects Node.js apps from package.json
+
+# No special configuration needed!
+# Just connect your GitHub repo at cyclic.sh
+
+# Environment Variables to Set in Cyclic Dashboard:
+# MONGO_URI=your_mongodb_atlas_uri
+# JWT_SECRET=your_jwt_secret_min_32_characters
+# PORT=3000
+# NODE_ENV=production
+# SETUP_KEY=your_setup_key
+# CORS_ORIGIN=https://your-app.cyclic.app
+
+# Cyclic will:
+# 1. Run: npm install
+# 2. Run: npm start
+# 3. Provide S3 storage for uploads/

@@ -1,0 +1,22 @@
+# Railway Deployment Configuration
+# No configuration file needed! Railway auto-detects Node.js apps
+
+# But here's what Railway will do automatically:
+# 1. Detect package.json
+# 2. Run: npm install
+# 3. Run: npm start
+# 4. Expose port from process.env.PORT
+
+# Optional: railway.json for custom settings
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm install"
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
