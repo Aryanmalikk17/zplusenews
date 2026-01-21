@@ -1,30 +1,29 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { articlesAPI, eventsAPI } from '../services/api';
-import HeroSection from '../components/ui/HeroSection';
+import { articlesAPI, eventsAPI, videosAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
+import NewsCategorySection from '../components/ui/NewsCategorySection';
 import ArticleCard from '../components/ui/ArticleCard';
-import VideoNewsSection from '../components/ui/VideoNewsSection';
 import '../styles/components.css';
 
 export default function Home() {
     const [articles, setArticles] = useState([]);
-    const [events, setEvents] = useState([]);
+    const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('all');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [articlesRes, eventsRes] = await Promise.all([
-                    articlesAPI.getAll({ limit: 20 }).catch(() => ({ data: [] })),
-                    eventsAPI.getAll().catch(() => ({ data: [] })),
+                const [articlesRes, videosRes] = await Promise.all([
+                    articlesAPI.getAll({ limit: 30 }).catch(() => ({ data: [] })),
+                    videosAPI.getAll().catch(() => ({ data: [] })),
                 ]);
-                // Handle both {data: [...]} and direct array responses
+
                 const articlesData = articlesRes?.data || articlesRes || [];
-                const eventsData = eventsRes?.data || eventsRes || [];
+                const videosData = videosRes?.data || videosRes || [];
+
                 setArticles(Array.isArray(articlesData) ? articlesData : []);
-                setEvents(Array.isArray(eventsData) ? eventsData : []);
+                setVideos(Array.isArray(videosData) ? videosData : []);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -35,60 +34,52 @@ export default function Home() {
         fetchData();
     }, []);
 
-    // Organize articles by section
-    const featuredArticle = articles[0];
-    const sideArticles = articles.slice(1, 3);
+    // Organize content by category
+    const latestContent = [...articles, ...videos]
+        .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
 
-    // Filter tech articles (or first 6 if no category)
-    const techArticles = articles.filter(a =>
-        a.category?.toLowerCase().includes('tech') ||
-        a.category?.toLowerCase().includes('ai') ||
-        a.category?.toLowerCase().includes('software')
-    ).slice(0, 6);
+    const latestArticles = articles.slice(0, 6);
+    const latestVideos = videos.slice(0, 3);
 
-    // Use first 6 if no tech articles found
-    const displayTechArticles = techArticles.length > 0 ? techArticles : articles.slice(0, 6);
-
-    // Filter business articles
+    // Business & Markets
     const businessArticles = articles.filter(a =>
         a.category?.toLowerCase().includes('business') ||
         a.category?.toLowerCase().includes('market') ||
-        a.category?.toLowerCase().includes('startup') ||
-        a.category?.toLowerCase().includes('economy')
-    ).slice(0, 4);
+        a.category?.toLowerCase().includes('economy') ||
+        a.category?.toLowerCase().includes('finance')
+    );
+    const businessVideos = videos.filter(v =>
+        v.category?.toLowerCase().includes('business') ||
+        v.category?.toLowerCase().includes('market') ||
+        v.category?.toLowerCase().includes('economy')
+    );
 
-    const displayBusinessArticles = businessArticles.length > 0 ? businessArticles : articles.slice(3, 7);
+    // Technology
+    const techArticles = articles.filter(a =>
+        a.category?.toLowerCase().includes('tech') ||
+        a.category?.toLowerCase().includes('ai') ||
+        a.category?.toLowerCase().includes('software') ||
+        a.category?.toLowerCase().includes('startup')
+    );
+    const techVideos = videos.filter(v =>
+        v.category?.toLowerCase().includes('tech') ||
+        v.category?.toLowerCase().includes('ai') ||
+        v.category?.toLowerCase().includes('startup')
+    );
 
-    // Innovation articles
-    const innovationArticles = articles.filter(a =>
-        a.category?.toLowerCase().includes('innovation') ||
-        a.category?.toLowerCase().includes('space') ||
-        a.category?.toLowerCase().includes('science') ||
-        a.category?.toLowerCase().includes('green')
-    ).slice(0, 3);
+    // World News / International
+    const worldArticles = articles.filter(a =>
+        a.category?.toLowerCase().includes('world') ||
+        a.category?.toLowerCase().includes('international') ||
+        a.category?.toLowerCase().includes('global')
+    );
 
-    const displayInnovationArticles = innovationArticles.length > 0 ? innovationArticles : articles.slice(6, 9);
-
-    // Get popular articles (sort by views if available)
+    // Popular articles (sorted by views)
     const popularArticles = [...articles]
-        .sort((a, b) => (b.views || 0) - (a.views || 0))
+        .sort((a, b) => (parseInt(b.views) || 0) - (parseInt(a.views) || 0))
         .slice(0, 5);
 
-    const categoryTabs = [
-        { id: 'all', label: 'All' },
-        { id: 'ai', label: 'AI' },
-        { id: 'gadgets', label: 'Gadgets' },
-        { id: 'software', label: 'Software' },
-    ];
-
-    // Filter articles by active tab
-    const getFilteredArticles = () => {
-        if (activeTab === 'all') return displayTechArticles;
-        return articles.filter(a =>
-            a.category?.toLowerCase().includes(activeTab)
-        ).slice(0, 6);
-    };
-
+    // Format views helper
     const formatViews = (views) => {
         if (!views) return '0';
         const num = parseInt(views);
@@ -96,113 +87,148 @@ export default function Home() {
         return num.toString();
     };
 
+    // Get author name helper
+    const getAuthorName = (author) => {
+        if (!author) return 'Editorial Team';
+        return typeof author === 'object' ? author?.name : author;
+    };
+
+    if (loading) {
+        return (
+            <div className="home-page">
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Loading news...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="home-page">
             {/* Trending Ticker */}
             <TrendingTicker />
 
-            {/* Hero Section */}
-            <HeroSection
-                featured={featuredArticle}
-                sideArticles={sideArticles}
-            />
-
-            {/* Technology Section */}
-            <section className="section" id="tech">
+            {/* ============ LATEST NEWS - Hero Section ============ */}
+            <section className="section latest-news-section">
                 <div className="container">
-                    <div className="section-header">
-                        <h2>Technology</h2>
-                        <div className="category-tabs">
-                            {categoryTabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    className={`category-tab ${activeTab === tab.id ? 'active' : ''}`}
-                                    onClick={() => setActiveTab(tab.id)}
+                    <motion.div
+                        className="section-header"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <h2>🔥 Latest News</h2>
+                        <a href="/latest" className="view-all">View All →</a>
+                    </motion.div>
+
+                    <div className="latest-news-layout">
+                        {/* Featured Article */}
+                        {latestArticles[0] && (
+                            <motion.div
+                                className="latest-featured"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                <a href={`/article/${latestArticles[0].slug || latestArticles[0]._id}`} className="featured-card">
+                                    <div className="featured-image">
+                                        <img
+                                            src={latestArticles[0].image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800'}
+                                            alt={latestArticles[0].title}
+                                        />
+                                        <div className="featured-gradient"></div>
+                                    </div>
+                                    <div className="featured-content">
+                                        <span className="category-badge">{latestArticles[0].category || 'News'}</span>
+                                        <h1 className="featured-title">{latestArticles[0].title}</h1>
+                                        <p className="featured-excerpt">
+                                            {latestArticles[0].excerpt || latestArticles[0].content?.substring(0, 150) + '...'}
+                                        </p>
+                                        <div className="featured-meta">
+                                            <span>By {getAuthorName(latestArticles[0].author)}</span>
+                                            <span>•</span>
+                                            <span>{latestArticles[0].readTime || '5 min read'}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </motion.div>
+                        )}
+
+                        {/* Side Articles */}
+                        <div className="latest-side">
+                            {latestArticles.slice(1, 4).map((article, index) => (
+                                <motion.div
+                                    key={article._id || index}
+                                    className="latest-side-item"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 + index * 0.1 }}
                                 >
-                                    {tab.label}
-                                </button>
+                                    <a href={`/article/${article.slug || article._id}`} className="side-article">
+                                        <div className="side-article-image">
+                                            <img
+                                                src={article.image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400'}
+                                                alt={article.title}
+                                            />
+                                        </div>
+                                        <div className="side-article-content">
+                                            <span className="category-badge small">{article.category}</span>
+                                            <h3>{article.title}</h3>
+                                            <span className="article-date">
+                                                {new Date(article.createdAt || article.date).toLocaleDateString('en-US', {
+                                                    month: 'short', day: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
-
-                    <motion.div
-                        className="article-grid"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        {loading ? (
-                            [...Array(3)].map((_, i) => (
-                                <div key={i} className="article-card">
-                                    <div className="skeleton" style={{ height: 200 }}></div>
-                                    <div style={{ padding: 20 }}>
-                                        <div className="skeleton" style={{ height: 24, marginBottom: 10 }}></div>
-                                        <div className="skeleton" style={{ height: 48, marginBottom: 10 }}></div>
-                                        <div className="skeleton" style={{ height: 16, width: '60%' }}></div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : getFilteredArticles().length > 0 ? (
-                            getFilteredArticles().map((article, index) => (
-                                <ArticleCard
-                                    key={article._id || article.id || index}
-                                    article={article}
-                                    index={index}
-                                />
-                            ))
-                        ) : (
-                            <div className="empty-state">
-                                <p>No articles available. Add articles via the admin panel.</p>
-                            </div>
-                        )}
-                    </motion.div>
                 </div>
             </section>
 
-            {/* Business Section with Sidebar */}
-            <section className="section bg-light" id="business" style={{ background: 'var(--bg-secondary)' }}>
+            {/* ============ BUSINESS & MARKETS ============ */}
+            <NewsCategorySection
+                title="Business & Markets"
+                icon="💼"
+                articles={businessArticles.length > 0 ? businessArticles : articles.slice(0, 4)}
+                videos={businessVideos}
+                layout="featured"
+                maxItems={5}
+                viewAllLink="/business"
+            />
+
+            {/* ============ TECHNOLOGY ============ */}
+            <section className="section tech-section" style={{ background: 'var(--bg-secondary)' }}>
                 <div className="container">
-                    <div className="section-header">
-                        <h2>Business & Markets</h2>
-                        <a href="/business" className="view-all">
-                            View All →
-                        </a>
-                    </div>
+                    <motion.div
+                        className="section-header"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2>🚀 Technology</h2>
+                        <a href="/technology" className="view-all">View All →</a>
+                    </motion.div>
 
                     <div className="content-with-sidebar">
                         <div className="main-content-area">
                             <div className="article-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                                {loading ? (
-                                    [...Array(4)].map((_, i) => (
-                                        <div key={i} className="article-card">
-                                            <div className="skeleton" style={{ height: 180 }}></div>
-                                            <div style={{ padding: 20 }}>
-                                                <div className="skeleton" style={{ height: 20, marginBottom: 8 }}></div>
-                                                <div className="skeleton" style={{ height: 40 }}></div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : displayBusinessArticles.length > 0 ? (
-                                    displayBusinessArticles.map((article, index) => (
-                                        <ArticleCard
-                                            key={article._id || article.id || index}
-                                            article={article}
-                                            index={index}
-                                        />
-                                    ))
-                                ) : (
-                                    <div className="empty-state">
-                                        <p>No business articles available.</p>
-                                    </div>
-                                )}
+                                {(techArticles.length > 0 ? techArticles : articles.slice(4, 8)).slice(0, 4).map((article, index) => (
+                                    <ArticleCard
+                                        key={article._id || index}
+                                        article={article}
+                                        index={index}
+                                    />
+                                ))}
                             </div>
                         </div>
 
-                        {/* Sidebar */}
+                        {/* Sidebar - Popular This Week */}
                         <aside className="sidebar-area">
-                            {/* Popular This Week */}
                             <div className="sidebar-widget">
-                                <h3 className="widget-title">Popular This Week</h3>
+                                <h3 className="widget-title">📈 Trending This Week</h3>
                                 {popularArticles.length > 0 ? (
                                     popularArticles.map((article, index) => (
                                         <div key={article._id || index} className="popular-article">
@@ -220,11 +246,11 @@ export default function Home() {
 
                             {/* Newsletter */}
                             <div className="sidebar-widget newsletter-widget">
-                                <h3 className="widget-title">Newsletter</h3>
-                                <p>Get the latest tech & business news delivered to your inbox.</p>
+                                <h3 className="widget-title">📬 Newsletter</h3>
+                                <p>Get the latest news delivered to your inbox.</p>
                                 <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-                                    <input type="email" placeholder="Your email address" required />
-                                    <button type="submit">Subscribe Now</button>
+                                    <input type="email" placeholder="Your email" required />
+                                    <button type="submit">Subscribe</button>
                                 </form>
                             </div>
                         </aside>
@@ -232,28 +258,64 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Video News Section */}
-            <VideoNewsSection />
-
-            {/* Innovation Section */}
-            {displayInnovationArticles.length > 0 && (
-                <section className="section" id="innovation">
+            {/* ============ VIDEO NEWS ============ */}
+            {videos.length > 0 && (
+                <section className="section video-section">
                     <div className="container">
-                        <div className="section-header">
-                            <h2>Innovation & Future Tech</h2>
-                        </div>
+                        <motion.div
+                            className="section-header"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <h2>📹 Video News</h2>
+                            <a href="/videos" className="view-all">View All →</a>
+                        </motion.div>
 
-                        <div className="article-grid">
-                            {displayInnovationArticles.map((article, i) => (
-                                <ArticleCard
-                                    key={article._id || article.id || i}
-                                    article={article}
-                                    index={i}
-                                />
+                        <div className="video-grid">
+                            {videos.slice(0, 4).map((video, index) => (
+                                <motion.div
+                                    key={video._id || index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="video-grid-item"
+                                >
+                                    <div className="video-card-compact">
+                                        <div className="video-thumbnail-wrapper">
+                                            <div className="video-thumbnail-placeholder">
+                                                <span className="play-icon">▶</span>
+                                            </div>
+                                            <span className="video-duration">{video.duration || '0:45'}</span>
+                                            <span className="video-source-badge">
+                                                {video.source === 'instagram' ? '📸' : '🎬'}
+                                            </span>
+                                        </div>
+                                        <div className="video-info">
+                                            <span className="category-badge small">{video.category}</span>
+                                            <h4>{video.title}</h4>
+                                            <span className="video-views">{video.views || '0'} views</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
                 </section>
+            )}
+
+            {/* ============ WORLD NEWS ============ */}
+            {(worldArticles.length > 0 || articles.length > 8) && (
+                <NewsCategorySection
+                    title="World News"
+                    icon="🌍"
+                    articles={worldArticles.length > 0 ? worldArticles : articles.slice(8, 12)}
+                    videos={[]}
+                    layout="grid"
+                    maxItems={4}
+                    viewAllLink="/world"
+                />
             )}
         </div>
     );
