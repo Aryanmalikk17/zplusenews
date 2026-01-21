@@ -38,6 +38,10 @@ const Video = require('./models/Video');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - Required for Render and other reverse proxies
+// This allows express-rate-limit to correctly identify users behind proxies
+app.set('trust proxy', 1);
+
 // Security Middleware
 // Set security headers
 app.use(helmet({
