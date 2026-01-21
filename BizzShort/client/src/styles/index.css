@@ -508,3 +508,67 @@ p {
 .gradient-blob.teal {
     background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, transparent 70%);
 }
+
+/* ===== EMPTY STATES ===== */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--light-gray);
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin: 0;
+}
+
+.empty-hint {
+    color: var(--text-light);
+    font-size: 13px;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* ===== PAGE SPECIFIC ===== */
+.home-page {
+    min-height: 100vh;
+}
+
+/* Main content area in sidebar layouts */
+.main-content-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-area {
+    width: 340px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-area {
+        width: 100%;
+    }
+}
+
+/* ===== LOADING STATES ===== */
+.loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--light-gray);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

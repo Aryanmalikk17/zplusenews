@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { articlesAPI, eventsAPI, adsAPI } from '../services/api';
+import { articlesAPI, eventsAPI } from '../services/api';
 import HeroSection from '../components/ui/HeroSection';
 import TrendingTicker from '../components/ui/TrendingTicker';
 import ArticleCard from '../components/ui/ArticleCard';
+import VideoNewsSection from '../components/ui/VideoNewsSection';
 import '../styles/components.css';
 
 export default function Home() {
@@ -15,10 +16,13 @@ export default function Home() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [articlesData, eventsData] = await Promise.all([
-                    articlesAPI.getAll().catch(() => []),
-                    eventsAPI.getAll().catch(() => []),
+                const [articlesRes, eventsRes] = await Promise.all([
+                    articlesAPI.getAll({ limit: 20 }).catch(() => ({ data: [] })),
+                    eventsAPI.getAll().catch(() => ({ data: [] })),
                 ]);
+                // Handle both {data: [...]} and direct array responses
+                const articlesData = articlesRes?.data || articlesRes || [];
+                const eventsData = eventsRes?.data || eventsRes || [];
                 setArticles(Array.isArray(articlesData) ? articlesData : []);
                 setEvents(Array.isArray(eventsData) ? eventsData : []);
             } catch (error) {
@@ -31,20 +35,44 @@ export default function Home() {
         fetchData();
     }, []);
 
-    // Get featured and side articles
+    // Organize articles by section
     const featuredArticle = articles[0];
     const sideArticles = articles.slice(1, 3);
-    const techArticles = articles.slice(0, 6);
-    const businessArticles = articles.slice(3, 9);
 
-    // Popular articles for sidebar
-    const popularArticles = [
-        { title: "Tesla's New Factory in India: What It Means for EV Market", views: '15.2K' },
-        { title: "5G Revolution: How It's Changing Rural Connectivity", views: '12.8K' },
-        { title: "Top 10 AI Tools Every Professional Should Know", views: '11.5K' },
-        { title: "Semiconductor Industry: India's $10B Investment Push", views: '9.3K' },
-        { title: "Remote Work Trends: Hybrid Model Becomes Standard", views: '8.7K' },
-    ];
+    // Filter tech articles (or first 6 if no category)
+    const techArticles = articles.filter(a =>
+        a.category?.toLowerCase().includes('tech') ||
+        a.category?.toLowerCase().includes('ai') ||
+        a.category?.toLowerCase().includes('software')
+    ).slice(0, 6);
+
+    // Use first 6 if no tech articles found
+    const displayTechArticles = techArticles.length > 0 ? techArticles : articles.slice(0, 6);
+
+    // Filter business articles
+    const businessArticles = articles.filter(a =>
+        a.category?.toLowerCase().includes('business') ||
+        a.category?.toLowerCase().includes('market') ||
+        a.category?.toLowerCase().includes('startup') ||
+        a.category?.toLowerCase().includes('economy')
+    ).slice(0, 4);
+
+    const displayBusinessArticles = businessArticles.length > 0 ? businessArticles : articles.slice(3, 7);
+
+    // Innovation articles
+    const innovationArticles = articles.filter(a =>
+        a.category?.toLowerCase().includes('innovation') ||
+        a.category?.toLowerCase().includes('space') ||
+        a.category?.toLowerCase().includes('science') ||
+        a.category?.toLowerCase().includes('green')
+    ).slice(0, 3);
+
+    const displayInnovationArticles = innovationArticles.length > 0 ? innovationArticles : articles.slice(6, 9);
+
+    // Get popular articles (sort by views if available)
+    const popularArticles = [...articles]
+        .sort((a, b) => (b.views || 0) - (a.views || 0))
+        .slice(0, 5);
 
     const categoryTabs = [
         { id: 'all', label: 'All' },
@@ -52,6 +80,21 @@ export default function Home() {
         { id: 'gadgets', label: 'Gadgets' },
         { id: 'software', label: 'Software' },
     ];
+
+    // Filter articles by active tab
+    const getFilteredArticles = () => {
+        if (activeTab === 'all') return displayTechArticles;
+        return articles.filter(a =>
+            a.category?.toLowerCase().includes(activeTab)
+        ).slice(0, 6);
+    };
+
+    const formatViews = (views) => {
+        if (!views) return '0';
+        const num = parseInt(views);
+        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+        return num.toString();
+    };
 
     return (
         <div className="home-page">
@@ -89,7 +132,6 @@ export default function Home() {
                         transition={{ duration: 0.5 }}
                     >
                         {loading ? (
-                            // Skeleton loading
                             [...Array(3)].map((_, i) => (
                                 <div key={i} className="article-card">
                                     <div className="skeleton" style={{ height: 200 }}></div>
@@ -100,48 +142,29 @@ export default function Home() {
                                     </div>
                                 </div>
                             ))
-                        ) : techArticles.length > 0 ? (
-                            techArticles.map((article, index) => (
+                        ) : getFilteredArticles().length > 0 ? (
+                            getFilteredArticles().map((article, index) => (
                                 <ArticleCard
-                                    key={article._id || index}
+                                    key={article._id || article.id || index}
                                     article={article}
                                     index={index}
                                 />
                             ))
                         ) : (
-                            // Default demo articles
-                            [...Array(3)].map((_, i) => (
-                                <ArticleCard
-                                    key={i}
-                                    article={{
-                                        _id: i,
-                                        title: ['OpenAI Announces GPT-5 with Revolutionary Capabilities',
-                                            "Apple's Vision Pro 2 Redefines Mixed Reality",
-                                            'Cloud Computing Trends: What to Expect in 2026'][i],
-                                        category: ['AI', 'Gadgets', 'Cloud'][i],
-                                        author: ['Tech Desk', 'Gadget Review', 'Cloud Expert'][i],
-                                        image: [
-                                            'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400',
-                                            'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400',
-                                            'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400'
-                                        ][i],
-                                        excerpt: 'Latest developments in technology shaping the future...',
-                                        slug: `demo-article-${i}`,
-                                    }}
-                                    index={i}
-                                />
-                            ))
+                            <div className="empty-state">
+                                <p>No articles available. Add articles via the admin panel.</p>
+                            </div>
                         )}
                     </motion.div>
                 </div>
             </section>
 
             {/* Business Section with Sidebar */}
-            <section className="section bg-light" id="business" style={{ background: 'var(--off-white)' }}>
+            <section className="section bg-light" id="business" style={{ background: 'var(--bg-secondary)' }}>
                 <div className="container">
                     <div className="section-header">
                         <h2>Business & Markets</h2>
-                        <a href="#" className="view-all">
+                        <a href="/business" className="view-all">
                             View All →
                         </a>
                     </div>
@@ -159,39 +182,18 @@ export default function Home() {
                                             </div>
                                         </div>
                                     ))
-                                ) : businessArticles.length > 0 ? (
-                                    businessArticles.slice(0, 4).map((article, index) => (
+                                ) : displayBusinessArticles.length > 0 ? (
+                                    displayBusinessArticles.map((article, index) => (
                                         <ArticleCard
-                                            key={article._id || index}
+                                            key={article._id || article.id || index}
                                             article={article}
                                             index={index}
                                         />
                                     ))
                                 ) : (
-                                    [...Array(4)].map((_, i) => (
-                                        <ArticleCard
-                                            key={i}
-                                            article={{
-                                                _id: i + 10,
-                                                title: [
-                                                    'Sensex Crosses 85,000 Mark as FIIs Return',
-                                                    'Bengaluru Startup Raises $100M Series C',
-                                                    'RBI Explores Digital Rupee 2.0',
-                                                    "India's GDP Growth Projected at 7.5%"
-                                                ][i],
-                                                category: ['Markets', 'Startups', 'Crypto', 'Economy'][i],
-                                                author: ['Market Watch', 'Startup Desk', 'Finance Desk', 'Economy Bureau'][i],
-                                                image: [
-                                                    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400',
-                                                    'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400',
-                                                    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400',
-                                                    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400'
-                                                ][i],
-                                                slug: `business-article-${i}`,
-                                            }}
-                                            index={i}
-                                        />
-                                    ))
+                                    <div className="empty-state">
+                                        <p>No business articles available.</p>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -201,15 +203,19 @@ export default function Home() {
                             {/* Popular This Week */}
                             <div className="sidebar-widget">
                                 <h3 className="widget-title">Popular This Week</h3>
-                                {popularArticles.map((article, index) => (
-                                    <div key={index} className="popular-article">
-                                        <span className="popular-article-number">{index + 1}</span>
-                                        <div className="popular-article-content">
-                                            <h4>{article.title}</h4>
-                                            <span>{article.views} views</span>
+                                {popularArticles.length > 0 ? (
+                                    popularArticles.map((article, index) => (
+                                        <div key={article._id || index} className="popular-article">
+                                            <span className="popular-article-number">{index + 1}</span>
+                                            <div className="popular-article-content">
+                                                <h4>{article.title}</h4>
+                                                <span>{formatViews(article.views)} views</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    <p className="empty-hint">Popular articles will appear here</p>
+                                )}
                             </div>
 
                             {/* Newsletter */}
@@ -226,33 +232,29 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Innovation Section */}
-            <section className="section" id="innovation">
-                <div className="container">
-                    <div className="section-header">
-                        <h2>Innovation & Future Tech</h2>
-                    </div>
+            {/* Video News Section */}
+            <VideoNewsSection />
 
-                    <div className="article-grid">
-                        {[
-                            { title: 'Quantum Computing: The Next Frontier', category: 'Quantum', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400' },
-                            { title: "ISRO's Gaganyaan Mission: India's Giant Leap", category: 'Space', image: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400' },
-                            { title: "Green Hydrogen: India's Clean Energy Revolution", category: 'Green Tech', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400' },
-                        ].map((article, i) => (
-                            <ArticleCard
-                                key={i}
-                                article={{
-                                    ...article,
-                                    _id: i + 20,
-                                    author: 'Science Desk',
-                                    slug: `innovation-${i}`,
-                                }}
-                                index={i}
-                            />
-                        ))}
+            {/* Innovation Section */}
+            {displayInnovationArticles.length > 0 && (
+                <section className="section" id="innovation">
+                    <div className="container">
+                        <div className="section-header">
+                            <h2>Innovation & Future Tech</h2>
+                        </div>
+
+                        <div className="article-grid">
+                            {displayInnovationArticles.map((article, i) => (
+                                <ArticleCard
+                                    key={article._id || article.id || i}
+                                    article={article}
+                                    index={i}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
         </div>
     );
 }
