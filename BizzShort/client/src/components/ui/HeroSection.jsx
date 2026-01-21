@@ -50,7 +50,7 @@ export default function HeroSection({ featured, sideArticles = [] }) {
                                 </span>
                                 <h1 className="hero-main-title">{mainArticle.title}</h1>
                                 <div className="hero-main-meta">
-                                    <span>By {mainArticle.author || 'Editorial Team'}</span>
+                                    <span>By {typeof mainArticle.author === 'object' ? mainArticle.author?.name : mainArticle.author || 'Editorial Team'}</span>
                                     <span>•</span>
                                     <span>5 min read</span>
                                 </div>

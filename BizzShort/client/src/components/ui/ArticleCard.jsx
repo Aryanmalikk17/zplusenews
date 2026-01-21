@@ -33,6 +33,9 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
         })
         : 'Today';
 
+    // Handle author - can be string or object with name property
+    const authorName = typeof author === 'object' ? author?.name : author;
+
     const displayExcerpt = excerpt || (content ? content.substring(0, 120) + '...' : '');
     const articleUrl = `/article/${slug || _id}`;
     const imageUrl = image || `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600`;
@@ -82,7 +85,7 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                             )}
                             <h2 className="article-card-featured-title">{title}</h2>
                             <div className="article-card-featured-meta">
-                                {author && <span>By {author}</span>}
+                                {authorName && <span>By {authorName}</span>}
                                 <span>{formattedDate}</span>
                             </div>
                         </div>
@@ -118,7 +121,7 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                     )}
                     <div className="article-card-meta">
                         <div className="article-card-author">
-                            {author && <span>By {author}</span>}
+                            {authorName && <span>By {authorName}</span>}
                         </div>
                         <span className="article-card-date">{formattedDate}</span>
                     </div>
