@@ -5,16 +5,16 @@
 
 /* ===== CSS VARIABLES ===== */
 :root {
-    /* Primary Colors - Bright Blue */
-    --primary: #3b82f6;
-    --primary-light: #60a5fa;
-    --primary-dark: #2563eb;
+    /* Primary Colors - Brand Red */
+    --primary: #AA2123;
+    --primary-light: #cc3b3d;
+    --primary-dark: #8a1a1c;
 
     /* Accent Colors */
     --accent-blue: #0ea5e9;
     --accent-teal: #14b8a6;
     --accent-gold: #f59e0b;
-    --accent-purple: #8b5cf6;
+    --accent-purple: #AA2123;
     --accent-pink: #ec4899;
 
     /* Neutrals */
@@ -51,7 +51,7 @@
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
-    --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+    --shadow-glow: 0 0 40px rgba(170, 33, 35, 0.15);
 
     /* Border Radius */
     --radius-sm: 6px;

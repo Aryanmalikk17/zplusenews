@@ -94,12 +94,12 @@
 .top-navbar-menu-item>a:hover,
 .top-navbar-menu-item>button:hover {
     color: var(--primary);
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(170, 33, 35, 0.08);
 }
 
 .top-navbar-menu-item>a.active {
     color: var(--primary);
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(170, 33, 35, 0.12);
     font-weight: 600;
 }
 
@@ -148,7 +148,7 @@
 
 .dropdown-menu a:hover {
     color: var(--primary);
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(170, 33, 35, 0.08);
     transform: translateX(4px);
 }
 
@@ -175,7 +175,7 @@
 
 .top-navbar-actions .search-btn:hover {
     color: var(--primary);
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(170, 33, 35, 0.1);
     transform: scale(1.05);
 }
 
@@ -310,7 +310,7 @@
 .mobile-menu-links a:hover,
 .mobile-menu-links a.active {
     color: var(--primary);
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(170, 33, 35, 0.08);
 }
 
 .mobile-menu-links a.active {

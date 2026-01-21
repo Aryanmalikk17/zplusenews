@@ -5,7 +5,7 @@
 
 .footer {
     position: relative;
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e1b4b 100%);
+    background: linear-gradient(135deg, rgba(170, 33, 35, 0.95) 0%, #1a0a0a 50%, rgba(170, 33, 35, 0.85) 100%);
     padding: 0;
     margin-top: 80px;
     overflow: hidden;
@@ -19,7 +19,7 @@
     left: -100px;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(170, 33, 35, 0.4) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -30,7 +30,7 @@
     right: -100px;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(170, 33, 35, 0.3) 0%, transparent 70%);
     pointer-events: none;
 }
 
