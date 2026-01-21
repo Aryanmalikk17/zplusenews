@@ -388,23 +388,46 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 36px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .section-header h2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--text-primary);
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+}
+
+.section-header h2 .section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary) 0%, #d32f2f 100%);
+    border-radius: var(--radius-lg);
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(170, 33, 35, 0.25);
+}
+
+.section-header h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -17px;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent-orange));
+    border-radius: 3px;
 }
 
 .section-header h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 40px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent-purple));
-    border-radius: 3px;
+    display: none;
 }
 
 .section-header .view-all {
@@ -414,15 +437,18 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 16px;
-    background: rgba(59, 130, 246, 0.08);
+    padding: 10px 20px;
+    background: linear-gradient(135deg, rgba(170, 33, 35, 0.08) 0%, rgba(170, 33, 35, 0.04) 100%);
     border-radius: var(--radius-full);
     transition: all var(--transition-fast);
+    border: 1px solid rgba(170, 33, 35, 0.1);
 }
 
 .section-header .view-all:hover {
-    background: rgba(170, 33, 35, 0.15);
+    background: linear-gradient(135deg, rgba(170, 33, 35, 0.15) 0%, rgba(170, 33, 35, 0.08) 100%);
     gap: 10px;
+    transform: translateX(2px);
+    border-color: rgba(170, 33, 35, 0.2);
 }
 
 /* Category Tabs - Glassmorphism */

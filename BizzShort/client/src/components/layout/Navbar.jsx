@@ -144,6 +144,23 @@ export default function Navbar() {
                 </div>
             </header>
 
+            {/* Category Bar - Dark horizontal bar with news categories */}
+            <nav className="category-bar">
+                <div className="container">
+                    <div className="category-bar-links">
+                        <Link to="/india">India</Link>
+                        <Link to="/world">World</Link>
+                        <Link to="/local">Local</Link>
+                        <Link to="/business">Business</Link>
+                        <Link to="/technology">Technology</Link>
+                        <Link to="/entertainment">Entertainment</Link>
+                        <Link to="/sports">Sports</Link>
+                        <Link to="/science">Science</Link>
+                        <Link to="/health">Health</Link>
+                    </div>
+                </div>
+            </nav>
+
             {/* Mobile Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
