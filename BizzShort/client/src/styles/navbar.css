@@ -317,86 +317,10 @@
     font-weight: 600;
 }
 
-/* ===== CATEGORY BAR ===== */
-.category-bar {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    right: 0;
-    z-index: 999;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.category-bar .container {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-.category-bar-links {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.category-bar-links::-webkit-scrollbar {
-    display: none;
-}
-
-.category-bar-links a {
-    padding: 14px 20px;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    transition: all var(--transition-fast);
-    position: relative;
-}
-
-.category-bar-links a::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent-orange));
-    border-radius: 3px 3px 0 0;
-    transition: width var(--transition-fast);
-}
-
-.category-bar-links a:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.category-bar-links a:hover::before {
-    width: 60%;
-}
-
-.category-bar-links a.active {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.category-bar-links a.active::before {
-    width: 60%;
-}
-
 /* ===== MAIN CONTENT WRAPPER ===== */
 .main-wrapper {
     margin-left: 0;
-    padding-top: calc(var(--navbar-height) + 48px);
-    /* Account for category bar height */
+    padding-top: var(--navbar-height);
     min-height: 100vh;
 }
 
@@ -419,20 +343,5 @@
     .top-navbar-logo img {
         width: 36px;
         height: 36px;
-    }
-
-    /* Category Bar Responsive */
-    .category-bar-links {
-        justify-content: flex-start;
-        padding: 0 8px;
-    }
-
-    .category-bar-links a {
-        padding: 12px 14px;
-        font-size: 13px;
-    }
-
-    .main-wrapper {
-        padding-top: calc(var(--navbar-height) + 44px);
     }
 }

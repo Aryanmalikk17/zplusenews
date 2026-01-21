@@ -8,7 +8,7 @@ import VideoCard from './VideoCard';
  */
 export default function NewsCategorySection({
     title,
-    icon = '📰',
+    icon = '',
     articles = [],
     videos = [],
     showViewAll = true,
@@ -47,7 +47,7 @@ export default function NewsCategorySection({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                 >
-                    <h2>{icon} {title}</h2>
+                    <h2>{icon && `${icon} `}{title}</h2>
                     {showViewAll && (
                         <Link to={viewAllLink} className="view-all">
                             View All →

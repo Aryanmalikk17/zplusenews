@@ -117,7 +117,7 @@ export default function Home() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
-                        <h2>🔥 Latest News</h2>
+                        <h2>Latest News</h2>
                         <a href="/latest" className="view-all">View All →</a>
                     </motion.div>
 
@@ -191,7 +191,7 @@ export default function Home() {
             {/* ============ BUSINESS & MARKETS ============ */}
             <NewsCategorySection
                 title="Business & Markets"
-                icon="💼"
+                icon=""
                 articles={businessArticles.length > 0 ? businessArticles : articles.slice(0, 4)}
                 videos={businessVideos}
                 layout="featured"
@@ -208,7 +208,7 @@ export default function Home() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <h2>🚀 Technology</h2>
+                        <h2>Technology</h2>
                         <a href="/technology" className="view-all">View All →</a>
                     </motion.div>
 
@@ -228,7 +228,7 @@ export default function Home() {
                         {/* Sidebar - Popular This Week */}
                         <aside className="sidebar-area">
                             <div className="sidebar-widget">
-                                <h3 className="widget-title">📈 Trending This Week</h3>
+                                <h3 className="widget-title">Trending This Week</h3>
                                 {popularArticles.length > 0 ? (
                                     popularArticles.map((article, index) => (
                                         <div key={article._id || index} className="popular-article">
@@ -246,7 +246,7 @@ export default function Home() {
 
                             {/* Newsletter */}
                             <div className="sidebar-widget newsletter-widget">
-                                <h3 className="widget-title">📬 Newsletter</h3>
+                                <h3 className="widget-title">Newsletter</h3>
                                 <p>Get the latest news delivered to your inbox.</p>
                                 <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
                                     <input type="email" placeholder="Your email" required />
@@ -268,7 +268,7 @@ export default function Home() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2>📹 Video News</h2>
+                            <h2>Video News</h2>
                             <a href="/videos" className="view-all">View All →</a>
                         </motion.div>
 
@@ -309,7 +309,7 @@ export default function Home() {
             {(worldArticles.length > 0 || articles.length > 8) && (
                 <NewsCategorySection
                     title="World News"
-                    icon="🌍"
+                    icon=""
                     articles={worldArticles.length > 0 ? worldArticles : articles.slice(8, 12)}
                     videos={[]}
                     layout="grid"

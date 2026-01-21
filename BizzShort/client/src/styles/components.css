@@ -387,68 +387,80 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 36px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 40px;
+    position: relative;
 }
 
 .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--text-primary);
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 0;
     letter-spacing: -0.5px;
+    font-family: var(--font-heading);
+    text-transform: capitalize;
 }
 
-.section-header h2 .section-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--primary) 0%, #d32f2f 100%);
-    border-radius: var(--radius-lg);
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(170, 33, 35, 0.25);
-}
-
+/* Remove emoji display - apply styling to text only */
 .section-header h2::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -17px;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent-orange));
-    border-radius: 3px;
+    display: none;
 }
 
 .section-header h2::after {
-    display: none;
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, #ff6b6b 50%, var(--accent-orange) 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.section-header:hover h2::after {
+    width: 80px;
 }
 
 .section-header .view-all {
     font-size: 14px;
     font-weight: 600;
-    color: var(--primary);
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, rgba(170, 33, 35, 0.08) 0%, rgba(170, 33, 35, 0.04) 100%);
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
     border-radius: var(--radius-full);
     transition: all var(--transition-fast);
-    border: 1px solid rgba(170, 33, 35, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.section-header .view-all::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-orange) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
 }
 
 .section-header .view-all:hover {
-    background: linear-gradient(135deg, rgba(170, 33, 35, 0.15) 0%, rgba(170, 33, 35, 0.08) 100%);
-    gap: 10px;
-    transform: translateX(2px);
-    border-color: rgba(170, 33, 35, 0.2);
+    color: #ffffff;
+    border-color: transparent;
+    gap: 12px;
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(170, 33, 35, 0.3);
+}
+
+.section-header .view-all:hover::before {
+    opacity: 1;
 }
 
 /* Category Tabs - Glassmorphism */
