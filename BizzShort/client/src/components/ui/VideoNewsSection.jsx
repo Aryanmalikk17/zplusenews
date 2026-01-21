@@ -62,7 +62,18 @@ export default function VideoNewsSection() {
     }
 
     if (error || videos.length === 0) {
-        return null; // Don't show section if no videos
+        return (
+            <section className="section video-news-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2>📹 Video News</h2>
+                    </div>
+                    <div className="empty-state">
+                        <p>No videos yet. Add Instagram videos via the admin panel to display them here.</p>
+                    </div>
+                </div>
+            </section>
+        );
     }
 
     return (
