@@ -634,6 +634,23 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* ===== BUSINESS & CALENDAR LAYOUT ===== */
+.business-calendar-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    align-items: start;
+}
+
+.business-content {
+    min-width: 0;
+    /* Prevent grid blowout */
+}
+
+.calendar-sidebar {
+    position: relative;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .hero-grid {
@@ -658,6 +675,15 @@
 
     .content-with-sidebar {
         grid-template-columns: 1fr;
+    }
+
+    .business-calendar-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-sidebar {
+        max-width: 500px;
+        margin: 0 auto;
     }
 }
 

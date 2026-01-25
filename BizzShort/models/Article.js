@@ -3,7 +3,22 @@ const mongoose = require('mongoose');
 const ArticleSchema = new mongoose.Schema({
     title: { type: String, required: true },
     slug: { type: String, unique: true },
-    category: { type: String, required: true },
+    category: { 
+        type: String, 
+        required: true,
+        enum: [
+            // Special Categories
+            'positive', 'fake-news',
+            // Level-based Categories
+            'international', 'national', 'state',
+            // Interest-based Categories
+            'economics', 'polity', 'technology', 'environment', 'sports',
+            // Legacy categories (for backward compatibility)
+            'business', 'innovation', 'tech', 'ai', 'gadgets', 'software', 
+            'startups', 'markets', 'crypto', 'general'
+        ]
+    },
+    subcategory: { type: String }, // For additional granularity
     excerpt: String,
     content: { type: String, required: true },
     image: String,

@@ -4,6 +4,7 @@ import { articlesAPI, eventsAPI, videosAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
 import NewsCategorySection from '../components/ui/NewsCategorySection';
 import ArticleCard from '../components/ui/ArticleCard';
+import HinduCalendar from '../components/ui/HinduCalendar';
 import '../styles/components.css';
 
 export default function Home() {
@@ -188,16 +189,30 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ============ BUSINESS & MARKETS ============ */}
-            <NewsCategorySection
-                title="Business & Markets"
-                icon=""
-                articles={businessArticles.length > 0 ? businessArticles : articles.slice(0, 4)}
-                videos={businessVideos}
-                layout="featured"
-                maxItems={5}
-                viewAllLink="/business"
-            />
+            {/* ============ BUSINESS & MARKETS WITH CALENDAR ============ */}
+            <section className="section business-calendar-section">
+                <div className="container">
+                    <div className="business-calendar-layout">
+                        {/* Business Content - Left Side */}
+                        <div className="business-content">
+                            <NewsCategorySection
+                                title="Business & Markets"
+                                icon=""
+                                articles={businessArticles.length > 0 ? businessArticles : articles.slice(0, 4)}
+                                videos={businessVideos}
+                                layout="featured"
+                                maxItems={5}
+                                viewAllLink="/economics"
+                            />
+                        </div>
+
+                        {/* Hindu Calendar - Right Sidebar */}
+                        <div className="calendar-sidebar">
+                            <HinduCalendar />
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* ============ TECHNOLOGY ============ */}
             <section className="section tech-section" style={{ background: 'var(--bg-secondary)' }}>

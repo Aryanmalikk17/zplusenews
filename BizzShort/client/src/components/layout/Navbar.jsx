@@ -3,45 +3,36 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../styles/navbar.css';
 
-// Icons (using simple SVG for now)
+// Icons (using simple SVG)
 const Icons = {
     Home: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>,
-    Tech: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 18H7V5h10v14z" /></svg>,
-    Business: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" /></svg>,
-    Innovation: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" /></svg>,
-    Events: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" /></svg>,
-    About: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>,
-    Contact: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>,
+    ChevronDown: () => <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" /></svg>,
     Search: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" /></svg>,
-    ChevronDown: () => <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" /></svg>,
+    Trophy: () => <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" /></svg>,
 };
 
 const menuItems = [
     { path: '/', label: 'Home', icon: 'Home' },
+    { path: '/positive-news', label: 'Positive News' },
+    { path: '/fake-news', label: 'Fake News' },
     {
-        path: '/technology',
-        label: 'Technology',
-        icon: 'Tech',
+        label: 'Levels News',
         submenu: [
-            { path: '/technology/ai', label: 'Artificial Intelligence' },
-            { path: '/technology/gadgets', label: 'Gadgets & Devices' },
-            { path: '/technology/software', label: 'Software & Apps' },
+            { path: '/international-news', label: 'International News' },
+            { path: '/national-news', label: 'National News' },
+            { path: '/state-news', label: 'State News' },
         ]
     },
     {
-        path: '/business',
-        label: 'Business',
-        icon: 'Business',
+        label: 'Interested Field',
         submenu: [
-            { path: '/business/startups', label: 'Startups' },
-            { path: '/business/markets', label: 'Markets' },
-            { path: '/business/crypto', label: 'Cryptocurrency' },
+            { path: '/economics', label: 'Economics' },
+            { path: '/polity', label: 'Polity' },
+            { path: '/technology', label: 'Technology' },
+            { path: '/environment', label: 'Environment' },
+            { path: '/sports', label: 'Sports' },
         ]
     },
-    { path: '/innovation', label: 'Innovation', icon: 'Innovation' },
-    { path: '/events', label: 'Events', icon: 'Events' },
-    { path: '/about', label: 'About', icon: 'About' },
-    { path: '/contact', label: 'Contact', icon: 'Contact' },
 ];
 
 export default function Navbar() {
@@ -70,12 +61,16 @@ export default function Navbar() {
         return location.pathname.startsWith(path);
     };
 
+    const isDropdownActive = (submenu) => {
+        return submenu.some(item => location.pathname === item.path);
+    };
+
     return (
         <>
             {/* Top Navbar - Always Visible with Glassmorphism */}
             <header className={`top-navbar glass-navbar ${isScrolled ? 'scrolled' : ''}`}>
                 <div className="container">
-                    {/* Logo */}
+                    {/* Logo & Brand */}
                     <Link to="/" className="top-navbar-logo">
                         <img src="/assets/images/logo.png" alt="ZPluse News" />
                         <span className="brand-name">ZPluse News</span>
@@ -83,29 +78,33 @@ export default function Navbar() {
 
                     {/* Menu */}
                     <nav className="top-navbar-menu">
-                        {menuItems.map((item) => (
+                        {menuItems.map((item, index) => (
                             <div
-                                key={item.path}
+                                key={item.path || index}
                                 className="top-navbar-menu-item"
-                                onMouseEnter={() => item.submenu && setOpenDropdown(item.path)}
+                                onMouseEnter={() => item.submenu && setOpenDropdown(item.label)}
                                 onMouseLeave={() => setOpenDropdown(null)}
                             >
-                                <Link
-                                    to={item.path}
-                                    className={isActive(item.path) ? 'active' : ''}
-                                >
-                                    {item.label}
-                                    {item.submenu && (
+                                {item.path ? (
+                                    <Link
+                                        to={item.path}
+                                        className={isActive(item.path) ? 'active' : ''}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ) : (
+                                    <span className={`dropdown-trigger ${isDropdownActive(item.submenu) ? 'active' : ''}`}>
+                                        {item.label}
                                         <span className="arrow">
                                             <Icons.ChevronDown />
                                         </span>
-                                    )}
-                                </Link>
+                                    </span>
+                                )}
 
                                 {/* Dropdown Menu */}
                                 {item.submenu && (
                                     <AnimatePresence>
-                                        {openDropdown === item.path && (
+                                        {openDropdown === item.label && (
                                             <motion.div
                                                 className="dropdown-menu glass-dropdown"
                                                 initial={{ opacity: 0, y: 10 }}
@@ -114,7 +113,11 @@ export default function Navbar() {
                                                 transition={{ duration: 0.15 }}
                                             >
                                                 {item.submenu.map((subitem) => (
-                                                    <Link key={subitem.path} to={subitem.path}>
+                                                    <Link
+                                                        key={subitem.path}
+                                                        to={subitem.path}
+                                                        className={isActive(subitem.path) ? 'active' : ''}
+                                                    >
                                                         {subitem.label}
                                                     </Link>
                                                 ))}
@@ -128,6 +131,10 @@ export default function Navbar() {
 
                     {/* Actions */}
                     <div className="top-navbar-actions">
+                        <Link to="/contests" className="contests-btn">
+                            <Icons.Trophy />
+                            <span>Contests</span>
+                        </Link>
                         <button aria-label="Search" className="search-btn">
                             <Icons.Search />
                         </button>
@@ -176,16 +183,43 @@ export default function Navbar() {
                                 </button>
                             </div>
                             <div className="mobile-menu-links">
-                                {menuItems.map((item) => (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        className={isActive(item.path) ? 'active' : ''}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        {item.label}
-                                    </Link>
+                                {menuItems.map((item, index) => (
+                                    <div key={item.path || index} className="mobile-menu-section">
+                                        {item.path ? (
+                                            <Link
+                                                to={item.path}
+                                                className={isActive(item.path) ? 'active' : ''}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                {item.label}
+                                            </Link>
+                                        ) : (
+                                            <>
+                                                <div className="mobile-submenu-title">{item.label}</div>
+                                                <div className="mobile-submenu">
+                                                    {item.submenu.map((subitem) => (
+                                                        <Link
+                                                            key={subitem.path}
+                                                            to={subitem.path}
+                                                            className={isActive(subitem.path) ? 'active' : ''}
+                                                            onClick={() => setIsMobileMenuOpen(false)}
+                                                        >
+                                                            {subitem.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 ))}
+                                <Link
+                                    to="/contests"
+                                    className="mobile-contests-link"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <Icons.Trophy />
+                                    <span>Contests</span>
+                                </Link>
                             </div>
                         </motion.nav>
                     </>

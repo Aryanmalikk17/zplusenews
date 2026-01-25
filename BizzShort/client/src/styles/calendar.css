@@ -1,0 +1,325 @@
+/* ============================================
+   HINDU CALENDAR WIDGET
+   Cultural calendar with festival highlighting
+============================================ */
+
+.hindu-calendar-widget {
+    background: #ffffff;
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(255, 153, 51, 0.1);
+    position: sticky;
+    top: calc(var(--navbar-height) + 24px);
+}
+
+/* ===== HEADER ===== */
+.calendar-header {
+    margin-bottom: 20px;
+}
+
+.calendar-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.calendar-title span {
+    font-size: 24px;
+    background: linear-gradient(135deg, #ff9933 0%, #138808 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===== MONTH SELECTOR ===== */
+.calendar-month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(255, 153, 51, 0.1) 0%, rgba(19, 136, 8, 0.1) 100%);
+    border-radius: var(--radius-lg);
+}
+
+.current-month {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.month-nav-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-md);
+    font-size: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.month-nav-btn:hover {
+    background: rgba(255, 153, 51, 0.1);
+    color: #ff9933;
+    border-color: #ff9933;
+}
+
+/* ===== WEEKDAYS ===== */
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.calendar-weekdays div {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 8px 0;
+}
+
+/* ===== CALENDAR GRID ===== */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: var(--radius-md);
+    position: relative;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.calendar-day.empty {
+    cursor: default;
+}
+
+.day-number {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, var(--primary) 0%, #c41e3a 100%);
+}
+
+.calendar-day.today .day-number {
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* Festival Days */
+.calendar-day.festival {
+    background: rgba(255, 153, 51, 0.1);
+    border: 1px solid rgba(255, 153, 51, 0.3);
+}
+
+.calendar-day.festival.major {
+    background: linear-gradient(135deg, rgba(255, 153, 51, 0.2) 0%, rgba(19, 136, 8, 0.1) 100%);
+    border-color: #ff9933;
+}
+
+.calendar-day.festival.national {
+    background: linear-gradient(135deg, rgba(255, 153, 51, 0.15) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(19, 136, 8, 0.15) 100%);
+    border-color: #138808;
+}
+
+.calendar-day.festival:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);
+    z-index: 10;
+}
+
+.festival-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.festival-dot {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #ff9933;
+    border-radius: 50%;
+}
+
+.calendar-day.festival.major .festival-dot {
+    background: #ff9933;
+    box-shadow: 0 0 8px rgba(255, 153, 51, 0.6);
+}
+
+.calendar-day.festival.national .festival-dot {
+    background: #138808;
+    box-shadow: 0 0 8px rgba(19, 136, 8, 0.6);
+}
+
+/* ===== LEGEND ===== */
+.calendar-legend {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.legend-dot.major {
+    background: #ff9933;
+    box-shadow: 0 0 6px rgba(255, 153, 51, 0.4);
+}
+
+.legend-dot.national {
+    background: #138808;
+    box-shadow: 0 0 6px rgba(19, 136, 8, 0.4);
+}
+
+/* ===== UPCOMING FESTIVALS ===== */
+.upcoming-festivals {
+    border-top: 2px solid rgba(0, 0, 0, 0.05);
+    padding-top: 16px;
+}
+
+.upcoming-festivals h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.festival-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-md);
+    border-left: 3px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+.festival-item:hover {
+    background: rgba(255, 153, 51, 0.1);
+    transform: translateX(4px);
+}
+
+.festival-item.major {
+    border-left-color: #ff9933;
+}
+
+.festival-item.national {
+    border-left-color: #138808;
+}
+
+.festival-item.regional {
+    border-left-color: #4facfe;
+}
+
+.festival-date {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    min-width: 50px;
+}
+
+.festival-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    .hindu-calendar-widget {
+        position: static;
+        margin: 0 auto 40px;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hindu-calendar-widget {
+        padding: 20px;
+    }
+
+    .calendar-title {
+        font-size: 18px;
+    }
+
+    .current-month {
+        font-size: 14px;
+    }
+
+    .calendar-weekdays div {
+        font-size: 11px;
+    }
+
+    .day-number {
+        font-size: 12px;
+    }
+
+    .upcoming-festivals h4 {
+        font-size: 13px;
+    }
+
+    .festival-item {
+        padding: 8px 10px;
+    }
+
+    .festival-date {
+        font-size: 10px;
+    }
+
+    .festival-name {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-legend {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
