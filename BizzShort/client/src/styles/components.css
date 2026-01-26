@@ -637,8 +637,8 @@
 /* ===== BUSINESS & CALENDAR LAYOUT ===== */
 .business-calendar-layout {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 40px;
+    grid-template-columns: 1fr 420px;
+    gap: 50px;
     align-items: start;
 }
 
@@ -648,7 +648,29 @@
 }
 
 .calendar-sidebar {
-    position: relative;
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+}
+
+/* Smooth scrollbar for calendar */
+.calendar-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calendar-sidebar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.calendar-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(170, 33, 35, 0.3);
+    border-radius: 3px;
+}
+
+.calendar-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
 
 /* ===== RESPONSIVE ===== */
