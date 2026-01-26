@@ -19,6 +19,10 @@ import Environment from './pages/Environment';
 import Sports from './pages/Sports';
 import Contests from './pages/Contests';
 
+// Admin Pages
+import AdminLogin from './pages/AdminLogin';
+import AdminPanel from './pages/AdminPanel';
+
 // Import global styles
 import './styles/index.css';
 
@@ -26,6 +30,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Main Website Routes */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="article/:slug" element={<Article />} />
@@ -52,7 +57,12 @@ export default function App() {
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
         </Route>
+
+        {/* Admin Routes (No Layout) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/panel" element={<AdminPanel />} />
       </Routes>
     </Router>
   );
 }
+
