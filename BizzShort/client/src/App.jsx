@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Article from './pages/Article';
@@ -59,10 +59,12 @@ export default function App() {
         </Route>
 
         {/* Admin Routes (No Layout) */}
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/panel" element={<AdminPanel />} />
       </Routes>
     </Router>
   );
 }
+
 
