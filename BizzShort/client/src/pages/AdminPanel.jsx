@@ -5,6 +5,8 @@ import '../styles/admin.css';
 
 export default function AdminPanel() {
     const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('articles');
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
@@ -44,10 +46,12 @@ export default function AdminPanel() {
             return;
         }
 
+        setIsAuthenticated(true);
         fetchContent();
     }, [navigate]);
 
     const fetchContent = async () => {
+        setIsLoading(true);
         try {
             const [articlesRes, videosRes] = await Promise.all([
                 articlesAPI.getAll({ limit: 100 }),
@@ -73,6 +77,8 @@ export default function AdminPanel() {
             });
         } catch (error) {
             console.error('Error fetching content:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -80,6 +86,16 @@ export default function AdminPanel() {
         localStorage.removeItem('adminToken');
         navigate('/admin/login');
     };
+
+    // Show loading while checking auth
+    if (!isAuthenticated) {
+        return (
+            <div className="admin-loading">
+                <div className="spinner"></div>
+                <p>Checking authentication...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-panel">
