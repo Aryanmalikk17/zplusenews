@@ -103,14 +103,14 @@ export default function Footer() {
                     <div className="footer-column footer-access-panel">
                         <h4>Access Panels</h4>
                         <div className="access-buttons">
-                            <a href="/admin-login.html" className="access-btn admin-btn">
+                            <Link to="/admin/login" className="access-btn admin-btn">
                                 <span className="access-icon">🔐</span>
                                 <span>Admin Panel</span>
-                            </a>
-                            <a href="/employee-login.html" className="access-btn employee-btn">
+                            </Link>
+                            <Link to="/admin/login" className="access-btn employee-btn">
                                 <span className="access-icon">👤</span>
                                 <span>Employee Panel</span>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
