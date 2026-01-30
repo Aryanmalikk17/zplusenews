@@ -11,7 +11,7 @@ const API_KEY = process.env.CURRENTS_API_KEY;
 
 // In-memory cache with TTL
 const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 60 * 60 * 1000; // 60 minutes (1 hour) - limits to ~20 API calls/day
 
 /**
  * Get cached data if valid
