@@ -24,6 +24,7 @@
   "author": "ZPluse News Team",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

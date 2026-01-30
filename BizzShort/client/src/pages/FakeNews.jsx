@@ -5,9 +5,11 @@ export default function FakeNews() {
         <CategoryPageLayout
             category="fake-news"
             title="Fake News Exposed"
-            description="Fact-checking and debunking misinformation to keep you informed with the truth"
-            heroGradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
-            icon="🔍"
+            subtitle="Truth Uncovered"
+            description="Fact-checking and debunking misinformation to keep you informed with verified truth"
+            accentColor="#ef4444"
+            heroImage="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=80"
+            iconClass="fa-solid fa-magnifying-glass"
         />
     );
 }

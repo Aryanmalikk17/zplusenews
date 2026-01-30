@@ -5,9 +5,11 @@ export default function Sports() {
         <CategoryPageLayout
             category="sports"
             title="Sports"
-            description="Latest sports news, scores, and athletic achievements"
-            heroGradient="linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)"
-            icon="⚽"
+            subtitle="Game On"
+            description="Live sports coverage, match analysis, athlete stories, and tournament updates"
+            accentColor="#f97316"
+            heroImage="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&q=80"
+            iconClass="fa-solid fa-trophy"
         />
     );
 }

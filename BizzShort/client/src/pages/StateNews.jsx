@@ -5,9 +5,11 @@ export default function StateNews() {
         <CategoryPageLayout
             category="state"
             title="State News"
-            description="Local news and updates from states across India"
-            heroGradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
-            icon="📍"
+            subtitle="Regional Pulse"
+            description="State-level news, local governance, regional developments, and community stories"
+            accentColor="#138808"
+            heroImage="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80"
+            iconClass="fa-solid fa-map-location-dot"
         />
     );
 }

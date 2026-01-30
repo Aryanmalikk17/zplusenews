@@ -425,3 +425,73 @@
         height: 36px;
     }
 }
+
+/* Very Small Mobile Devices */
+@media (max-width: 480px) {
+    .top-navbar {
+        height: 64px;
+    }
+
+    .top-navbar .container {
+        padding: 0 12px;
+    }
+
+    .top-navbar-logo {
+        gap: 8px;
+    }
+
+    .top-navbar-logo .brand-name {
+        font-size: 16px;
+    }
+
+    .top-navbar-logo img {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Hide contests button text, show icon only */
+    .contests-btn {
+        padding: 10px 14px;
+        gap: 0;
+    }
+
+    .contests-btn span {
+        display: none;
+    }
+
+    /* Improve touch targets */
+    .top-navbar-actions .search-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .mobile-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Mobile Menu Improvements */
+    .mobile-menu {
+        width: 280px;
+        padding: 20px;
+    }
+
+    .mobile-menu-links a {
+        padding: 16px;
+        min-height: 48px;
+    }
+
+    .mobile-submenu a {
+        padding: 14px 16px;
+        min-height: 44px;
+    }
+
+    .mobile-contests-link {
+        min-height: 48px;
+    }
+
+    .close-btn {
+        width: 44px;
+        height: 44px;
+    }
+}

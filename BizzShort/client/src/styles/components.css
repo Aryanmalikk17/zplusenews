@@ -739,6 +739,168 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
+    /* Article card mobile improvements */
+    .article-card-content {
+        padding: 16px;
+    }
+
+    .article-card-title {
+        font-size: 1rem;
+    }
+
+    .article-card-excerpt {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .section-header .view-all {
+        align-self: flex-start;
+    }
+}
+
+/* Tablet video grid improvement */
+@media (max-width: 900px) and (min-width: 641px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .article-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Very Small Mobile Devices */
+@media (max-width: 480px) {
+
+    /* Hero improvements */
+    .hero-main {
+        height: 280px;
+    }
+
+    .hero-main-overlay {
+        padding: 20px;
+    }
+
+    .hero-main-title {
+        font-size: 1.125rem;
+        margin-bottom: 10px;
+    }
+
+    .hero-main-meta {
+        font-size: 12px;
+        gap: 8px;
+    }
+
+    .hero-side-article {
+        height: 160px;
+    }
+
+    .hero-side-overlay {
+        padding: 16px;
+    }
+
+    .hero-side-title {
+        font-size: 0.95rem;
+    }
+
+    /* Article cards */
+    .article-card {
+        border-radius: var(--radius-lg);
+    }
+
+    .article-card-image {
+        height: 160px;
+    }
+
+    .article-card-content {
+        padding: 14px;
+    }
+
+    .article-card-title {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .article-card-excerpt {
+        font-size: 12px;
+        -webkit-line-clamp: 2;
+    }
+
+    .article-card-meta {
+        font-size: 11px;
+    }
+
+    /* Section headers */
+    .section-header h2 {
+        font-size: 1.35rem;
+    }
+
+    .section-header h2::after {
+        height: 3px;
+        width: 40px;
+    }
+
+    .section-header .view-all {
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+
+    /* Sidebar widgets */
+    .sidebar-widget {
+        padding: 18px;
+        margin-bottom: 16px;
+    }
+
+    .widget-title {
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    /* Popular articles */
+    .popular-article {
+        padding: 10px 0;
+        gap: 12px;
+    }
+
+    .popular-article-number {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .popular-article-content h4 {
+        font-size: 13px;
+    }
+
+    /* Newsletter */
+    .newsletter-form input {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .newsletter-form button {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    /* Business calendar layout */
+    .business-calendar-layout {
+        gap: 30px;
+    }
+}
+
+/* Ticker pause on hover/touch for better UX */
+.trending-ticker:hover .ticker-content,
+.trending-ticker:focus-within .ticker-content {
+    animation-play-state: paused;
 }
 
 /* ===== VIDEO NEWS SECTION ===== */
@@ -1476,4 +1638,176 @@
     .video-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ===== CURRENTS API / EXTERNAL LINK STYLES ===== */
+
+/* Live indicator in ticker */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    color: #22c55e;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.live-indicator i {
+    font-size: 10px;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* External ticker link */
+.external-ticker-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ticker-external-icon {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+/* External indicator on article cards */
+.external-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    z-index: 2;
+}
+
+.article-card-badges {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Article source tag */
+.article-source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-secondary);
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    margin-left: 8px;
+}
+
+.article-source-tag i {
+    font-size: 9px;
+}
+
+/* Article card info section */
+.article-card-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.article-read-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.article-read-time::before {
+    content: '•';
+    margin-right: 4px;
+}
+
+/* External badge for featured */
+.external-badge {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    font-size: 11px !important;
+}
+
+/* Article card compact meta */
+.article-card-compact-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.article-card-source {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* External article card styling */
+.article-card-external {
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.article-card-external::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent rgba(99, 102, 241, 0.3) transparent transparent;
+    border-radius: 0 var(--radius) 0 0;
+}
+
+/* Source badge in featured content */
+.source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    font-size: 12px;
+}
+
+.source-badge i {
+    font-size: 10px;
+}
+
+/* Trending source */
+.trending-source {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+/* Live news highlight */
+.highlight-live {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.highlight-live i {
+    animation: pulse-glow 2s ease-in-out infinite;
 }

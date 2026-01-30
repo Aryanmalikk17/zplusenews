@@ -1,24 +1,29 @@
-# robots.txt for BizzShort
-# www.bizzshort.com
+# robots.txt for ZPluse News
+# https://zplusenews.com
 
 User-agent: *
 Allow: /
-Allow: /index.html
-Allow: /article-detail.html
-Allow: /about.html
-Allow: /contact.html
-Allow: /events.html
-Allow: /assets/css/
-Allow: /assets/js/
-Allow: /assets/images/
 
-# Disallow admin pages
-Disallow: /admin-login.html
-Disallow: /admin.html
-Disallow: /admin/
+# Allow crawling of assets
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.svg
 
-# Disallow API endpoints from crawling
+# Disallow admin and API endpoints
+Disallow: /admin
+Disallow: /admin/*
 Disallow: /api/
+Disallow: /api/*
+
+# Disallow temporary and development files
+Disallow: /*.json
+Disallow: /node_modules/
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://bizzshort.onrender.com/sitemap.xml
+Sitemap: https://zplusenews.com/sitemap.xml

@@ -64,7 +64,7 @@ export default function Footer() {
                     </div>
 
                     {/* Categories Column */}
-                    <div className="footer-column">
+                    <nav className="footer-column" aria-label="Category links">
                         <h4>Categories</h4>
                         <ul>
                             {footerLinks.categories.map((link) => (
@@ -73,10 +73,10 @@ export default function Footer() {
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </nav>
 
                     {/* Company Column */}
-                    <div className="footer-column">
+                    <nav className="footer-column" aria-label="Company links">
                         <h4>Company</h4>
                         <ul>
                             {footerLinks.company.map((link) => (
@@ -85,10 +85,10 @@ export default function Footer() {
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </nav>
 
                     {/* Legal Column */}
-                    <div className="footer-column">
+                    <nav className="footer-column" aria-label="Legal links">
                         <h4>Legal</h4>
                         <ul>
                             {footerLinks.legal.map((link) => (
@@ -97,7 +97,7 @@ export default function Footer() {
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </nav>
 
                     {/* Access Panel Column */}
                     <div className="footer-column footer-access-panel">

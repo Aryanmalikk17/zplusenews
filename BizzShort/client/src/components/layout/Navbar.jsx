@@ -77,7 +77,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* Menu */}
-                    <nav className="top-navbar-menu">
+                    <nav className="top-navbar-menu" aria-label="Main navigation">
                         {menuItems.map((item, index) => (
                             <div
                                 key={item.path || index}
@@ -142,6 +142,7 @@ export default function Navbar() {
                             className={`mobile-toggle ${isMobileMenuOpen ? 'active' : ''}`}
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label="Toggle menu"
+                            aria-expanded={isMobileMenuOpen}
                         >
                             <span></span>
                             <span></span>

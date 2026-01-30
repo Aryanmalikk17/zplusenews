@@ -193,6 +193,10 @@ const protect = async (req, res, next) => {
     }
 };
 
+// ============ CurrentsAPI Routes (News Proxy) ============
+const currentsRoutes = require('./routes/currentsRoutes');
+app.use('/api/news', currentsRoutes);
+
 // ============ Setup Route (Emergency Seed) ============
 
 // Health Check Endpoint

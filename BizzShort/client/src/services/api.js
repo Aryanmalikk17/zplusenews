@@ -80,3 +80,12 @@ export const clientsAPI = {
 export const healthAPI = {
   check: () => api.get('/health'),
 };
+
+// News (CurrentsAPI via backend proxy)
+export const newsAPI = {
+  getLatest: (params) => api.get('/news/latest', { params }),
+  search: (params) => api.get('/news/search', { params }),
+  getByCategory: (category, params = {}) => api.get(`/news/category/${category}`, { params }),
+  getTrending: (params) => api.get('/news/trending', { params }),
+};
+

@@ -4,10 +4,12 @@ export default function NationalNews() {
     return (
         <CategoryPageLayout
             category="national"
-            title="National News"
-            description="Breaking news and updates from across India"
-            heroGradient="linear-gradient(135deg, #ff9a56 0%, #ff6a00 100%)"
-            icon="🇮🇳"
+            title="National"
+            subtitle="India Today"
+            description="National headlines, domestic affairs, policy updates, and stories from across India"
+            accentColor="#ff9933"
+            heroImage="https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1600&q=80"
+            iconClass="fa-solid fa-flag"
         />
     );
 }

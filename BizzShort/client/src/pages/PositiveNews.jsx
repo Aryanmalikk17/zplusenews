@@ -5,9 +5,11 @@ export default function PositiveNews() {
         <CategoryPageLayout
             category="positive"
             title="Positive News"
-            description="Uplifting stories that inspire hope and celebrate humanity's achievements"
-            heroGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            icon="🌟"
+            subtitle="Good News That Matters"
+            description="Uplifting stories that inspire hope and celebrate humanity's achievements and breakthroughs"
+            accentColor="#22c55e"
+            heroImage="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80"
+            iconClass="fa-solid fa-sun"
         />
     );
 }

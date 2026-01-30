@@ -5,9 +5,11 @@ export default function Technology() {
         <CategoryPageLayout
             category="technology"
             title="Technology"
-            description="Latest tech news, innovations, and digital trends"
-            heroGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            icon="💻"
+            subtitle="Tech Innovations"
+            description="Cutting-edge technology news, gadget reviews, AI developments, and digital transformation"
+            accentColor="#6366f1"
+            heroImage="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=80"
+            iconClass="fa-solid fa-microchip"
         />
     );
 }

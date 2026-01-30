@@ -5,9 +5,11 @@ export default function Environment() {
         <CategoryPageLayout
             category="environment"
             title="Environment"
-            description="Climate change, sustainability, and environmental conservation news"
-            heroGradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
-            icon="🌱"
+            subtitle="Green Planet"
+            description="Environmental news, climate change updates, sustainability initiatives, and conservation efforts"
+            accentColor="#10b981"
+            heroImage="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=80"
+            iconClass="fa-solid fa-leaf"
         />
     );
 }

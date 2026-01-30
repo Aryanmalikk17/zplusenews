@@ -5,9 +5,11 @@ export default function Polity() {
         <CategoryPageLayout
             category="polity"
             title="Polity"
-            description="Political news, governance, and policy updates"
-            heroGradient="linear-gradient(135deg, #5f72bd 0%, #9921e8 100%)"
-            icon="🏛️"
+            subtitle="Political Pulse"
+            description="Political news, governance updates, policy analysis, and democratic developments"
+            accentColor="#0ea5e9"
+            heroImage="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&q=80"
+            iconClass="fa-solid fa-landmark"
         />
     );
 }

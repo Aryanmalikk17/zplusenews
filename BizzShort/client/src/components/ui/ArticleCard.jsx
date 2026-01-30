@@ -22,11 +22,15 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
         author,
         image,
         date,
+        createdAt,
         views,
+        isExternal,
+        source,
+        readTime,
     } = article;
 
-    const formattedDate = date
-        ? new Date(date).toLocaleDateString('en-US', {
+    const formattedDate = (date || createdAt)
+        ? new Date(date || createdAt).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
@@ -37,8 +41,25 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
     const authorName = typeof author === 'object' ? author?.name : author;
 
     const displayExcerpt = excerpt || (content ? content.substring(0, 120) + '...' : '');
-    const articleUrl = `/article/${slug || _id}`;
+    const articleUrl = isExternal ? source?.url : `/article/${slug || _id}`;
     const imageUrl = image || `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600`;
+
+    // Wrapper component for links
+    const CardLink = ({ children, className }) => {
+        if (isExternal) {
+            return (
+                <a
+                    href={articleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                >
+                    {children}
+                </a>
+            );
+        }
+        return <Link to={articleUrl} className={className}>{children}</Link>;
+    };
 
     // Compact variant for sidebar lists
     if (variant === 'compact') {
@@ -50,15 +71,32 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                 animate="visible"
                 transition={{ delay: index * 0.1 }}
             >
-                <Link to={articleUrl} className="article-card-compact-inner">
+                <CardLink className="article-card-compact-inner">
                     <div className="article-card-compact-image">
-                        <img src={imageUrl} alt={title} loading="lazy" />
+                        <img
+                            src={imageUrl}
+                            alt={title}
+                            loading="lazy"
+                            onError={(e) => {
+                                e.target.src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600';
+                            }}
+                        />
+                        {isExternal && (
+                            <span className="external-indicator" title="External Source">
+                                <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                            </span>
+                        )}
                     </div>
                     <div className="article-card-compact-content">
                         <h4 className="article-card-compact-title">{title}</h4>
-                        <span className="article-card-compact-date">{formattedDate}</span>
+                        <div className="article-card-compact-meta">
+                            <span className="article-card-compact-date">{formattedDate}</span>
+                            {source?.name && (
+                                <span className="article-card-source">• {source.name}</span>
+                            )}
+                        </div>
                     </div>
-                </Link>
+                </CardLink>
             </motion.article>
         );
     }
@@ -74,23 +112,38 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
             >
-                <Link to={articleUrl}>
+                <CardLink>
                     <div className="article-card-featured-image">
-                        <img src={imageUrl} alt={title} loading="lazy" />
+                        <img
+                            src={imageUrl}
+                            alt={title}
+                            loading="lazy"
+                            onError={(e) => {
+                                e.target.src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600';
+                            }}
+                        />
                         <div className="article-card-featured-overlay">
-                            {category && (
-                                <span className={`category-badge ${category.toLowerCase()}`}>
-                                    {category}
-                                </span>
-                            )}
+                            <div className="article-card-featured-badges">
+                                {category && (
+                                    <span className={`category-badge ${category.toLowerCase()}`}>
+                                        {category}
+                                    </span>
+                                )}
+                                {isExternal && (
+                                    <span className="category-badge external-badge">
+                                        <i className="fa-solid fa-external-link"></i> External
+                                    </span>
+                                )}
+                            </div>
                             <h2 className="article-card-featured-title">{title}</h2>
                             <div className="article-card-featured-meta">
                                 {authorName && <span>By {authorName}</span>}
                                 <span>{formattedDate}</span>
+                                {source?.name && <span>via {source.name}</span>}
                             </div>
                         </div>
                     </div>
-                </Link>
+                </CardLink>
             </motion.article>
         );
     }
@@ -98,21 +151,35 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
     // Default card variant
     return (
         <motion.article
-            className="article-card"
+            className={`article-card ${isExternal ? 'article-card-external' : ''}`}
             variants={cardVariants}
             initial="hidden"
             animate="visible"
             transition={{ delay: index * 0.1 }}
             whileHover={{ y: -5 }}
         >
-            <Link to={articleUrl}>
+            <CardLink>
                 <div className="article-card-image">
-                    <img src={imageUrl} alt={title} loading="lazy" />
-                    {category && (
-                        <span className={`category-badge ${category.toLowerCase()}`}>
-                            {category}
-                        </span>
-                    )}
+                    <img
+                        src={imageUrl}
+                        alt={title}
+                        loading="lazy"
+                        onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600';
+                        }}
+                    />
+                    <div className="article-card-badges">
+                        {category && (
+                            <span className={`category-badge ${category.toLowerCase()}`}>
+                                {category}
+                            </span>
+                        )}
+                        {isExternal && (
+                            <span className="external-indicator" title="Opens in new tab">
+                                <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className="article-card-content">
                     <h3 className="article-card-title">{title}</h3>
@@ -122,11 +189,19 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                     <div className="article-card-meta">
                         <div className="article-card-author">
                             {authorName && <span>By {authorName}</span>}
+                            {source?.name && (
+                                <span className="article-source-tag">
+                                    <i className="fa-solid fa-external-link"></i> {source.name}
+                                </span>
+                            )}
                         </div>
-                        <span className="article-card-date">{formattedDate}</span>
+                        <div className="article-card-info">
+                            <span className="article-card-date">{formattedDate}</span>
+                            {readTime && <span className="article-read-time">{readTime}</span>}
+                        </div>
                     </div>
                 </div>
-            </Link>
+            </CardLink>
         </motion.article>
     );
 }

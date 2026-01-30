@@ -5,9 +5,11 @@ export default function Economics() {
         <CategoryPageLayout
             category="economics"
             title="Economics"
-            description="Financial news, market trends, and economic analysis"
-            heroGradient="linear-gradient(135deg, #2dce89 0%, #2dcecc 100%)"
-            icon="💰"
+            subtitle="Market Watch"
+            description="Financial markets, economic trends, business analysis, and investment insights"
+            accentColor="#f59e0b"
+            heroImage="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&q=80"
+            iconClass="fa-solid fa-chart-line"
         />
     );
 }
