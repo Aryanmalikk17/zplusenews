@@ -43,21 +43,23 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // Security Middleware
-// Set security headers
+// Set security headers - Configured to allow Vite-generated assets
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
-            connectSrc: ["'self'", "https://zplusenews.com"],
-            frameSrc: ["'self'", "https://www.youtube.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", "blob:", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
+            imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
+            connectSrc: ["'self'", "https://zplusenews.com", "https://www.zplusenews.com", "https://zplusenews.onrender.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+            frameSrc: ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
+            workerSrc: ["'self'", "blob:"],
+            mediaSrc: ["'self'", "https:", "blob:"],
         }
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: false // Disable to allow static assets to load
 }));
 
 // Rate limiting
