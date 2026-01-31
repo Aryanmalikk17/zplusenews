@@ -223,12 +223,19 @@ async function searchNews(keywords = '', options = {}) {
 }
 
 /**
- * Get news by category with improved keyword targeting and fallback logic
+ * Get news by category - Simplified to avoid rate limiting
+ * Makes only ONE API call per category
  */
 async function getNewsByCategory(category, options = {}) {
     if (!API_KEY) {
         console.warn('[CurrentsAPI] No API key configured');
         return [];
+    }
+
+    // Check if we're rate limited
+    if (isRateLimited()) {
+        console.warn('[CurrentsAPI] Rate limited, returning cached or empty');
+        return getCached(`category_${category?.toLowerCase()}_${options.language || 'en'}`) || [];
     }
 
     const categoryLower = category?.toLowerCase()?.trim();
@@ -239,84 +246,65 @@ async function getNewsByCategory(category, options = {}) {
     if (cached) return cached;
 
     try {
-        let articles = [];
+        // Use ONLY keyword search if we have keywords, otherwise use category endpoint
+        // This reduces from 3 API calls to 1
+        let params = {
+            apiKey: API_KEY,
+            language: options.language || 'en',
+        };
 
-        // Strategy 1: Search with keywords for better targeting
+        let endpoint = `${CURRENTS_API_URL}/latest-news`;
+
         if (keywords) {
-            const searchParams = {
-                apiKey: API_KEY,
-                language: options.language || 'en',
-                keywords: keywords,
-            };
-
-            console.log(`[CurrentsAPI] Searching category "${category}" with keywords...`, searchParams);
-
-            try {
-                const searchResponse = await axios.get(`${CURRENTS_API_URL}/search`, {
-                    params: searchParams,
-                    timeout: 10000
-                });
-                articles = (searchResponse.data.news || []).map(a => transformArticle(a, category));
-            } catch (searchError) {
-                console.log(`[CurrentsAPI] Keyword search failed, trying category...`, searchError.message);
-            }
+            // Use search endpoint with keywords for better targeting
+            endpoint = `${CURRENTS_API_URL}/search`;
+            params.keywords = keywords;
+        } else {
+            // Use latest-news with category filter
+            params.category = currentsCategory;
         }
 
-        // Strategy 2: If search returned few results, try category endpoint
-        if (articles.length < 5) {
-            const categoryParams = {
-                apiKey: API_KEY,
-                language: options.language || 'en',
-                category: currentsCategory,
-            };
+        console.log(`[CurrentsAPI] Fetching "${category}"...`, { endpoint: endpoint.split('/').pop(), ...params, apiKey: '***' });
 
-            console.log(`[CurrentsAPI] Fetching by category "${currentsCategory}"...`, categoryParams);
+        const response = await axios.get(endpoint, {
+            params,
+            timeout: 15000
+        });
 
-            try {
-                const categoryResponse = await axios.get(`${CURRENTS_API_URL}/latest-news`, {
-                    params: categoryParams,
-                    timeout: 10000
-                });
-                const categoryArticles = (categoryResponse.data.news || []).map(a => transformArticle(a, category));
-                
-                // Merge articles, avoiding duplicates
-                const existingIds = new Set(articles.map(a => a._id));
-                categoryArticles.forEach(article => {
-                    if (!existingIds.has(article._id)) {
-                        articles.push(article);
-                    }
-                });
-            } catch (categoryError) {
-                console.log(`[CurrentsAPI] Category endpoint failed:`, categoryError.message);
-            }
-        }
-
-        // Strategy 3: If still empty, get latest news as fallback
-        if (articles.length === 0) {
-            console.log(`[CurrentsAPI] No results for "${category}", falling back to latest news...`);
-            
-            try {
-                const latestResponse = await axios.get(`${CURRENTS_API_URL}/latest-news`, {
-                    params: {
-                        apiKey: API_KEY,
-                        language: options.language || 'en',
-                    },
-                    timeout: 10000
-                });
-                articles = (latestResponse.data.news || []).map(a => transformArticle(a, category));
-            } catch (latestError) {
-                console.error(`[CurrentsAPI] Latest news fallback failed:`, latestError.message);
-            }
-        }
-
-        setCache(cacheKey, articles);
-        console.log(`[CurrentsAPI] Fetched ${articles.length} articles for "${category}"`);
+        const articles = (response.data.news || []).map(a => transformArticle(a, category));
         
+        // Only cache if we got results
+        if (articles.length > 0) {
+            setCache(cacheKey, articles);
+        }
+        
+        console.log(`[CurrentsAPI] Fetched ${articles.length} articles for "${category}"`);
         return articles;
+
     } catch (error) {
+        // Handle rate limiting
+        if (error.response?.status === 429) {
+            console.warn('[CurrentsAPI] Rate limited! Waiting before next request...');
+            setRateLimited();
+            return [];
+        }
+        
         console.error(`[CurrentsAPI] Error fetching category ${category}:`, error.message);
-        throw error;
+        return []; // Return empty instead of throwing
     }
+}
+
+// Rate limit tracking
+let rateLimitedUntil = 0;
+
+function isRateLimited() {
+    return Date.now() < rateLimitedUntil;
+}
+
+function setRateLimited() {
+    // Wait 5 minutes before trying again after a rate limit
+    rateLimitedUntil = Date.now() + (5 * 60 * 1000);
+    console.log('[CurrentsAPI] Rate limit set, will retry in 5 minutes');
 }
 
 /**
