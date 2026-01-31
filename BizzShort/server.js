@@ -9,7 +9,6 @@ const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
-const xss = require('xss-clean');
 const validator = require('validator');
 
 // Load env vars
@@ -42,7 +41,31 @@ const PORT = process.env.PORT || 3000;
 // This allows express-rate-limit to correctly identify users behind proxies
 app.set('trust proxy', 1);
 
-// Security Middleware
+// ============ STATIC FILES FIRST (Before any security middleware) ============
+// This ensures static assets are served directly without processing
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Serve React client build in production - MUST be before other middleware
+if (process.env.NODE_ENV === 'production') {
+    // Serve static assets with proper MIME types
+    app.use(express.static(path.join(__dirname, 'client', 'dist'), {
+        maxAge: '1d',
+        etag: true,
+        setHeaders: (res, filePath) => {
+            // Set correct MIME types for JavaScript and CSS
+            if (filePath.endsWith('.js')) {
+                res.setHeader('Content-Type', 'application/javascript');
+            } else if (filePath.endsWith('.css')) {
+                res.setHeader('Content-Type', 'text/css');
+            }
+        }
+    }));
+} else {
+    // Development: serve root directory for any legacy static files
+    app.use(express.static(path.join(__dirname)));
+}
+
+// ============ SECURITY MIDDLEWARE (Only for API routes) ============
 // Set security headers - Configured to allow Vite-generated assets
 app.use(helmet({
     contentSecurityPolicy: {
@@ -59,7 +82,7 @@ app.use(helmet({
         }
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: false // Disable to allow static assets to load
+    crossOriginResourcePolicy: false
 }));
 
 // Rate limiting
@@ -71,7 +94,7 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Apply rate limiting to API routes
+// Apply rate limiting to API routes only
 app.use('/api/', limiter);
 
 // Stricter rate limit for authentication
@@ -81,11 +104,8 @@ const authLimiter = rateLimit({
     message: 'Too many login attempts from this IP, please try again after 15 minutes.'
 });
 
-// Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
-
-// Data sanitization against XSS
-app.use(xss());
+// Data sanitization against NoSQL query injection (API routes only)
+app.use('/api/', mongoSanitize());
 
 // CORS Configuration with whitelist
 const allowedOrigins = (process.env.CORS_ORIGIN || '')
@@ -118,19 +138,10 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// Middleware
+// Body parsing middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve React client build in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, 'client', 'dist')));
-} else {
-    // Development: serve root directory for any legacy static files
-    app.use(express.static(path.join(__dirname)));
-}
 
 // Configure Multer for File Uploads
 const storage = multer.diskStorage({
