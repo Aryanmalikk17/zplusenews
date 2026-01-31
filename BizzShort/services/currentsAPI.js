@@ -51,13 +51,31 @@ const CATEGORY_MAP = {
     'sports': 'sports',
     'international': 'world',
     'world': 'world',
-    'national': 'regional',
-    'india': 'regional',
+    'national': 'general', // Changed from 'regional' for better results
+    'india': 'general',
     'positive': 'general',
-    'state': 'regional',
+    'state': 'general', // Changed from 'regional' for better results
     'entertainment': 'entertainment',
     'health': 'health',
     'science': 'science',
+    'fake-news': 'general', // Now fetches general news for fact-checking
+};
+
+/**
+ * Category-specific keywords to improve search relevance
+ * These are used with the search API for better targeting
+ */
+const CATEGORY_KEYWORDS = {
+    'positive': 'achievement success breakthrough innovation inspiring good news positive',
+    'national': 'India government Modi parliament Delhi Indian policy',
+    'state': 'India state government regional local development',
+    'technology': 'AI technology startup innovation tech digital software',
+    'business': 'market stock economy company CEO investment startup',
+    'sports': 'cricket football IPL sports Olympics match tournament',
+    'international': 'global world international UN USA China Europe',
+    'environment': 'climate environment green sustainable carbon pollution',
+    'polity': 'election government parliament democracy politics policy',
+    'fake-news': 'fact check misinformation verified truth debunk',
 };
 
 /**
@@ -205,7 +223,7 @@ async function searchNews(keywords = '', options = {}) {
 }
 
 /**
- * Get news by category
+ * Get news by category with improved keyword targeting and fallback logic
  */
 async function getNewsByCategory(category, options = {}) {
     if (!API_KEY) {
@@ -213,38 +231,86 @@ async function getNewsByCategory(category, options = {}) {
         return [];
     }
 
+    const categoryLower = category?.toLowerCase()?.trim();
     const currentsCategory = mapCategory(category);
-    const cacheKey = `category_${currentsCategory}_${options.language || 'en'}`;
+    const keywords = CATEGORY_KEYWORDS[categoryLower] || '';
+    const cacheKey = `category_${categoryLower}_${options.language || 'en'}`;
     const cached = getCached(cacheKey);
     if (cached) return cached;
 
     try {
-        const params = {
-            apiKey: API_KEY,
-            language: options.language || 'en',
-            category: currentsCategory,
-        };
+        let articles = [];
 
-        // Add category-specific keywords for better results
-        const categoryKeywords = {
-            'positive': 'achievement success breakthrough innovation',
-            'national': 'India Indian government',
-            'state': 'state local regional India',
-        };
+        // Strategy 1: Search with keywords for better targeting
+        if (keywords) {
+            const searchParams = {
+                apiKey: API_KEY,
+                language: options.language || 'en',
+                keywords: keywords,
+            };
 
-        if (categoryKeywords[category?.toLowerCase()]) {
-            params.keywords = categoryKeywords[category.toLowerCase()];
+            console.log(`[CurrentsAPI] Searching category "${category}" with keywords...`, searchParams);
+
+            try {
+                const searchResponse = await axios.get(`${CURRENTS_API_URL}/search`, {
+                    params: searchParams,
+                    timeout: 10000
+                });
+                articles = (searchResponse.data.news || []).map(a => transformArticle(a, category));
+            } catch (searchError) {
+                console.log(`[CurrentsAPI] Keyword search failed, trying category...`, searchError.message);
+            }
         }
 
-        console.log(`[CurrentsAPI] Fetching category: ${category}`, params);
+        // Strategy 2: If search returned few results, try category endpoint
+        if (articles.length < 5) {
+            const categoryParams = {
+                apiKey: API_KEY,
+                language: options.language || 'en',
+                category: currentsCategory,
+            };
 
-        const response = await axios.get(`${CURRENTS_API_URL}/search`, { 
-            params,
-            timeout: 10000 
-        });
+            console.log(`[CurrentsAPI] Fetching by category "${currentsCategory}"...`, categoryParams);
 
-        const articles = (response.data.news || []).map(a => transformArticle(a, category));
+            try {
+                const categoryResponse = await axios.get(`${CURRENTS_API_URL}/latest-news`, {
+                    params: categoryParams,
+                    timeout: 10000
+                });
+                const categoryArticles = (categoryResponse.data.news || []).map(a => transformArticle(a, category));
+                
+                // Merge articles, avoiding duplicates
+                const existingIds = new Set(articles.map(a => a._id));
+                categoryArticles.forEach(article => {
+                    if (!existingIds.has(article._id)) {
+                        articles.push(article);
+                    }
+                });
+            } catch (categoryError) {
+                console.log(`[CurrentsAPI] Category endpoint failed:`, categoryError.message);
+            }
+        }
+
+        // Strategy 3: If still empty, get latest news as fallback
+        if (articles.length === 0) {
+            console.log(`[CurrentsAPI] No results for "${category}", falling back to latest news...`);
+            
+            try {
+                const latestResponse = await axios.get(`${CURRENTS_API_URL}/latest-news`, {
+                    params: {
+                        apiKey: API_KEY,
+                        language: options.language || 'en',
+                    },
+                    timeout: 10000
+                });
+                articles = (latestResponse.data.news || []).map(a => transformArticle(a, category));
+            } catch (latestError) {
+                console.error(`[CurrentsAPI] Latest news fallback failed:`, latestError.message);
+            }
+        }
+
         setCache(cacheKey, articles);
+        console.log(`[CurrentsAPI] Fetched ${articles.length} articles for "${category}"`);
         
         return articles;
     } catch (error) {
