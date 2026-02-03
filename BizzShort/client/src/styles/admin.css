@@ -76,7 +76,9 @@
 .btn-login {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, var(--primary), var(--accent-orange));
+    background: #AA2123;
+    /* Fallback */
+    background: linear-gradient(135deg, var(--primary, #AA2123), var(--accent-orange, #f59e0b));
     color: white;
     font-size: 16px;
     font-weight: 700;

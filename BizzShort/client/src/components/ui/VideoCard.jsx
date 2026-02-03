@@ -10,8 +10,20 @@ export default function VideoCard({ video, featured = false }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    // Convert Instagram post ID to embed URL
+    // Convert Instagram post ID or existing URL to embed URL
     const getEmbedUrl = (videoId, source = 'instagram') => {
+        // If videoId is already a URL (legacy/migrated data)
+        if (videoId.includes('http')) {
+            if (videoId.includes('youtube') || videoId.includes('youtu.be')) {
+                const match = videoId.match(/(?:youtu\.be\/|youtube\.com\/.*v=|embed\/)([^#&?]*)/);
+                return `https://www.youtube.com/embed/${match ? match[1] : videoId}`;
+            }
+            if (videoId.includes('instagram')) {
+                return `${videoId}/embed`; // Best effort for full IG URL
+            }
+            return videoId;
+        }
+
         if (source === 'instagram') {
             return `https://www.instagram.com/p/${videoId}/embed`;
         }
@@ -22,12 +34,20 @@ export default function VideoCard({ video, featured = false }) {
     // Get thumbnail URL
     const getThumbnailUrl = () => {
         if (video.thumbnail) return video.thumbnail;
+
+        // Handle raw URL in videoId
+        let id = video.videoId;
+        if (id && id.includes('http')) {
+            const match = id.match(/(?:youtu\.be\/|youtube\.com\/.*v=|embed\/)([^#&?]*)/);
+            if (match) id = match[1];
+        }
+
         if (video.source === 'instagram') {
             // Instagram doesn't provide easy thumbnail access, use placeholder
             return '/assets/images/video-placeholder.jpg';
         }
         // YouTube thumbnail
-        return `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+        return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
     };
 
     const getCategoryClass = () => {

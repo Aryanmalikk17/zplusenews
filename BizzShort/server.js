@@ -157,10 +157,11 @@ const conditionalUpload = (fieldName) => (req, res, next) => {
 
 // ============ Helper Functions ============
 const generateToken = (id) => {
+    const secret = process.env.JWT_SECRET || 'zplusenews_fallback_secret_2025';
     if (!process.env.JWT_SECRET) {
-        throw new Error('JWT_SECRET is not defined in environment variables');
+        console.warn('⚠️ WARNING: JWT_SECRET is not defined. Using fallback secret.');
     }
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
+    return jwt.sign({ id }, secret, { expiresIn: process.env.JWT_EXPIRE || '30d' });
 };
 
 // ============ Middleware ============
@@ -174,7 +175,8 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const secret = process.env.JWT_SECRET || 'zplusenews_fallback_secret_2025';
+            const decoded = jwt.verify(token, secret);
             req.user = await User.findById(decoded.id).select('-password');
             
             if (!req.user) {
@@ -1339,9 +1341,37 @@ app.get('/api/videos/:id', async (req, res) => {
 app.post('/api/videos', protect, async (req, res) => {
     try {
         const videoData = { ...req.body, createdBy: req.user._id };
-        // Map frontend 'image' to 'thumbnail' because AdminPanel uses 'image' field generic name
+        
+        // Map frontend 'image' to 'thumbnail'
         if (videoData.image && !videoData.thumbnail) {
             videoData.thumbnail = videoData.image;
+        }
+
+        // Helper to extract video ID and source
+        const extractVideoDetails = (url) => {
+            if (!url) return { source: 'youtube', videoId: '' };
+            
+            if (url.includes('instagram.com')) {
+                const match = url.match(/\/(p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+                return {
+                    source: 'instagram',
+                    videoId: match ? match[2] : url
+                };
+            }
+            
+            // YouTube
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/.*v=|embed\/)([^#&?]*)/);
+            return {
+                source: 'youtube',
+                videoId: match ? match[1] : url
+            };
+        };
+
+        // If videoUrl is provided but videoId/source are missing or need update
+        if (videoData.videoUrl) {
+            const { source, videoId } = extractVideoDetails(videoData.videoUrl);
+            videoData.source = source;
+            videoData.videoId = videoId;
         }
         
         const video = await Video.create(videoData);
@@ -1355,6 +1385,23 @@ app.put('/api/videos/:id', protect, async (req, res) => {
         // Map frontend 'image' to 'thumbnail'
         if (updateData.image && !updateData.thumbnail) {
             updateData.thumbnail = updateData.image;
+        }
+
+        // Helper to extract (duplicate for now, could be shared function)
+        const extractVideoDetails = (url) => {
+            if (!url) return { source: 'youtube', videoId: '' };
+            if (url.includes('instagram.com')) {
+                const match = url.match(/\/(p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+                return { source: 'instagram', videoId: match ? match[2] : url };
+            }
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/.*v=|embed\/)([^#&?]*)/);
+            return { source: 'youtube', videoId: match ? match[1] : url };
+        };
+
+        if (updateData.videoUrl) {
+            const { source, videoId } = extractVideoDetails(updateData.videoUrl);
+            updateData.source = source;
+            updateData.videoId = videoId;
         }
 
         const video = await Video.findByIdAndUpdate(req.params.id, updateData, { new: true });

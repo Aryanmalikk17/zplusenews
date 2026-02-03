@@ -5,6 +5,7 @@ import Article from './pages/Article';
 import Events from './pages/Events';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Videos from './pages/Videos';
 
 // New Category Pages
 import PositiveNews from './pages/PositiveNews';
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="events" element={<Events />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="videos" element={<Videos />} />
         </Route>
 
         {/* Admin Routes (No Layout) */}
