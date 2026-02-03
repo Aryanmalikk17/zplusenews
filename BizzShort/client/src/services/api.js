@@ -12,7 +12,8 @@ const api = axios.create({
 // Request interceptor - add auth token if available
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('zplusenews_token');
+    // Check for user token first, then admin token
+    const token = localStorage.getItem('zplusenews_token') || localStorage.getItem('adminToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,8 +27,10 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('zplusenews_token');
-      // Redirect to login if needed
+      // Only remove if it's the specific token being used? 
+      // For now, let's be careful about auto-logout to avoid disrupting the user experience too much
+      // localStorage.removeItem('zplusenews_token');
+      // localStorage.removeItem('adminToken');
     }
     return Promise.reject(error.response?.data || error.message);
   }
@@ -44,17 +47,27 @@ export const articlesAPI = {
   getBySlug: (slug) => api.get(`/articles/slug/${slug}`),
   getPublicList: (params) => api.get('/articles/public/list', { params }),
   incrementViews: (id) => api.put(`/articles/${id}/view`),
+  // Admin methods
+  create: (data) => api.post('/articles', data),
+  update: (id, data) => api.put(`/articles/${id}`, data),
+  delete: (id) => api.delete(`/articles/${id}`),
 };
 
 // Events
 export const eventsAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
+  create: (data) => api.post('/events', data),
+  update: (id, data) => api.put(`/events/${id}`, data),
+  delete: (id) => api.delete(`/events/${id}`),
 };
 
 // Interviews
 export const interviewsAPI = {
   getAll: () => api.get('/interviews'),
+  create: (data) => api.post('/interviews', data),
+  update: (id, data) => api.put(`/interviews/${id}`, data),
+  delete: (id) => api.delete(`/interviews/${id}`),
 };
 
 // Advertisements
@@ -68,7 +81,11 @@ export const adsAPI = {
 
 // Videos
 export const videosAPI = {
-  getAll: () => api.get('/videos'),
+  getAll: (params) => api.get('/videos', { params }), // Added params support
+  getById: (id) => api.get(`/videos/${id}`),
+  create: (data) => api.post('/videos', data),
+  update: (id, data) => api.put(`/videos/${id}`, data),
+  delete: (id) => api.delete(`/videos/${id}`),
 };
 
 // Clients

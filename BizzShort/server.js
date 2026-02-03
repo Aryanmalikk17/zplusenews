@@ -910,7 +910,7 @@ app.get('/api/articles', async (req, res) => {
 
 app.post('/api/articles', protect, conditionalUpload('image'), async (req, res) => {
     try {
-        const { title, slug, category, excerpt, content, author, tags, videoUrl } = req.body;
+        const { title, slug, category, excerpt, content, author, tags, videoUrl, image } = req.body;
 
         let parsedAuthor = author;
         if (typeof author === 'string') {
@@ -923,17 +923,25 @@ app.post('/api/articles', protect, conditionalUpload('image'), async (req, res) 
             try { parsedTags = JSON.parse(tags); } catch { parsedTags = []; }
         }
 
-        const article = await Article.create({
+        const articleData = {
             title,
             slug: slug || (title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : undefined),
             category,
             excerpt,
             content,
-            image: req.file ? `/uploads/${req.file.filename}` : undefined,
             author: parsedAuthor,
             tags: parsedTags,
             videoUrl
-        });
+        };
+
+        // Handle image: File upload takes precedence, otherwise use URL from body
+        if (req.file) {
+            articleData.image = `/uploads/${req.file.filename}`;
+        } else if (image) {
+            articleData.image = image;
+        }
+
+        const article = await Article.create(articleData);
 
         res.status(201).json({ success: true, data: { ...article._doc, id: article._id } });
     } catch (err) {
@@ -945,8 +953,13 @@ app.post('/api/articles', protect, conditionalUpload('image'), async (req, res) 
 app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) => {
     try {
         const updateData = { ...req.body };
-        if (req.file) updateData.image = `/uploads/${req.file.filename}`;
-
+        
+        // Handle image: File upload takes precedence
+        if (req.file) {
+            updateData.image = `/uploads/${req.file.filename}`;
+        }
+        // If no file but image URL is provided in body, it stays in updateData
+        
         const article = await Article.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!article) return res.status(404).json({ success: false, error: 'Article not found' });
 
@@ -1325,14 +1338,26 @@ app.get('/api/videos/:id', async (req, res) => {
 
 app.post('/api/videos', protect, async (req, res) => {
     try {
-        const video = await Video.create({ ...req.body, createdBy: req.user._id });
+        const videoData = { ...req.body, createdBy: req.user._id };
+        // Map frontend 'image' to 'thumbnail' because AdminPanel uses 'image' field generic name
+        if (videoData.image && !videoData.thumbnail) {
+            videoData.thumbnail = videoData.image;
+        }
+        
+        const video = await Video.create(videoData);
         res.status(201).json({ success: true, data: { ...video._doc, id: video._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.put('/api/videos/:id', protect, async (req, res) => {
     try {
-        const video = await Video.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updateData = { ...req.body };
+        // Map frontend 'image' to 'thumbnail'
+        if (updateData.image && !updateData.thumbnail) {
+            updateData.thumbnail = updateData.image;
+        }
+
+        const video = await Video.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!video) return res.status(404).json({ success: false, error: 'Video not found' });
         res.json({ success: true, data: { ...video._doc, id: video._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
