@@ -457,10 +457,13 @@ app.get('/api/setup-production', async (req, res) => {
 
 // Auth & Users
 app.post('/api/admin/login', authLimiter, async (req, res) => {
+    console.log('Login attempt received:', { username: req.body?.username, hasPassword: !!req.body?.password });
+    
     const { username, password } = req.body;
     
     // Input validation
     if (!username || !password) {
+        console.log('Login failed: Missing credentials');
         return res.status(400).json({ success: false, error: 'Username and password are required' });
     }
     
@@ -468,19 +471,38 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
     const trimmedUsername = username.trim();
     
     if (!validator.isLength(trimmedUsername, { min: 3, max: 50 })) {
+        console.log('Login failed: Invalid username length');
         return res.status(400).json({ success: false, error: 'Invalid username length' });
     }
     
     try {
+        // Check database connection first
+        const dbState = require('mongoose').connection.readyState;
+        if (dbState !== 1) {
+            console.error('Login failed: Database not connected. State:', dbState);
+            return res.status(503).json({ success: false, error: 'Database not connected. Please try again later.' });
+        }
+        
         // Search by name OR email (case-insensitive for email)
+        console.log('Searching for user:', trimmedUsername);
         let user = await User.findOne({ 
             $or: [
                 { name: trimmedUsername }, 
                 { email: trimmedUsername.toLowerCase() }
             ] 
         });
+        
+        console.log('User found:', user ? { id: user._id, name: user.name, status: user.status } : 'NOT FOUND');
 
-        if (user && (await bcrypt.compare(password, user.password))) {
+        if (!user) {
+            console.log('Login failed: User not found');
+            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
+        
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log('Password match:', passwordMatch);
+        
+        if (passwordMatch) {
             // Check if user is approved
             if (user.status === 'PENDING') {
                 return res.status(403).json({ success: false, error: 'Your account is pending approval. Please wait for admin approval.' });
@@ -489,17 +511,21 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
                 return res.status(403).json({ success: false, error: 'Your account has been rejected. Please contact support.' });
             }
             
+            const token = generateToken(user._id);
+            console.log('Login successful for:', user.name);
+            
             res.json({
                 success: true,
-                sessionId: generateToken(user._id),
+                sessionId: token,
                 user: { id: user._id, name: user.name, role: user.role, status: user.status }
             });
         } else {
+            console.log('Login failed: Wrong password');
             res.status(401).json({ success: false, error: 'Invalid credentials' });
         }
     } catch (err) {
-        console.error('Login error:', err);
-        res.status(500).json({ success: false, error: 'Server error' });
+        console.error('Login error:', err.message, err.stack);
+        res.status(500).json({ success: false, error: 'Server error: ' + err.message });
     }
 });
 
