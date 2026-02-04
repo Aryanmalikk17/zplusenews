@@ -49,7 +49,8 @@ export default function TrendingTicker({ items = [] }) {
         };
 
         fetchTrending();
-    }, [items]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items.length]); // Use items.length to prevent infinite loop from array reference changes
 
     // Duplicate items for infinite scroll effect
     const displayItems = trendingItems.length > 0 ? trendingItems : defaultItems;
