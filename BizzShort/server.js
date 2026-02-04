@@ -15,10 +15,41 @@ const validator = require('validator');
 dotenv.config();
 
 // Connect to Database (non-blocking - server will start even if DB fails)
-connectDB().then(connected => {
+connectDB().then(async connected => {
     if (!connected) {
         console.warn('⚠️ Server starting without database connection');
         console.warn('⚠️ Static pages will work, but API calls requiring DB will fail');
+    } else {
+        // Auto-seed admin user if none exists
+        try {
+            const User = require('./models/User');
+            const bcrypt = require('bcryptjs');
+            
+            const adminExists = await User.findOne({ 
+                $or: [
+                    { email: 'admin@zplusenews.com' },
+                    { role: 'ADMIN', status: 'APPROVED' }
+                ]
+            });
+            
+            if (!adminExists) {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash('admin123', salt);
+                
+                await User.create({
+                    name: 'admin',
+                    email: 'admin@zplusenews.com',
+                    password: hashedPassword,
+                    role: 'ADMIN',
+                    status: 'APPROVED'
+                });
+                console.log('✅ Default admin user created (admin@zplusenews.com / admin123)');
+            } else {
+                console.log('ℹ️ Admin user already exists');
+            }
+        } catch (seedError) {
+            console.error('⚠️ Failed to seed admin user:', seedError.message);
+        }
     }
 });
 
