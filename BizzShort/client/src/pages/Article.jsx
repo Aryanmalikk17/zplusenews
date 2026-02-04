@@ -116,7 +116,7 @@ export default function Article() {
                         )}
                         <h1>{article.title}</h1>
                         <div className="article-meta">
-                            <span>By {article.author || 'Editorial Team'}</span>
+                            <span>By {typeof article.author === 'object' ? article.author?.name : article.author || 'Editorial Team'}</span>
                             <span>•</span>
                             <span>{formattedDate}</span>
                             {article.views && (

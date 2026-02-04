@@ -502,7 +502,7 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         content: editingItem?.content || '',
         excerpt: editingItem?.excerpt || '',
         image: editingItem?.image || '',
-        author: editingItem?.author || '',
+        author: typeof editingItem?.author === 'object' ? editingItem?.author?.name || '' : editingItem?.author || '',
         tags: editingItem?.tags?.join(', ') || '',
         videoUrl: editingItem?.videoUrl || '',
         duration: editingItem?.duration || ''
