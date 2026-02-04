@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { articlesAPI, videosAPI, newsAPI } from '../../services/api';
 import ArticleCard from '../ui/ArticleCard';
+import VideoCard from '../ui/VideoCard';
 import '../../styles/category-page.css';
 
 // Map ZPluse categories to CurrentsAPI categories
@@ -101,13 +102,12 @@ export default function CategoryPageLayout({
         fetchContent();
     }, [category]);
 
-    const filteredContent = () => {
-        if (filter === 'articles') return articles;
-        if (filter === 'videos') return videos;
-        return articles;
-    };
+    // Get content to display based on filter
+    const showVideos = filter === 'all' || filter === 'videos';
+    const showArticles = filter === 'all' || filter === 'articles';
 
-    const content = filteredContent();
+    // Check if we have any content to display
+    const hasContent = (showArticles && articles.length > 0) || (showVideos && videos.length > 0);
     const featuredArticle = articles[0];
     const trendingArticles = articles.slice(1, 6);
     const latestArticles = articles.slice(6);
@@ -207,8 +207,8 @@ export default function CategoryPageLayout({
 
             {/* Main Content */}
             <div className="container">
-                {content.length > 0 ? (
-                    <>
+            {hasContent ? (
+                <>
                         {/* Featured Article Section */}
                         {featuredArticle && (
                             <section className="featured-section">
@@ -284,19 +284,40 @@ export default function CategoryPageLayout({
                                 </div>
 
                                 {/* Latest Articles Grid */}
-                                <h3 className="section-title-small">
-                                    <i className="fa-solid fa-bolt" style={{ color: accentColor }}></i> Latest Stories
-                                </h3>
-                                <div className={viewMode === 'grid' ? 'content-grid' : 'content-list'}>
-                                    {latestArticles.map((article, index) => (
-                                        <ArticleCard
-                                            key={article._id || index}
-                                            article={article}
-                                            variant={viewMode === 'list' ? 'compact' : 'default'}
-                                            index={index}
-                                        />
-                                    ))}
-                                </div>
+                                {showArticles && latestArticles.length > 0 && (
+                                    <>
+                                        <h3 className="section-title-small">
+                                            <i className="fa-solid fa-bolt" style={{ color: accentColor }}></i> Latest Stories
+                                        </h3>
+                                        <div className={viewMode === 'grid' ? 'content-grid' : 'content-list'}>
+                                            {latestArticles.map((article, index) => (
+                                                <ArticleCard
+                                                    key={article._id || index}
+                                                    article={article}
+                                                    variant={viewMode === 'list' ? 'compact' : 'default'}
+                                                    index={index}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Videos Section */}
+                                {showVideos && videos.length > 0 && (
+                                    <>
+                                        <h3 className="section-title-small" style={{ marginTop: '2rem' }}>
+                                            <i className="fa-solid fa-play-circle" style={{ color: accentColor }}></i> Video News
+                                        </h3>
+                                        <div className="content-grid videos-grid">
+                                            {videos.map((video, index) => (
+                                                <VideoCard
+                                                    key={video._id || index}
+                                                    video={video}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Sidebar */}

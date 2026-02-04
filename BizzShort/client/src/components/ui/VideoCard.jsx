@@ -16,19 +16,32 @@ export default function VideoCard({ video, featured = false }) {
         if (videoId.includes('http')) {
             if (videoId.includes('youtube') || videoId.includes('youtu.be')) {
                 const match = videoId.match(/(?:youtu\.be\/|youtube\.com\/.*v=|embed\/)([^#&?]*)/);
-                return `https://www.youtube.com/embed/${match ? match[1] : videoId}`;
+                const id = match ? match[1] : videoId;
+                // Use youtube-nocookie.com with proper parameters to avoid Error 153
+                return `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&enablejsapi=1`;
             }
             if (videoId.includes('instagram')) {
-                return `${videoId}/embed`; // Best effort for full IG URL
+                // Instagram doesn't support reliable embedding - return null to trigger fallback
+                return null;
             }
             return videoId;
         }
 
         if (source === 'instagram') {
-            return `https://www.instagram.com/p/${videoId}/embed`;
+            // Instagram doesn't support reliable embedding - return null
+            return null;
         }
-        // YouTube fallback
-        return `https://www.youtube.com/embed/${videoId}`;
+        // YouTube - use youtube-nocookie.com for privacy-enhanced mode
+        return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&enablejsapi=1`;
+    };
+
+    // Get original source URL for Instagram fallback
+    const getSourceUrl = () => {
+        if (video.videoUrl) return video.videoUrl;
+        if (video.source === 'instagram') {
+            return `https://www.instagram.com/p/${video.videoId}/`;
+        }
+        return `https://www.youtube.com/watch?v=${video.videoId}`;
     };
 
     // Get thumbnail URL
@@ -60,8 +73,16 @@ export default function VideoCard({ video, featured = false }) {
     };
 
     const handlePlayClick = () => {
+        const embedUrl = getEmbedUrl(video.videoId, video.source);
+        if (!embedUrl) {
+            // For Instagram or unsupported sources, open in new tab
+            window.open(getSourceUrl(), '_blank', 'noopener,noreferrer');
+            return;
+        }
         setIsPlaying(true);
     };
+
+    const embedUrl = getEmbedUrl(video.videoId, video.source);
 
     return (
         <motion.article
@@ -72,13 +93,13 @@ export default function VideoCard({ video, featured = false }) {
             transition={{ duration: 0.4 }}
         >
             <div className="video-card-media">
-                {isPlaying ? (
+                {isPlaying && embedUrl ? (
                     <iframe
-                        src={getEmbedUrl(video.videoId, video.source)}
+                        src={embedUrl}
                         className="video-embed"
                         frameBorder="0"
                         allowFullScreen
-                        allow="autoplay; encrypted-media"
+                        allow="autoplay; encrypted-media; picture-in-picture"
                         title={video.title}
                     />
                 ) : (
