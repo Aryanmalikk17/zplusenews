@@ -116,22 +116,26 @@ app.use(helmet({
     crossOriginResourcePolicy: false
 }));
 
-// Rate limiting
+// Rate limiting - Relaxed for production use
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 500, // Increased from 100 to 500
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Skip rate limiting for static assets and health checks
+        return req.path === '/api/health' || req.path.startsWith('/assets');
+    }
 });
 
 // Apply rate limiting to API routes only
 app.use('/api/', limiter);
 
-// Stricter rate limit for authentication
+// Stricter rate limit for authentication (but still reasonable)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 login requests per windowMs
+    max: 20, // Increased from 5 to 20 login requests per windowMs
     message: 'Too many login attempts from this IP, please try again after 15 minutes.'
 });
 

@@ -297,7 +297,7 @@ function ArticlesTab({ articles, categories, onRefresh, setShowCreateModal, setE
                                         {article.category}
                                     </span>
                                 </td>
-                                <td>{article.author || 'Unknown'}</td>
+                                <td>{typeof article.author === 'object' ? article.author?.name : article.author || 'Unknown'}</td>
                                 <td>{new Date(article.createdAt || article.date).toLocaleDateString()}</td>
                                 <td>{article.views || 0}</td>
                                 <td>
