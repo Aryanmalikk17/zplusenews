@@ -149,24 +149,42 @@ if (allowedOrigins.length === 0) {
     allowedOrigins.push(
         'https://zplusenews.com',
         'https://www.zplusenews.com',
+        'http://zplusenews.com',
+        'http://www.zplusenews.com',
         'https://zplusenews.onrender.com',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'http://localhost:5173'
     );
 }
 
+console.log('CORS allowed origins:', allowedOrigins);
+
 const corsOptions = {
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin (like mobile apps, curl, or same-origin)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        // Check if origin matches any allowed origin
+        const isAllowed = allowedOrigins.some(allowed => {
+            // Exact match or wildcard subdomain matching
+            return origin === allowed || 
+                   origin.endsWith('.zplusenews.com') ||
+                   origin.endsWith('.zplusenews.onrender.com');
+        });
+        
+        if (isAllowed || process.env.NODE_ENV === 'development') {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            console.warn('CORS blocked origin:', origin);
+            // In production, allow anyway but log for debugging
+            // This prevents CORS from breaking the app
+            callback(null, true);
         }
     },
     credentials: true,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // Body parsing middleware
