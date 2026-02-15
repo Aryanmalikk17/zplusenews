@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { articlesAPI, videosAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
 import NewsCategorySection from '../components/ui/NewsCategorySection';
 import ArticleCard from '../components/ui/ArticleCard';
+import VideoCard from '../components/ui/VideoCard';
 import HinduCalendar from '../components/ui/HinduCalendar';
 import '../styles/components.css';
 
@@ -136,6 +138,7 @@ export default function Home() {
                                         <img
                                             src={latestArticles[0].image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800'}
                                             alt={latestArticles[0].title}
+                                            loading="lazy"
                                         />
                                         <div className="featured-gradient"></div>
                                     </div>
@@ -170,6 +173,7 @@ export default function Home() {
                                             <img
                                                 src={article.image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400'}
                                                 alt={article.title}
+                                                loading="lazy"
                                             />
                                         </div>
                                         <div className="side-article-content">
@@ -246,13 +250,18 @@ export default function Home() {
                                 <h3 className="widget-title">Trending This Week</h3>
                                 {popularArticles.length > 0 ? (
                                     popularArticles.map((article, index) => (
-                                        <div key={article._id || index} className="popular-article">
+                                        <Link
+                                            key={article._id || index}
+                                            to={`/article/${article.slug || article._id}`}
+                                            className="popular-article"
+                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                        >
                                             <span className="popular-article-number">{index + 1}</span>
                                             <div className="popular-article-content">
                                                 <h4>{article.title}</h4>
                                                 <span>{formatViews(article.views)} views</span>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))
                                 ) : (
                                     <p className="empty-hint">Popular articles will appear here</p>
@@ -289,31 +298,9 @@ export default function Home() {
 
                         <div className="video-grid">
                             {videos.slice(0, 4).map((video, index) => (
-                                <motion.div
-                                    key={video._id || index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className="video-grid-item"
-                                >
-                                    <div className="video-card-compact">
-                                        <div className="video-thumbnail-wrapper">
-                                            <div className="video-thumbnail-placeholder">
-                                                <span className="play-icon">▶</span>
-                                            </div>
-                                            <span className="video-duration">{video.duration || '0:45'}</span>
-                                            <span className="video-source-badge">
-                                                {video.source === 'instagram' ? '📸' : '🎬'}
-                                            </span>
-                                        </div>
-                                        <div className="video-info">
-                                            <span className="category-badge small">{video.category}</span>
-                                            <h4>{video.title}</h4>
-                                            <span className="video-views">{video.views || '0'} views</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
+                                <div key={video._id || index} className="video-grid-item">
+                                    <VideoCard video={video} />
+                                </div>
                             ))}
                         </div>
                     </div>

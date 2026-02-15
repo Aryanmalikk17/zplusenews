@@ -3,6 +3,36 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { articlesAPI, videosAPI } from '../services/api';
 import ArticleCard from '../components/ui/ArticleCard';
+import '../styles/article-page.css';
+
+/**
+ * Extract the 11-char YouTube video ID from any format:
+ *   - Full URL: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+ *   - Short URL: https://youtu.be/dQw4w9WgXcQ
+ *   - Embed URL: https://www.youtube.com/embed/dQw4w9WgXcQ
+ *   - Raw ID:   dQw4w9WgXcQ
+ */
+function extractYouTubeId(raw) {
+  if (!raw) return null;
+  const str = String(raw).trim();
+
+  // Try URL patterns
+  try {
+    const url = new URL(str);
+    // youtube.com/watch?v=ID
+    if (url.searchParams.get('v')) return url.searchParams.get('v');
+    // youtu.be/ID or youtube.com/embed/ID
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (parts.length > 0) return parts[parts.length - 1];
+  } catch {
+    // Not a URL — treat as raw ID
+  }
+
+  // Raw 11-char video ID (alphanumeric, dash, underscore)
+  if (/^[a-zA-Z0-9_-]{10,12}$/.test(str)) return str;
+
+  return str; // fallback
+}
 
 export default function Article() {
   const { slug, videoId: routeVideoId } = useParams();
@@ -104,7 +134,7 @@ export default function Article() {
     };
 
     fetchContent();
-  }, [slug]);
+  }, [slug, routeVideoId]);
 
   if (loading) {
     return (
@@ -135,7 +165,9 @@ export default function Article() {
     );
   }
 
-  const youtubeVideoId = video?.videoId || article?.videoId;
+  // Extract clean YouTube ID — fixes Error 153 caused by full URLs stored as videoId
+  const rawVideoId = video?.videoId || article?.videoId;
+  const youtubeVideoId = extractYouTubeId(rawVideoId);
   const youtubeUrl = youtubeVideoId ? `https://www.youtube.com/watch?v=${youtubeVideoId}` : null;
 
   const formattedDate = article.date
@@ -176,7 +208,7 @@ export default function Article() {
           <div className="container">
             <div className="video-player-container">
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0`}
+                src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&origin=${window.location.origin}`}
                 title={article.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -205,7 +237,7 @@ export default function Article() {
         <div className="article-content-wrapper">
           {!youtubeVideoId && article.image && (
             <div className="article-hero-img">
-              <img src={article.image} alt={article.title} />
+              <img src={article.image} alt={article.title} loading="lazy" />
             </div>
           )}
 
@@ -290,236 +322,6 @@ export default function Article() {
           </section>
         )}
       </div>
-
-      <style>{`
-        .article-page {
-          padding-bottom: 80px;
-          background: var(--bg-primary, #fff);
-        }
-
-        /* Header Bar */
-        .article-header-bar {
-          background: #111;
-          padding: 12px 0;
-        }
-        .article-header-inner {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .article-logo-link {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          text-decoration: none;
-        }
-        .article-logo {
-          height: 36px;
-          width: auto;
-        }
-        .article-logo-text {
-          color: #fff;
-          font-size: 1.25rem;
-          font-weight: 700;
-          letter-spacing: -0.5px;
-        }
-        .article-header-label {
-          color: #AA2123;
-          font-weight: 700;
-          font-size: 0.95rem;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        /* Video Section */
-        .article-video-section {
-          background: #000;
-          padding: 20px 0;
-        }
-        .video-player-container {
-          position: relative;
-          width: 100%;
-          max-width: 900px;
-          margin: 0 auto;
-          aspect-ratio: 16 / 9;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-        .video-iframe {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border: none;
-        }
-        .video-actions {
-          max-width: 900px;
-          margin: 16px auto 0;
-          display: flex;
-          justify-content: flex-start;
-        }
-        .watch-youtube-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 24px;
-          background: #FF0000;
-          color: #fff;
-          border-radius: 50px;
-          font-weight: 600;
-          font-size: 14px;
-          text-decoration: none;
-          transition: all 0.2s ease;
-        }
-        .watch-youtube-btn:hover {
-          background: #cc0000;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(255,0,0,0.3);
-        }
-
-        /* Hero Image (fallback for non-video articles) */
-        .article-hero-img {
-          border-radius: 16px;
-          overflow: hidden;
-          margin-bottom: 32px;
-        }
-        .article-hero-img img {
-          width: 100%;
-          height: auto;
-          max-height: 500px;
-          object-fit: cover;
-        }
-
-        /* Title Block */
-        .article-title-block {
-          margin-bottom: 32px;
-        }
-        .category-badge {
-          display: inline-block;
-          background: #AA2123;
-          color: #fff;
-          padding: 4px 14px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 12px;
-        }
-        .article-main-title {
-          font-size: clamp(1.75rem, 4vw, 2.75rem);
-          line-height: 1.2;
-          color: var(--text-primary, #111);
-          margin: 0 0 16px;
-          font-weight: 800;
-        }
-        .article-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          color: var(--text-secondary, #666);
-          font-size: 14px;
-        }
-
-        /* Translate Widget */
-        .translate-widget {
-          margin-bottom: 24px;
-        }
-
-        /* Read Article Section */
-        .read-article-section {
-          border-top: 2px solid var(--light-gray, #eee);
-          padding-top: 32px;
-          margin-top: 8px;
-        }
-        .read-article-heading {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: var(--text-primary, #111);
-          margin-bottom: 24px;
-        }
-        .read-article-heading svg {
-          color: #AA2123;
-        }
-
-        .article-content-wrapper {
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 40px 0;
-        }
-
-        .article-content {
-          font-size: 18px;
-          line-height: 1.9;
-          color: var(--text-secondary, #444);
-        }
-        .article-content h2 {
-          font-size: 1.75rem;
-          color: var(--text-primary, #111);
-          margin: 40px 0 20px;
-        }
-        .article-content p {
-          margin-bottom: 24px;
-        }
-
-        /* Share */
-        .article-share {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          padding: 30px 0;
-          border-top: 1px solid var(--light-gray, #eee);
-          margin-top: 40px;
-        }
-        .share-buttons {
-          display: flex;
-          gap: 12px;
-        }
-        .share-btn {
-          display: inline-block;
-          padding: 10px 20px;
-          border-radius: 50px;
-          font-size: 13px;
-          font-weight: 600;
-          color: white;
-          text-decoration: none;
-          transition: opacity 0.2s;
-        }
-        .share-btn:hover { opacity: 0.9; }
-        .share-btn.facebook { background: #1877f2; }
-        .share-btn.twitter { background: #1da1f2; }
-        .share-btn.linkedin { background: #0a66c2; }
-
-        /* Related */
-        .related-articles {
-          padding: 60px 0;
-          border-top: 1px solid var(--light-gray, #eee);
-        }
-        .related-articles h2 {
-          margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-          .article-video-section {
-            padding: 10px 0;
-          }
-          .video-player-container {
-            border-radius: 8px;
-          }
-          .article-content-wrapper {
-            padding: 24px 0;
-          }
-          .article-share {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        }
-      `}</style>
     </motion.div>
   );
 }

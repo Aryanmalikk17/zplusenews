@@ -690,14 +690,33 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         category: editingItem?.category || '',
         content: editingItem?.content || '',
         excerpt: editingItem?.excerpt || '',
-        image: editingItem?.image || '',
+        image: editingItem?.image || editingItem?.thumbnail || '',
         author: typeof editingItem?.author === 'object' ? editingItem?.author?.name || '' : editingItem?.author || '',
         tags: editingItem?.tags?.join(', ') || '',
-        videoUrl: editingItem?.videoUrl || '',
-        duration: editingItem?.duration || ''
+        videoUrl: editingItem?.videoUrl || (editingItem?.videoId ? `https://www.youtube.com/watch?v=${editingItem.videoId}` : ''),
+        duration: editingItem?.duration || '',
+        description: editingItem?.description || '',
     });
 
     const [loading, setLoading] = useState(false);
+
+    // Extract YouTube video ID from URL for preview
+    const getYouTubeId = (url) => {
+        if (!url) return null;
+        const str = String(url).trim();
+        try {
+            const parsed = new URL(str);
+            if (parsed.searchParams.get('v')) return parsed.searchParams.get('v');
+            const parts = parsed.pathname.split('/').filter(Boolean);
+            if (parts.length > 0) return parts[parts.length - 1];
+        } catch {
+            if (/^[a-zA-Z0-9_-]{10,12}$/.test(str)) return str;
+        }
+        return null;
+    };
+
+    const youtubeId = getYouTubeId(formData.videoUrl);
+    const autoThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -706,7 +725,10 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         try {
             const data = {
                 ...formData,
-                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean)
+                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+                // Use auto-generated thumbnail if none provided
+                image: formData.image || autoThumbnail,
+                thumbnail: formData.image || autoThumbnail,
             };
 
             if (type === 'article') {
@@ -735,21 +757,24 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>{editingItem ? 'Edit' : 'Create'} {type === 'article' ? 'Article' : 'Video'}</h2>
+                    <h2>{editingItem ? '✏️ Edit' : '➕ Create'} {type === 'article' ? 'Article' : 'Video'}</h2>
                     <button onClick={onClose} className="modal-close">×</button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form">
+                    {/* Title */}
                     <div className="form-group">
                         <label>Title *</label>
                         <input
                             type="text"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="Enter a descriptive title"
                             required
                         />
                     </div>
 
+                    {/* Category */}
                     <div className="form-group">
                         <label>Category *</label>
                         <select
@@ -790,6 +815,7 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                                     value={formData.excerpt}
                                     onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                                     rows="2"
+                                    placeholder="Brief summary of the article"
                                 />
                             </div>
 
@@ -800,6 +826,7 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                     rows="6"
                                     required
+                                    placeholder="Full article content (supports HTML)"
                                 />
                             </div>
 
@@ -835,34 +862,88 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                         </>
                     ) : (
                         <>
+                            {/* Video URL with live preview */}
                             <div className="form-group">
                                 <label>Video URL *</label>
                                 <input
-                                    type="url"
+                                    type="text"
                                     value={formData.videoUrl}
                                     onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                                    placeholder="https://youtube.com/watch?v=..."
+                                    placeholder="https://youtube.com/watch?v=... or video ID"
                                     required
                                 />
+                                {youtubeId && (
+                                    <div className="video-preview-section">
+                                        <div className="video-preview-thumb">
+                                            <img
+                                                src={autoThumbnail}
+                                                alt="Video Preview"
+                                                onError={(e) => { e.target.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`; }}
+                                            />
+                                            <div className="preview-play-icon">▶</div>
+                                        </div>
+                                        <div className="video-preview-info">
+                                            <span className="video-id-badge">
+                                                🎬 YouTube ID: <code>{youtubeId}</code>
+                                            </span>
+                                            <a
+                                                href={`https://www.youtube.com/watch?v=${youtubeId}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="preview-link"
+                                            >
+                                                Open in YouTube ↗
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Description */}
                             <div className="form-group">
-                                <label>Thumbnail URL</label>
-                                <input
-                                    type="url"
-                                    value={formData.image}
-                                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                    placeholder="https://example.com/thumbnail.jpg"
+                                <label>Description</label>
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    rows="3"
+                                    placeholder="Video description or summary"
                                 />
                             </div>
 
+                            {/* Thumbnail + Duration in grid row */}
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Thumbnail URL</label>
+                                    <input
+                                        type="url"
+                                        value={formData.image}
+                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                        placeholder={autoThumbnail ? 'Auto-generated from YouTube' : 'https://example.com/thumb.jpg'}
+                                    />
+                                    {!formData.image && autoThumbnail && (
+                                        <span className="form-hint">💡 Auto-generated from YouTube URL</span>
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Duration</label>
+                                    <input
+                                        type="text"
+                                        value={formData.duration}
+                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                        placeholder="10:30"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Tags */}
                             <div className="form-group">
-                                <label>Duration</label>
+                                <label>Tags (comma-separated)</label>
                                 <input
                                     type="text"
-                                    value={formData.duration}
-                                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                    placeholder="10:30"
+                                    value={formData.tags}
+                                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                                    placeholder="news, politics, breaking"
                                 />
                             </div>
                         </>
@@ -873,7 +954,7 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                             Cancel
                         </button>
                         <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? 'Saving...' : (editingItem ? 'Update' : 'Create')}
+                            {loading ? '⏳ Saving...' : (editingItem ? '✅ Update' : '➕ Create')}
                         </button>
                     </div>
                 </form>

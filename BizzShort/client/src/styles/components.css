@@ -526,8 +526,22 @@
 .popular-article {
     display: flex;
     gap: 16px;
-    padding: 14px 0;
+    padding: 14px 12px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: var(--radius-md);
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.popular-article:hover {
+    background: rgba(170, 33, 35, 0.04);
+    transform: translateX(4px);
+    border-bottom-color: transparent;
+}
+
+.popular-article:hover .popular-article-number {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(170, 33, 35, 0.25);
 }
 
 .popular-article:last-child {
@@ -546,6 +560,7 @@
     font-size: 14px;
     font-weight: 700;
     border-radius: var(--radius-md);
+    transition: all 0.25s ease;
 }
 
 .popular-article-content h4 {
@@ -624,14 +639,15 @@
     font-size: 14px;
     font-weight: 700;
     border-radius: var(--radius-lg);
-    transition: all var(--transition-fast);
+    transition: all 0.25s ease;
     border: none;
     cursor: pointer;
 }
 
 .newsletter-form button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    background: #fff5f5;
 }
 
 /* ===== BUSINESS & CALENDAR LAYOUT ===== */
