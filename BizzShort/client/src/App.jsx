@@ -35,6 +35,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="article/:slug" element={<Article />} />
+          <Route path="video/:videoId" element={<Article />} />
 
           {/* Special Categories */}
           <Route path="positive-news" element={<PositiveNews />} />

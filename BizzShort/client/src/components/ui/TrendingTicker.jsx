@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { newsAPI } from '../../services/api';
+import { articlesAPI } from '../../services/api';
 import '../../styles/components.css';
 
 export default function TrendingTicker({ items = [] }) {
@@ -25,16 +25,15 @@ export default function TrendingTicker({ items = [] }) {
             return;
         }
 
-        // Fetch trending news from CurrentsAPI
+        // Fetch trending news from backend articles
         const fetchTrending = async () => {
             try {
-                const response = await newsAPI.getTrending();
-                if (response?.data && response.data.length > 0) {
-                    const formattedItems = response.data.slice(0, 8).map(article => ({
+                const response = await articlesAPI.getAll({ limit: 8 });
+                const data = response?.data || response || [];
+                if (Array.isArray(data) && data.length > 0) {
+                    const formattedItems = data.slice(0, 8).map(article => ({
                         title: article.title,
                         slug: article.slug || article._id,
-                        isExternal: article.isExternal,
-                        url: article.source?.url,
                     }));
                     setTrendingItems(formattedItems);
                 } else {
@@ -50,7 +49,7 @@ export default function TrendingTicker({ items = [] }) {
 
         fetchTrending();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items.length]); // Use items.length to prevent infinite loop from array reference changes
+    }, [items.length]);
 
     // Duplicate items for infinite scroll effect
     const displayItems = trendingItems.length > 0 ? trendingItems : defaultItems;
@@ -65,30 +64,13 @@ export default function TrendingTicker({ items = [] }) {
                             <path d="M7 2v11h3v9l7-12h-4l4-8z" />
                         </svg>
                         {loading ? 'Loading...' : 'Trending'}
-                        {!loading && trendingItems.some(item => item.isExternal) && (
-                            <span className="live-indicator" title="Live News">
-                                <i className="fa-solid fa-signal"></i>
-                            </span>
-                        )}
                     </span>
                     <div className="ticker-content" ref={tickerRef}>
                         {duplicatedItems.map((item, index) => (
                             <span key={index} className="ticker-item">
-                                {item.isExternal ? (
-                                    <a
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="external-ticker-link"
-                                    >
-                                        {item.title}
-                                        <i className="fa-solid fa-arrow-up-right-from-square ticker-external-icon"></i>
-                                    </a>
-                                ) : (
-                                    <Link to={`/article/${item.slug}`}>
-                                        {item.title}
-                                    </Link>
-                                )}
+                                <Link to={`/article/${item.slug}`}>
+                                    {item.title}
+                                </Link>
                             </span>
                         ))}
                     </div>

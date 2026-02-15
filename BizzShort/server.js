@@ -261,9 +261,9 @@ const protect = async (req, res, next) => {
     }
 };
 
-// ============ CurrentsAPI Routes (News Proxy) ============
-const currentsRoutes = require('./routes/currentsRoutes');
-app.use('/api/news', currentsRoutes);
+// ============ Video Routes (YouTube Integration) ============
+const videoRoutes = require('./routes/videoRoutes');
+app.use('/api/videos', videoRoutes);
 
 // ============ Setup Route (Emergency Seed) ============
 

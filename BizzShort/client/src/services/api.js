@@ -81,11 +81,16 @@ export const adsAPI = {
 
 // Videos
 export const videosAPI = {
-  getAll: (params) => api.get('/videos', { params }), // Added params support
+  getAll: (params) => api.get('/videos', { params }),
   getById: (id) => api.get(`/videos/${id}`),
+  getByVideoId: (videoId) => api.get(`/videos/by-video-id/${videoId}`),
   create: (data) => api.post('/videos', data),
   update: (id, data) => api.put(`/videos/${id}`, data),
   delete: (id) => api.delete(`/videos/${id}`),
+  addById: (videoId, category) => api.post('/videos/add-by-id', { videoId, category }),
+  transcribe: (id) => api.post(`/videos/${id}/transcribe`),
+  syncChannel: (channelHandle, category) => api.post('/videos/sync-channel', { channelHandle, category }),
+  transcribeAll: () => api.post('/videos/transcribe-all'),
 };
 
 // Clients
@@ -97,12 +102,3 @@ export const clientsAPI = {
 export const healthAPI = {
   check: () => api.get('/health'),
 };
-
-// News (CurrentsAPI via backend proxy)
-export const newsAPI = {
-  getLatest: (params) => api.get('/news/latest', { params }),
-  search: (params) => api.get('/news/search', { params }),
-  getByCategory: (category, params = {}) => api.get(`/news/category/${category}`, { params }),
-  getTrending: (params) => api.get('/news/trending', { params }),
-};
-

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { articlesAPI, eventsAPI, videosAPI, newsAPI } from '../services/api';
+import { articlesAPI, videosAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
 import NewsCategorySection from '../components/ui/NewsCategorySection';
 import ArticleCard from '../components/ui/ArticleCard';
@@ -10,27 +10,11 @@ import '../styles/components.css';
 export default function Home() {
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
-    const [liveNews, setLiveNews] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [newsSource, setNewsSource] = useState('backend'); // 'api' or 'backend'
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Try to fetch live news from CurrentsAPI first
-                let liveNewsData = [];
-                try {
-                    const liveNewsRes = await newsAPI.getLatest({ language: 'en' });
-                    if (liveNewsRes?.data && liveNewsRes.data.length > 0) {
-                        liveNewsData = liveNewsRes.data;
-                        setLiveNews(liveNewsData);
-                        setNewsSource('api');
-                    }
-                } catch (apiError) {
-                    console.log('CurrentsAPI unavailable, using backend data');
-                }
-
-                // Also fetch from backend for custom content
                 const [articlesRes, videosRes] = await Promise.all([
                     articlesAPI.getAll({ limit: 30 }).catch(() => ({ data: [] })),
                     videosAPI.getAll().catch(() => ({ data: [] })),
@@ -39,12 +23,7 @@ export default function Home() {
                 const articlesData = articlesRes?.data || articlesRes || [];
                 const videosData = videosRes?.data || videosRes || [];
 
-                // Combine API news with backend articles (API first if available)
-                const combinedArticles = liveNewsData.length > 0
-                    ? [...liveNewsData, ...(Array.isArray(articlesData) ? articlesData : [])]
-                    : (Array.isArray(articlesData) ? articlesData : []);
-
-                setArticles(combinedArticles);
+                setArticles(Array.isArray(articlesData) ? articlesData : []);
                 setVideos(Array.isArray(videosData) ? videosData : []);
             } catch (error) {
                 console.error('Error fetching data:', error);

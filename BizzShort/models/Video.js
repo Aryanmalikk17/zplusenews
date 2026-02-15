@@ -22,6 +22,9 @@ const videoSchema = new mongoose.Schema({
     videoId: { type: String, required: true },
     thumbnail: { type: String },
     description: { type: String },
+    transcript: { type: String, default: '' },
+    articleContent: { type: String, default: '' },
+    youtubeChannelTitle: { type: String, default: '' },
     views: { type: String, default: '0' },
     date: { type: String }, // formatted date string
     duration: { type: String },

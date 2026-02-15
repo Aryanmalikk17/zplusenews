@@ -1,30 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { articlesAPI, videosAPI, newsAPI } from '../../services/api';
+import { articlesAPI, videosAPI } from '../../services/api';
 import ArticleCard from '../ui/ArticleCard';
 import VideoCard from '../ui/VideoCard';
 import '../../styles/category-page.css';
-
-// Map ZPluse categories to CurrentsAPI categories
-const CATEGORY_TO_CURRENTS = {
-    'technology': 'technology',
-    'tech': 'technology',
-    'economics': 'business',
-    'economy': 'business',
-    'business': 'business',
-    'polity': 'politics',
-    'politics': 'politics',
-    'environment': 'environment',
-    'sports': 'sports',
-    'international': 'world',
-    'world': 'world',
-    'national': 'regional',
-    'india': 'regional',
-    'positive': 'general',
-    'state': 'regional',
-    'fake-news': null, // No external API - backend only
-};
 
 export default function CategoryPageLayout({
     category,
@@ -40,43 +20,11 @@ export default function CategoryPageLayout({
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [viewMode, setViewMode] = useState('grid');
-    const [newsSource, setNewsSource] = useState('api'); // 'api' or 'backend'
 
     useEffect(() => {
         const fetchContent = async () => {
             setLoading(true);
             try {
-                const currentsCategory = CATEGORY_TO_CURRENTS[category?.toLowerCase()];
-
-                // Try CurrentsAPI first (unless it's fake-news which has no API)
-                if (currentsCategory !== null) {
-                    try {
-                        const newsRes = await newsAPI.getByCategory(category);
-
-                        if (newsRes?.data && newsRes.data.length > 0) {
-                            setArticles(newsRes.data);
-                            setNewsSource('api');
-
-                            // Also try to get videos from backend
-                            try {
-                                const videosRes = await videosAPI.getAll();
-                                const videosData = videosRes?.data || videosRes || [];
-                                setVideos(Array.isArray(videosData) ? videosData.filter(v =>
-                                    v.category?.toLowerCase().includes(category.toLowerCase())
-                                ) : []);
-                            } catch {
-                                setVideos([]);
-                            }
-
-                            setLoading(false);
-                            return;
-                        }
-                    } catch (apiError) {
-                        console.log('CurrentsAPI unavailable, falling back to backend:', apiError.message);
-                    }
-                }
-
-                // Fallback to backend
                 const [articlesRes, videosRes] = await Promise.all([
                     articlesAPI.getAll({ category: category, limit: 30 }).catch(() => ({ data: [] })),
                     videosAPI.getAll().catch(() => ({ data: [] }))
@@ -89,7 +37,6 @@ export default function CategoryPageLayout({
                 setVideos(Array.isArray(videosData) ? videosData.filter(v =>
                     v.category?.toLowerCase().includes(category.toLowerCase())
                 ) : []);
-                setNewsSource('backend');
             } catch (error) {
                 console.error('Error fetching content:', error);
                 setArticles([]);
@@ -191,15 +138,6 @@ export default function CategoryPageLayout({
                                 <i className="fa-regular fa-clock"></i>
                                 <span>Updated {lastUpdated}</span>
                             </div>
-                            {newsSource === 'api' && (
-                                <>
-                                    <div className="highlight-divider"></div>
-                                    <div className="highlight-item highlight-live">
-                                        <i className="fa-solid fa-signal"></i>
-                                        <span>Live News</span>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </motion.div>
                 </div>
@@ -207,8 +145,8 @@ export default function CategoryPageLayout({
 
             {/* Main Content */}
             <div className="container">
-            {hasContent ? (
-                <>
+                {hasContent ? (
+                    <>
                         {/* Featured Article Section */}
                         {featuredArticle && (
                             <section className="featured-section">
@@ -218,23 +156,12 @@ export default function CategoryPageLayout({
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.5 }}
                                 >
-                                    {featuredArticle.isExternal ? (
-                                        <a
-                                            href={featuredArticle.source?.url || '#'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="featured-link"
-                                        >
-                                            <FeaturedContent article={featuredArticle} accentColor={accentColor} />
-                                        </a>
-                                    ) : (
-                                        <Link
-                                            to={`/article/${featuredArticle.slug || featuredArticle._id}`}
-                                            className="featured-link"
-                                        >
-                                            <FeaturedContent article={featuredArticle} accentColor={accentColor} />
-                                        </Link>
-                                    )}
+                                    <Link
+                                        to={`/article/${featuredArticle.slug || featuredArticle._id}`}
+                                        className="featured-link"
+                                    >
+                                        <FeaturedContent article={featuredArticle} accentColor={accentColor} />
+                                    </Link>
                                 </motion.div>
                             </section>
                         )}
@@ -331,25 +258,13 @@ export default function CategoryPageLayout({
                                         </h3>
                                         <div className="trending-list">
                                             {trendingArticles.map((article, index) => (
-                                                article.isExternal ? (
-                                                    <a
-                                                        key={article._id || index}
-                                                        href={article.source?.url || '#'}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="trending-item trending-item-pro"
-                                                    >
-                                                        <TrendingItemContent article={article} index={index} accentColor={accentColor} />
-                                                    </a>
-                                                ) : (
-                                                    <Link
-                                                        key={article._id || index}
-                                                        to={`/article/${article.slug || article._id}`}
-                                                        className="trending-item trending-item-pro"
-                                                    >
-                                                        <TrendingItemContent article={article} index={index} accentColor={accentColor} />
-                                                    </Link>
-                                                )
+                                                <Link
+                                                    key={article._id || index}
+                                                    to={`/article/${article.slug || article._id}`}
+                                                    className="trending-item trending-item-pro"
+                                                >
+                                                    <TrendingItemContent article={article} index={index} accentColor={accentColor} />
+                                                </Link>
                                             ))}
                                         </div>
                                     </div>
@@ -441,9 +356,6 @@ function FeaturedContent({ article, accentColor }) {
             <div className="featured-content-overlay">
                 <span className="featured-badge" style={{ background: accentColor }}>
                     <i className="fa-solid fa-fire"></i> Featured Story
-                    {article.isExternal && (
-                        <span className="external-badge"> • External</span>
-                    )}
                 </span>
                 <h2 className="featured-headline">{article.title}</h2>
                 <p className="featured-excerpt">
@@ -464,15 +376,6 @@ function FeaturedContent({ article, accentColor }) {
                         <i className="fa-regular fa-clock"></i>
                         {article.readTime || '5 min read'}
                     </span>
-                    {article.source?.name && (
-                        <>
-                            <span>•</span>
-                            <span className="source-badge">
-                                <i className="fa-solid fa-external-link"></i>
-                                {article.source.name}
-                            </span>
-                        </>
-                    )}
                 </div>
             </div>
         </>

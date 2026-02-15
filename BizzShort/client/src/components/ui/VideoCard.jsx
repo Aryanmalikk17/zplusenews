@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 /**
@@ -136,7 +137,9 @@ export default function VideoCard({ video, featured = false }) {
                 )}
             </div>
             <div className="video-card-content">
-                <h3 className="video-title">{video.title}</h3>
+                <Link to={`/video/${video.videoId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <h3 className="video-title" style={{ cursor: 'pointer' }}>{video.title}</h3>
+                </Link>
                 {video.description && !featured && (
                     <p className="video-description">{video.description}</p>
                 )}

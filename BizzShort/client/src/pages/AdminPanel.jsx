@@ -339,6 +339,16 @@ function ArticlesTab({ articles, categories, onRefresh, setShowCreateModal, setE
 // Videos Tab Component  
 function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditingItem }) {
     const [filterCategory, setFilterCategory] = useState('all');
+    const [youtubeInput, setYoutubeInput] = useState('');
+    const [addCategory, setAddCategory] = useState('general');
+    const [addLoading, setAddLoading] = useState(false);
+    const [addError, setAddError] = useState('');
+    const [addSuccess, setAddSuccess] = useState('');
+    const [transcribingId, setTranscribingId] = useState(null);
+    const [syncing, setSyncing] = useState(false);
+    const [syncMessage, setSyncMessage] = useState('');
+    const [transcribingAll, setTranscribingAll] = useState(false);
+    const [transcribeAllMsg, setTranscribeAllMsg] = useState('');
 
     const filteredVideos = filterCategory === 'all'
         ? videos
@@ -355,8 +365,158 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
         }
     };
 
+    const handleAddById = async (e) => {
+        e.preventDefault();
+        if (!youtubeInput.trim()) return;
+
+        setAddLoading(true);
+        setAddError('');
+        setAddSuccess('');
+
+        try {
+            const res = await videosAPI.addById(youtubeInput.trim(), addCategory);
+            const data = res?.data || res;
+            setAddSuccess(`Video "${data.video?.title || 'Video'}" added successfully!`);
+            setYoutubeInput('');
+            onRefresh();
+
+            setTimeout(() => setAddSuccess(''), 5000);
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Failed to add video';
+            setAddError(msg);
+            setTimeout(() => setAddError(''), 5000);
+        } finally {
+            setAddLoading(false);
+        }
+    };
+
+    const handleTranscribe = async (videoId) => {
+        setTranscribingId(videoId);
+
+        try {
+            await videosAPI.transcribe(videoId);
+            alert('Transcription complete! Article content generated.');
+            onRefresh();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Transcription failed';
+            alert(`Transcription error: ${msg}`);
+        } finally {
+            setTranscribingId(null);
+        }
+    };
+
+    const handleSyncChannel = async () => {
+        if (!window.confirm('Import ALL videos from the ZPluse News YouTube channel?')) return;
+        setSyncing(true);
+        setSyncMessage('');
+        try {
+            const res = await videosAPI.syncChannel('@zplusenews', addCategory);
+            const data = res?.data || res;
+            setSyncMessage(`✅ ${data.message || 'Sync complete!'} (${data.imported || 0} new, ${data.skipped || 0} existing)`);
+            onRefresh();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Sync failed';
+            setSyncMessage(`❌ ${msg}`);
+        } finally {
+            setSyncing(false);
+            setTimeout(() => setSyncMessage(''), 8000);
+        }
+    };
+
+    const handleTranscribeAll = async () => {
+        if (!window.confirm('Transcribe ALL videos that don\'t have transcripts yet? This may take a while.')) return;
+        setTranscribingAll(true);
+        setTranscribeAllMsg('');
+        try {
+            const res = await videosAPI.transcribeAll();
+            const data = res?.data || res;
+            setTranscribeAllMsg(`✅ ${data.message || 'Done!'}`);
+            onRefresh();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Failed';
+            setTranscribeAllMsg(`❌ ${msg}`);
+        } finally {
+            setTranscribingAll(false);
+            setTimeout(() => setTranscribeAllMsg(''), 8000);
+        }
+    };
+
     return (
         <div className="content-tab">
+            {/* Add Video by YouTube ID */}
+            <div className="add-by-id-section">
+                <h3 className="section-label">📺 Add Video by YouTube Link / ID</h3>
+                <form onSubmit={handleAddById} className="add-by-id-form">
+                    <input
+                        type="text"
+                        value={youtubeInput}
+                        onChange={(e) => setYoutubeInput(e.target.value)}
+                        placeholder="Paste YouTube URL or Video ID (e.g. dQw4w9WgXcQ)"
+                        className="input-youtube-id"
+                        disabled={addLoading}
+                    />
+                    <select
+                        value={addCategory}
+                        onChange={(e) => setAddCategory(e.target.value)}
+                        className="filter-select"
+                        disabled={addLoading}
+                    >
+                        <optgroup label="📌 Special">
+                            {categories.special.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🌐 Levels">
+                            {categories.levels.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🎯 Interests">
+                            {categories.interests.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                    </select>
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                        disabled={addLoading || !youtubeInput.trim()}
+                    >
+                        {addLoading ? '⏳ Adding...' : '+ Add Video'}
+                    </button>
+                </form>
+                {addError && <p className="add-message add-error">❌ {addError}</p>}
+                {addSuccess && <p className="add-message add-success">✅ {addSuccess}</p>}
+            </div>
+
+            {/* Channel Sync Actions */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                    onClick={handleSyncChannel}
+                    className="btn-primary"
+                    disabled={syncing}
+                    style={{ background: 'linear-gradient(135deg, #ff0000, #cc0000)' }}
+                >
+                    {syncing ? '⏳ Syncing Channel...' : '🔄 Sync All Videos from @zplusenews'}
+                </button>
+                <button
+                    onClick={handleTranscribeAll}
+                    className="btn-transcribe"
+                    disabled={transcribingAll}
+                    style={{ padding: '12px 24px', fontSize: '14px' }}
+                >
+                    {transcribingAll ? '⏳ Transcribing All...' : '🎙️ Transcribe All Videos'}
+                </button>
+                {syncMessage && <span style={{ fontWeight: 600, fontSize: '14px' }}>{syncMessage}</span>}
+                {transcribeAllMsg && <span style={{ fontWeight: 600, fontSize: '14px' }}>{transcribeAllMsg}</span>}
+            </div>
+
             <div className="tab-header">
                 <div className="tab-actions">
                     <select
@@ -408,6 +568,7 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
                             <th>Duration</th>
                             <th>Date</th>
                             <th>Views</th>
+                            <th>Transcript</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -425,6 +586,20 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
                                 <td>{video.duration || 'N/A'}</td>
                                 <td>{new Date(video.createdAt).toLocaleDateString()}</td>
                                 <td>{video.views || 0}</td>
+                                <td>
+                                    {video.transcript ? (
+                                        <span className="status-badge status-done">✅ Done</span>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleTranscribe(video._id)}
+                                            className="btn-transcribe"
+                                            disabled={transcribingId === video._id}
+                                            title="Generate article from video audio"
+                                        >
+                                            {transcribingId === video._id ? '⏳ ...' : '🎙️ Transcribe'}
+                                        </button>
+                                    )}
+                                </td>
                                 <td>
                                     <div className="action-buttons">
                                         <button
