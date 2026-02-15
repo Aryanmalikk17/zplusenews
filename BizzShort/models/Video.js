@@ -19,7 +19,7 @@ const videoSchema = new mongoose.Schema({
     },
     subcategory: { type: String }, // For additional granularity
     source: { type: String, enum: ['youtube', 'instagram'], required: true },
-    videoId: { type: String, required: true },
+    videoId: { type: String, required: true, unique: true },
     thumbnail: { type: String },
     description: { type: String },
     transcript: { type: String, default: '' },

@@ -424,21 +424,35 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
     };
 
     const handleTranscribeAll = async () => {
-        if (!window.confirm('Transcribe ALL videos that don\'t have transcripts yet? This may take a while.')) return;
+        // Find videos that don't have transcripts yet
+        const untranscribed = videos.filter(v => v.source === 'youtube' && !v.transcript);
+        if (untranscribed.length === 0) {
+            setTranscribeAllMsg('✅ All videos already have transcripts!');
+            setTimeout(() => setTranscribeAllMsg(''), 5000);
+            return;
+        }
+        if (!window.confirm(`Transcribe ${untranscribed.length} videos without transcripts? This will process them one by one.`)) return;
+
         setTranscribingAll(true);
         setTranscribeAllMsg('');
-        try {
-            const res = await videosAPI.transcribeAll();
-            const data = res?.data || res;
-            setTranscribeAllMsg(`✅ ${data.message || 'Done!'}`);
-            onRefresh();
-        } catch (error) {
-            const msg = error.response?.data?.error || error.message || 'Failed';
-            setTranscribeAllMsg(`❌ ${msg}`);
-        } finally {
-            setTranscribingAll(false);
-            setTimeout(() => setTranscribeAllMsg(''), 8000);
+        let success = 0;
+        let failed = 0;
+
+        for (let i = 0; i < untranscribed.length; i++) {
+            const v = untranscribed[i];
+            setTranscribeAllMsg(`⏳ Transcribing ${i + 1}/${untranscribed.length}: "${v.title?.slice(0, 40)}..."`);
+            try {
+                await videosAPI.transcribe(v._id);
+                success++;
+            } catch {
+                failed++;
+            }
         }
+
+        setTranscribeAllMsg(`✅ Done! ${success} transcribed, ${failed} failed.`);
+        setTranscribingAll(false);
+        onRefresh();
+        setTimeout(() => setTranscribeAllMsg(''), 10000);
     };
 
     return (
