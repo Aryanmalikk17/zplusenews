@@ -115,14 +115,16 @@ export default function Home() {
             {/* ============ LATEST NEWS - Hero Section ============ */}
             <section className="section latest-news-section">
                 <div className="container">
-                    <motion.div
-                        className="section-header"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <h2>Latest News</h2>
-                        <a href="/latest" className="view-all">View All →</a>
-                    </motion.div>
+                    <div className="section-header">
+                        <motion.h2
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            Latest News
+                        </motion.h2>
+                        <Link to="/latest" className="view-all">View All →</Link>
+                    </div>
 
                     <div className="latest-news-layout">
                         {/* Featured Article */}
@@ -133,7 +135,7 @@ export default function Home() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <a href={`/article/${latestArticles[0].slug || latestArticles[0]._id}`} className="featured-card">
+                                <Link to={`/article/${latestArticles[0].slug || latestArticles[0]._id}`} className="featured-card">
                                     <div className="featured-image">
                                         <img
                                             src={latestArticles[0].image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800'}
@@ -154,7 +156,7 @@ export default function Home() {
                                             <span>{latestArticles[0].readTime || '5 min read'}</span>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             </motion.div>
                         )}
 
@@ -168,7 +170,7 @@ export default function Home() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.1 + index * 0.1 }}
                                 >
-                                    <a href={`/article/${article.slug || article._id}`} className="side-article">
+                                    <Link to={`/article/${article.slug || article._id}`} className="side-article">
                                         <div className="side-article-image">
                                             <img
                                                 src={article.image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400'}
@@ -185,7 +187,7 @@ export default function Home() {
                                                 })}
                                             </span>
                                         </div>
-                                    </a>
+                                    </Link>
                                 </motion.div>
                             ))}
                         </div>
@@ -221,20 +223,22 @@ export default function Home() {
             {/* ============ TECHNOLOGY ============ */}
             <section className="section tech-section" style={{ background: 'var(--bg-secondary)' }}>
                 <div className="container">
-                    <motion.div
-                        className="section-header"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <h2>Technology</h2>
-                        <a href="/technology" className="view-all">View All →</a>
-                    </motion.div>
+                    <div className="section-header">
+                        <motion.h2
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            Technology
+                        </motion.h2>
+                        <Link to="/technology" className="view-all">View All →</Link>
+                    </div>
 
                     <div className="content-with-sidebar">
                         <div className="main-content-area">
                             <div className="article-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                                {(techArticles.length > 0 ? techArticles : articles.slice(4, 8)).slice(0, 4).map((article, index) => (
+                                {/* Fallback to general articles if tech filters return empty */}
+                                {(techArticles.length > 0 ? techArticles : articles).slice(0, 4).map((article, index) => (
                                     <ArticleCard
                                         key={article._id || index}
                                         article={article}

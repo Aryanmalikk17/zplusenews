@@ -19,6 +19,7 @@ import Technology from './pages/Technology';
 import Environment from './pages/Environment';
 import Sports from './pages/Sports';
 import Contests from './pages/Contests';
+import LatestNews from './pages/LatestNews';
 
 // Admin Pages
 import AdminLogin from './pages/AdminLogin';
@@ -34,6 +35,7 @@ export default function App() {
         {/* Main Website Routes */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path="latest" element={<LatestNews />} />
           <Route path="article/:slug" element={<Article />} />
           <Route path="video/:videoId" element={<Article />} />
 

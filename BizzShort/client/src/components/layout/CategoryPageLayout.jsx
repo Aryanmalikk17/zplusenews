@@ -25,8 +25,11 @@ export default function CategoryPageLayout({
         const fetchContent = async () => {
             setLoading(true);
             try {
+                // If category is 'latest', fetch without category param to get all filtered by date (assumed default backend behavior)
+                const params = category === 'latest' ? { limit: 50, sort: '-createdAt' } : { category: category, limit: 30 };
+
                 const [articlesRes, videosRes] = await Promise.all([
-                    articlesAPI.getAll({ category: category, limit: 30 }).catch(() => ({ data: [] })),
+                    articlesAPI.getAll(params).catch(() => ({ data: [] })),
                     videosAPI.getAll().catch(() => ({ data: [] }))
                 ]);
 
@@ -34,9 +37,11 @@ export default function CategoryPageLayout({
                 const videosData = videosRes?.data || videosRes || [];
 
                 setArticles(Array.isArray(articlesData) ? articlesData : []);
-                setVideos(Array.isArray(videosData) ? videosData.filter(v =>
+
+                // For videos, if 'latest', show all Recent videos, else filter by category
+                setVideos(Array.isArray(videosData) ? (category === 'latest' ? videosData : videosData.filter(v =>
                     v.category?.toLowerCase().includes(category.toLowerCase())
-                ) : []);
+                )) : []);
             } catch (error) {
                 console.error('Error fetching content:', error);
                 setArticles([]);

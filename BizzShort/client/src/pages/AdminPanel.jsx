@@ -221,12 +221,15 @@ function ArticlesTab({ articles, categories, onRefresh, setShowCreateModal, setE
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this article?')) return;
+        console.log('Attempting to delete article with ID:', id);
 
         try {
             await articlesAPI.delete(id);
+            console.log('Delete successful');
             onRefresh();
         } catch (error) {
-            alert('Failed to delete article');
+            console.error('Delete failed:', error);
+            alert(`Failed to delete article: ${error.response?.data?.message || error.message}`);
         }
     };
 
