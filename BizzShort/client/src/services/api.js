@@ -102,3 +102,12 @@ export const clientsAPI = {
 export const healthAPI = {
   check: () => api.get('/health'),
 };
+
+// Admin
+export const adminAPI = {
+  login: (credentials) => api.post('/admin/login', credentials),
+  changePassword: (data) => api.put('/admin/change-password', data),
+  getPendingUsers: () => api.get('/admin/pending-users'),
+  approveUser: (id) => api.post(`/admin/approve-user/${id}`),
+  rejectUser: (id, reason) => api.post(`/admin/reject-user/${id}`, { reason }),
+};

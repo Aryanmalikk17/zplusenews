@@ -551,6 +551,47 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
     }
 });
 
+// Admin: Change Password
+app.put('/api/admin/change-password', protect, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Please, provide current and new password' });
+        }
+        
+        if (newPassword.length < 8) {
+            return res.status(400).json({ success: false, error: 'New password must be at least 8 characters' });
+        }
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, error: 'Current password is incorrect' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+
+    } catch (err) {
+        console.error('Password change error:', err);
+        res.status(500).json({ success: false, error: 'Server error: ' + err.message });
+    }
+});
+
 // Admin Registration (First admin auto-approved, others pending)
 app.post('/api/admin/register', async (req, res) => {
     const { name, email, password, setupKey } = req.body;

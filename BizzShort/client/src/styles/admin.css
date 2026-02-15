@@ -8,17 +8,30 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     padding: 20px;
 }
 
+.admin-logo {
+    max-width: 250px;
+    height: auto;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
 .login-container {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 50px 40px;
     max-width: 450px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .login-header {
@@ -30,6 +43,8 @@
     font-size: 2.5rem;
     margin-bottom: 10px;
     color: var(--primary);
+    display: none;
+    /* Hide text header as we use logo now */
 }
 
 .login-header h2 {
@@ -61,8 +76,9 @@
 .login-form input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    background: rgba(245, 247, 250, 0.8);
+    border-radius: 12px;
     font-size: 16px;
     transition: all 0.3s;
 }
@@ -76,16 +92,15 @@
 .btn-login {
     width: 100%;
     padding: 16px;
-    background: #AA2123;
-    /* Fallback */
-    background: linear-gradient(135deg, var(--primary, #AA2123), var(--accent-orange, #f59e0b));
+    background: linear-gradient(135deg, var(--primary) 0%, #d93d3f 100%);
     color: white;
     font-size: 16px;
     font-weight: 700;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(170, 33, 35, 0.3);
 }
 
 .btn-login:hover:not(:disabled) {
@@ -171,6 +186,38 @@
     font-size: 1.75rem;
     color: var(--primary);
     margin: 0;
+    display: none;
+}
+
+.admin-header-logo {
+    height: 50px;
+    width: auto;
+}
+
+.password-modal {
+    max-width: 500px;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: white;
+    border: 1px solid #ddd;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    color: var(--text-primary);
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 .btn-logout {

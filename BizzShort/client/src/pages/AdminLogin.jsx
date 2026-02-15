@@ -48,7 +48,7 @@ export default function AdminLogin() {
         <div className="admin-login-page">
             <div className="login-container">
                 <div className="login-header">
-                    <h1>📰 ZPlusNews</h1>
+                    <img src="/assets/images/logo.png" alt="ZPluse News" className="admin-logo" />
                     <h2>Admin Login</h2>
                 </div>
 

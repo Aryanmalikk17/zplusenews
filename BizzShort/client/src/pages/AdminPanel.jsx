@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { articlesAPI, videosAPI } from '../services/api';
+import { articlesAPI, videosAPI, adminAPI } from '../services/api';
 import '../styles/admin.css';
 
 export default function AdminPanel() {
@@ -11,6 +11,7 @@ export default function AdminPanel() {
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [stats, setStats] = useState({
         totalArticles: 0,
@@ -102,10 +103,16 @@ export default function AdminPanel() {
             {/* Header */}
             <header className="admin-header">
                 <div className="admin-header-content">
+                    <img src="/assets/images/logo.png" alt="ZPluse News" className="admin-header-logo" />
                     <h1>📰 ZPlusNews Admin Panel</h1>
-                    <button onClick={handleLogout} className="btn-logout">
-                        Logout
-                    </button>
+                    <div className="header-actions">
+                        <button onClick={() => setShowPasswordModal(true)} className="btn-secondary">
+                            🔑 Change Password
+                        </button>
+                        <button onClick={handleLogout} className="btn-logout">
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -207,6 +214,113 @@ export default function AdminPanel() {
                     }}
                 />
             )}
+
+            {/* Password Modal */}
+            {showPasswordModal && (
+                <PasswordModal onClose={() => setShowPasswordModal(false)} />
+            )}
+        </div>
+    );
+}
+
+// Password Modal Component
+function PasswordModal({ onClose }) {
+    const [formData, setFormData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+
+        if (formData.newPassword !== formData.confirmPassword) {
+            setError('New passwords do not match');
+            return;
+        }
+
+        if (formData.newPassword.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await adminAPI.changePassword({
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword
+            });
+
+            setSuccess(res.message || 'Password updated successfully');
+            setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setTimeout(() => {
+                onClose();
+            }, 2000);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to update password');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content password-modal" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>🔑 Change Password</h2>
+                    <button onClick={onClose} className="modal-close">×</button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="modal-form">
+                    {error && <div className="login-error">{error}</div>}
+                    {success && <div className="add-message add-success" style={{ marginBottom: '20px' }}>{success}</div>}
+
+                    <div className="form-group">
+                        <label>Current Password</label>
+                        <input
+                            type="password"
+                            value={formData.currentPassword}
+                            onChange={e => setFormData({ ...formData, currentPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>New Password (min 8 chars)</label>
+                        <input
+                            type="password"
+                            value={formData.newPassword}
+                            onChange={e => setFormData({ ...formData, newPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Confirm New Password</label>
+                        <input
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="modal-actions">
+                        <button type="button" onClick={onClose} className="btn-cancel" disabled={loading}>
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn-save" disabled={loading}>
+                            {loading ? 'Updating...' : 'Update Password'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
