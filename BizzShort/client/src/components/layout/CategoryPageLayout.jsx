@@ -61,8 +61,8 @@ export default function CategoryPageLayout({
     // Check if we have any content to display
     const hasContent = (showArticles && articles.length > 0) || (showVideos && videos.length > 0);
     const featuredArticle = articles[0];
-    const trendingArticles = articles.slice(1, 6);
-    const latestArticles = articles.slice(6);
+    const trendingArticles = articles.length > 1 ? articles.slice(1, 6) : [];
+    const latestArticles = articles.length > 6 ? articles.slice(6) : (articles.length > 1 ? articles.slice(1) : []);
 
     // Format time ago
     const getTimeAgo = (date) => {

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { articlesAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
 import CategoryRow from '../components/CategoryRow';
+import VideoRow from '../components/VideoRow';
 import ArticleCard from '../components/ui/ArticleCard';
 import { CATEGORIES } from '../config/categories';
 import '../styles/components.css';
@@ -77,7 +78,19 @@ export default function Home() {
 
             {/* ============ DYNAMIC CATEGORY ROWS ============ */}
             <div className="category-rows-container">
-                {CATEGORIES.map((cat) => (
+                {CATEGORIES.slice(0, 2).map((cat) => (
+                    <CategoryRow 
+                        key={cat.id}
+                        categoryId={cat.id}
+                        title={cat.label}
+                        path={cat.path}
+                    />
+                ))}
+
+                {/* Video Highlights Section */}
+                <VideoRow />
+
+                {CATEGORIES.slice(2).map((cat) => (
                     <CategoryRow 
                         key={cat.id}
                         categoryId={cat.id}

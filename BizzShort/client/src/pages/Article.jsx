@@ -74,14 +74,15 @@ export default function Article() {
           const data = await articlesAPI.getBySlug(slug).catch(() => null);
 
           if (data) {
-            setArticle(data);
-            if (data._id) {
-              articlesAPI.incrementViews(data._id).catch(() => { });
+            const actualArticle = data.data || data;
+            setArticle(actualArticle);
+            if (actualArticle._id) {
+              articlesAPI.incrementViews(actualArticle._id).catch(() => { });
             }
           }
 
           // Also check if slug is a video MongoDB ID (for video-based articles)
-          if (!data) {
+          if (!data || !(data.data || data)) {
             try {
               const videoData = await videosAPI.getById(slug);
               const v = videoData?.data || videoData;
