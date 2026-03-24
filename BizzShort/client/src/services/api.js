@@ -1,36 +1,38 @@
 import axios from 'axios';
 
 // Create axios instance with base configuration
+// withCredentials: true is REQUIRED so the browser sends the httpOnly adminToken cookie
 const api = axios.create({
   baseURL: '/api',
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor - add auth token if available
+// Request interceptor - attach Bearer token only for legacy user (non-admin) endpoints
 api.interceptors.request.use(
   (config) => {
-    // Check for user token first, then admin token
-    const token = localStorage.getItem('zplusenews_token') || localStorage.getItem('adminToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Admin auth is now via httpOnly cookie (sent automatically by withCredentials).
+    // Only attach Bearer token for regular user sessions if present.
+    const userToken = localStorage.getItem('zplusenews_token');
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle errors
+// Response interceptor - handle errors globally
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      // Only remove if it's the specific token being used? 
-      // For now, let's be careful about auto-logout to avoid disrupting the user experience too much
-      // localStorage.removeItem('zplusenews_token');
-      // localStorage.removeItem('adminToken');
+      // Clear stale session data on auth failure
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('zplusenews_token');
     }
     return Promise.reject(error.response?.data || error.message);
   }
@@ -65,6 +67,7 @@ export const eventsAPI = {
 // Interviews
 export const interviewsAPI = {
   getAll: () => api.get('/interviews'),
+  getById: (id) => api.get(`/interviews/${id}`),
   create: (data) => api.post('/interviews', data),
   update: (id, data) => api.put(`/interviews/${id}`, data),
   delete: (id) => api.delete(`/interviews/${id}`),
@@ -73,6 +76,10 @@ export const interviewsAPI = {
 // Advertisements
 export const adsAPI = {
   getAll: () => api.get('/advertisements'),
+  getById: (id) => api.get(`/advertisements/${id}`),
+  create: (data) => api.post('/advertisements', data),
+  update: (id, data) => api.put(`/advertisements/${id}`, data),
+  delete: (id) => api.delete(`/advertisements/${id}`),
   trackImpression: (id, position) => 
     api.post(`/advertisements/${id}/impression`, { position }),
   trackClick: (id, position) => 
@@ -96,6 +103,10 @@ export const videosAPI = {
 // Clients
 export const clientsAPI = {
   getAll: () => api.get('/clients'),
+  getById: (id) => api.get(`/clients/${id}`),
+  create: (data) => api.post('/clients', data),
+  update: (id, data) => api.put(`/clients/${id}`, data),
+  delete: (id) => api.delete(`/clients/${id}`),
 };
 
 // Health
@@ -106,6 +117,7 @@ export const healthAPI = {
 // Admin
 export const adminAPI = {
   login: (credentials) => api.post('/admin/login', credentials),
+  logout: () => api.post('/admin/logout'),
   changePassword: (data) => api.put('/admin/change-password', data),
   getPendingUsers: () => api.get('/admin/pending-users'),
   approveUser: (id) => api.post(`/admin/approve-user/${id}`),

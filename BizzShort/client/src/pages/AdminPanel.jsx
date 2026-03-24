@@ -19,10 +19,9 @@ export default function AdminPanel() {
         byCategory: {}
     });
 
-    // Categories organized by groups
+    // Categories — 'positive' removed; must stay in sync with Mongoose enums
     const categories = {
         special: [
-            { value: 'positive', label: 'Positive News', icon: '🌟' },
             { value: 'fake-news', label: 'Fake News', icon: '🔍' }
         ],
         levels: [
@@ -40,13 +39,13 @@ export default function AdminPanel() {
     };
 
     useEffect(() => {
-        // Check authentication
-        const token = localStorage.getItem('adminToken');
-        if (!token) {
+        // Cookie-based auth: verify session by checking API health with credentials
+        // adminUser in localStorage is just a UI hint — the real auth is the httpOnly cookie
+        const adminUser = localStorage.getItem('adminUser');
+        if (!adminUser) {
             navigate('/admin/login');
             return;
         }
-
         setIsAuthenticated(true);
         fetchContent();
     }, [navigate]);
@@ -83,8 +82,14 @@ export default function AdminPanel() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
+    const handleLogout = async () => {
+        try {
+            // Clear the httpOnly cookie on the server
+            await adminAPI.logout();
+        } catch {
+            // Proceed even if the server call fails
+        }
+        localStorage.removeItem('adminUser');
         navigate('/admin/login');
     };
 
@@ -193,7 +198,7 @@ export default function AdminPanel() {
                 )}
 
                 {activeTab === 'analytics' && (
-                    <AnalyticsTab stats={stats} categories={categories} />
+                    <AnalyticsTab stats={stats} categories={categories} articles={articles} videos={videos} />
                 )}
             </div>
 
@@ -768,28 +773,50 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
 }
 
 // Analytics Tab Component
-function AnalyticsTab({ stats, categories }) {
+function AnalyticsTab({ stats, categories, articles, videos }) {
     const allCategories = [...categories.special, ...categories.levels, ...categories.interests];
+
+    // Calculate per-category video counts
+    const videosByCategory = {};
+    (videos || []).forEach(v => {
+        videosByCategory[v.category] = (videosByCategory[v.category] || 0) + 1;
+    });
+
+    const totalViews = [...(articles || []), ...(videos || [])].reduce(
+        (sum, item) => sum + (parseInt(item.views) || 0), 0
+    );
 
     return (
         <div className="content-tab analytics-tab">
+            <div className="analytics-summary" style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
+                <div className="stat-card"><div className="stat-icon">👁️</div><div className="stat-info"><h3>{totalViews.toLocaleString()}</h3><p>Total Views</p></div></div>
+                <div className="stat-card"><div className="stat-icon">📝</div><div className="stat-info"><h3>{stats.totalArticles}</h3><p>Articles</p></div></div>
+                <div className="stat-card"><div className="stat-icon">🎬</div><div className="stat-info"><h3>{stats.totalVideos}</h3><p>Videos</p></div></div>
+                <div className="stat-card"><div className="stat-icon">📦</div><div className="stat-info"><h3>{stats.totalArticles + stats.totalVideos}</h3><p>Total Content</p></div></div>
+            </div>
+
             <h2>Content by Category</h2>
             <div className="analytics-grid">
                 {allCategories.map(cat => {
-                    const count = stats.byCategory[cat.value] || 0;
+                    const artCount = stats.byCategory[cat.value] || 0;
+                    const vidCount = videosByCategory[cat.value] || 0;
+                    const total = artCount + vidCount;
+                    const maxTotal = stats.totalArticles + stats.totalVideos || 1;
                     return (
                         <div key={cat.value} className="analytics-card">
                             <div className="analytics-icon">{cat.icon}</div>
                             <h3>{cat.label}</h3>
-                            <p className="analytics-count">{count} articles</p>
+                            <p className="analytics-count">
+                                {artCount} articles · {vidCount} videos
+                            </p>
                             <div className="analytics-bar">
                                 <div
                                     className="analytics-bar-fill"
                                     style={{
-                                        width: `${(count / stats.totalArticles) * 100}%`,
+                                        width: `${(total / maxTotal) * 100}%`,
                                         maxWidth: '100%'
                                     }}
-                                ></div>
+                                />
                             </div>
                         </div>
                     );
@@ -813,6 +840,9 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         videoUrl: editingItem?.videoUrl || (editingItem?.videoId ? `https://www.youtube.com/watch?v=${editingItem.videoId}` : ''),
         duration: editingItem?.duration || '',
         description: editingItem?.description || '',
+        publishedAt: editingItem?.publishedAt
+            ? new Date(editingItem.publishedAt).toISOString().slice(0, 16)
+            : new Date().toISOString().slice(0, 16),
     });
 
     const [loading, setLoading] = useState(false);
@@ -926,6 +956,15 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
 
                     {type === 'article' ? (
                         <>
+                            <div className="form-group">
+                                <label>Published Date & Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.publishedAt}
+                                    onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                />
+                            </div>
+
                             <div className="form-group">
                                 <label>Excerpt</label>
                                 <textarea

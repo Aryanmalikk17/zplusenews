@@ -7,14 +7,14 @@ const ArticleSchema = new mongoose.Schema({
         type: String, 
         required: true,
         enum: [
-            // Special Categories
-            'positive', 'fake-news',
+            // Special Categories (positive removed)
+            'fake-news',
             // Level-based Categories
             'international', 'national', 'state',
             // Interest-based Categories
             'economics', 'polity', 'technology', 'environment', 'sports',
-            // Legacy categories (for backward compatibility)
-            'business', 'innovation', 'tech', 'ai', 'gadgets', 'software', 
+            // Legacy categories (for backward compatibility with existing DB records)
+            'positive', 'business', 'innovation', 'tech', 'ai', 'gadgets', 'software', 
             'startups', 'markets', 'crypto', 'general'
         ]
     },
@@ -36,13 +36,19 @@ const ArticleSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// Indexes for query performance
+ArticleSchema.index({ category: 1, publishedAt: -1 });
+ArticleSchema.index({ slug: 1 }, { unique: true });
+
 // Auto-generate slug from title
-// ArticleSchema.pre('save', function (next) {
-//     if (this.isModified('title')) {
-//         this.slug = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-//     }
-//     this.updatedAt = Date.now();
-//     next();
-// });
+ArticleSchema.pre('save', function (next) {
+    if (this.isModified('title') && !this.slug) {
+        this.slug = this.title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') + '-' + Date.now();
+    }
+    this.updatedAt = Date.now();
+    next();
+});
 
 module.exports = mongoose.model('Article', ArticleSchema);

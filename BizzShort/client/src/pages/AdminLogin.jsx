@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { adminAPI } from '../services/api';
 import '../styles/admin.css';
 
 export default function AdminLogin() {
@@ -11,34 +12,32 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Auth migration reminder
+    useEffect(() => {
+        // eslint-disable-next-line no-console
+        console.log('Please clear your browser cookies and localStorage before logging in again.');
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
         try {
-            const response = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
+            // adminAPI.login uses the Axios instance with withCredentials:true
+            // The server sets the httpOnly adminToken cookie on success
+            const data = await adminAPI.login(formData);
 
             if (data.success) {
-                // Store token
-                localStorage.setItem('adminToken', data.sessionId);
+                // Token is managed via httpOnly cookie set by the server.
+                // Only store non-sensitive user info in localStorage.
                 localStorage.setItem('adminUser', JSON.stringify(data.user));
-
-                // Redirect to admin panel
                 navigate('/admin/panel');
             } else {
                 setError(data.error || 'Login failed');
             }
         } catch (err) {
-            setError('Network error. Please try again.');
+            setError(err?.error || err?.message || 'Network error. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -91,8 +90,7 @@ export default function AdminLogin() {
                 </form>
 
                 <div className="login-footer">
-                    <p>Default credentials: admin / admin123</p>
-                    <p className="warning">⚠️ Change password after first login!</p>
+                    <p className="warning">Authorised personnel only. Contact admin for access.</p>
                 </div>
             </div>
         </div>

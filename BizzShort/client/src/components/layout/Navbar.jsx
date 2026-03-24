@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CATEGORIES, GET_CATEGORIES_BY_GROUP } from '../../config/categories';
 import '../../styles/navbar.css';
 
 // Icons (using simple SVG)
@@ -13,25 +14,20 @@ const Icons = {
 
 const menuItems = [
     { path: '/', label: 'Home', icon: 'Home' },
-    { path: '/positive-news', label: 'Positive News' },
     { path: '/fake-news', label: 'Fake News' },
     {
         label: 'Levels News',
-        submenu: [
-            { path: '/international-news', label: 'International News' },
-            { path: '/national-news', label: 'National News' },
-            { path: '/state-news', label: 'State News' },
-        ]
+        submenu: GET_CATEGORIES_BY_GROUP('levels').map(cat => ({
+            path: cat.path,
+            label: cat.label
+        }))
     },
     {
         label: 'Interested Field',
-        submenu: [
-            { path: '/economics', label: 'Economics' },
-            { path: '/polity', label: 'Polity' },
-            { path: '/technology', label: 'Technology' },
-            { path: '/environment', label: 'Environment' },
-            { path: '/sports', label: 'Sports' },
-        ]
+        submenu: GET_CATEGORIES_BY_GROUP('interests').map(cat => ({
+            path: cat.path,
+            label: cat.label
+        }))
     },
 ];
 

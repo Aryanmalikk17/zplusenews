@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 import { articlesAPI, videosAPI } from '../services/api';
 import ArticleCard from '../components/ui/ArticleCard';
 import '../styles/article-page.css';
@@ -40,6 +41,8 @@ export default function Article() {
   const [video, setVideo] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [readingProgress, setReadingProgress] = useState(0);
+  const articleRef = useRef(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -118,14 +121,21 @@ export default function Article() {
           }
         }
 
-        // Fetch related articles
-        const allArticles = await articlesAPI.getAll({ limit: 4 }).catch(() => []);
-        const artArr = allArticles?.data || allArticles || [];
-        setRelatedArticles(
-          Array.isArray(artArr)
-            ? artArr.filter(a => a.slug !== slug && a._id !== slug).slice(0, 3)
-            : []
-        );
+        // Fetch related articles - filtered by the current article's category
+        try {
+          const currentCategory = article?.category;
+          const relatedParams = { limit: 4 };
+          if (currentCategory) relatedParams.category = currentCategory;
+          const allArticles = await articlesAPI.getAll(relatedParams).catch(() => []);
+          const artArr = allArticles?.data || allArticles || [];
+          setRelatedArticles(
+            Array.isArray(artArr)
+              ? artArr.filter(a => a.slug !== slug && a._id !== slug).slice(0, 3)
+              : []
+          );
+        } catch {
+          // non-fatal: related articles are optional
+        }
       } catch (error) {
         console.error('Error fetching article:', error);
       } finally {
@@ -134,7 +144,39 @@ export default function Article() {
     };
 
     fetchContent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, routeVideoId]);
+
+  // Reading progress bar
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setReadingProgress(docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Open Graph meta tag injection
+  useEffect(() => {
+    if (!article) return;
+    document.title = `${article.title} | ZPluse News`;
+    const setMeta = (property, content) => {
+      let el = document.querySelector(`meta[property='${property}']`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('property', property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+    setMeta('og:title', article.title);
+    setMeta('og:description', article.excerpt || article.content?.substring(0, 160) || '');
+    setMeta('og:image', article.image || '');
+    setMeta('og:url', window.location.href);
+    setMeta('og:type', 'article');
+  }, [article]);
 
   if (loading) {
     return (
@@ -186,6 +228,12 @@ export default function Article() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Sticky Reading Progress Bar */}
+      <div
+        className="reading-progress-bar"
+        style={{ width: `${readingProgress}%` }}
+        aria-hidden="true"
+      />
       {/* Header Bar */}
       <div className="article-header-bar">
         <div className="container article-header-inner">
@@ -235,9 +283,19 @@ export default function Article() {
       {/* Article Title & Meta */}
       <div className="container">
         <div className="article-content-wrapper">
-          {!youtubeVideoId && article.image && (
+          {/* Hero image: show when NOT a video-only article, or always if there is a cover image */}
+          {(article.poster || article.image || article.thumbnail || article.coverImage) && !youtubeVideoId && (
             <div className="article-hero-img">
-              <img src={article.image} alt={article.title} loading="lazy" />
+              <img
+                src={article.poster || article.image || article.thumbnail || article.coverImage}
+                alt={article.title}
+                loading="eager"
+                style={{ width: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                }}
+              />
             </div>
           )}
 
@@ -273,9 +331,12 @@ export default function Article() {
             </h2>
 
             <article
+              ref={articleRef}
               className="article-content"
               dangerouslySetInnerHTML={{
-                __html: article.content || '<p>Article content is being generated. Please check back soon.</p>'
+                __html: DOMPurify.sanitize(
+                  article.content || '<p>Article content is being generated. Please check back soon.</p>'
+                )
               }}
             />
           </div>

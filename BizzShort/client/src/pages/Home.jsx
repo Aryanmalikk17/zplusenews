@@ -1,107 +1,39 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { articlesAPI, videosAPI } from '../services/api';
+import { articlesAPI } from '../services/api';
 import TrendingTicker from '../components/ui/TrendingTicker';
-import NewsCategorySection from '../components/ui/NewsCategorySection';
+import CategoryRow from '../components/CategoryRow';
 import ArticleCard from '../components/ui/ArticleCard';
-import VideoCard from '../components/ui/VideoCard';
-import HinduCalendar from '../components/ui/HinduCalendar';
+import { CATEGORIES } from '../config/categories';
 import '../styles/components.css';
 
 export default function Home() {
-    const [articles, setArticles] = useState([]);
-    const [videos, setVideos] = useState([]);
+    const [featuredArticles, setFeaturedArticles] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchHeroData = async () => {
             try {
-                const [articlesRes, videosRes] = await Promise.all([
-                    articlesAPI.getAll({ limit: 30 }).catch(() => ({ data: [] })),
-                    videosAPI.getAll().catch(() => ({ data: [] })),
-                ]);
-
-                const articlesData = articlesRes?.data || articlesRes || [];
-                const videosData = videosRes?.data || videosRes || [];
-
-                setArticles(Array.isArray(articlesData) ? articlesData : []);
-                setVideos(Array.isArray(videosData) ? videosData : []);
+                // Fetch 5 latest articles for the Hero section
+                const response = await articlesAPI.getPublicList({ limit: 5 });
+                const data = response?.data || response || [];
+                setFeaturedArticles(Array.isArray(data) ? data : []);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching hero data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
+        fetchHeroData();
     }, []);
-
-    // Organize content by category
-    const latestContent = [...articles, ...videos]
-        .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
-
-    const latestArticles = articles.slice(0, 6);
-    const latestVideos = videos.slice(0, 3);
-
-    // Business & Markets
-    const businessArticles = articles.filter(a =>
-        a.category?.toLowerCase().includes('business') ||
-        a.category?.toLowerCase().includes('market') ||
-        a.category?.toLowerCase().includes('economy') ||
-        a.category?.toLowerCase().includes('finance')
-    );
-    const businessVideos = videos.filter(v =>
-        v.category?.toLowerCase().includes('business') ||
-        v.category?.toLowerCase().includes('market') ||
-        v.category?.toLowerCase().includes('economy')
-    );
-
-    // Technology
-    const techArticles = articles.filter(a =>
-        a.category?.toLowerCase().includes('tech') ||
-        a.category?.toLowerCase().includes('ai') ||
-        a.category?.toLowerCase().includes('software') ||
-        a.category?.toLowerCase().includes('startup')
-    );
-    const techVideos = videos.filter(v =>
-        v.category?.toLowerCase().includes('tech') ||
-        v.category?.toLowerCase().includes('ai') ||
-        v.category?.toLowerCase().includes('startup')
-    );
-
-    // World News / International
-    const worldArticles = articles.filter(a =>
-        a.category?.toLowerCase().includes('world') ||
-        a.category?.toLowerCase().includes('international') ||
-        a.category?.toLowerCase().includes('global')
-    );
-
-    // Popular articles (sorted by views)
-    const popularArticles = [...articles]
-        .sort((a, b) => (parseInt(b.views) || 0) - (parseInt(a.views) || 0))
-        .slice(0, 5);
-
-    // Format views helper
-    const formatViews = (views) => {
-        if (!views) return '0';
-        const num = parseInt(views);
-        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-        return num.toString();
-    };
-
-    // Get author name helper
-    const getAuthorName = (author) => {
-        if (!author) return 'Editorial Team';
-        return typeof author === 'object' ? author?.name : author;
-    };
 
     if (loading) {
         return (
             <div className="home-page">
                 <div className="loading-container">
                     <div className="loading-spinner"></div>
-                    <p>Loading news...</p>
+                    <p>Preparing your news feed...</p>
                 </div>
             </div>
         );
@@ -112,217 +44,50 @@ export default function Home() {
             {/* Trending Ticker */}
             <TrendingTicker />
 
-            {/* ============ LATEST NEWS - Hero Section ============ */}
-            <section className="section latest-news-section">
-                <div className="container">
-                    <div className="section-header">
-                        <motion.h2
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            Latest News
-                        </motion.h2>
-                        <Link to="/latest" className="view-all">View All →</Link>
-                    </div>
-
-                    <div className="latest-news-layout">
-                        {/* Featured Article */}
-                        {latestArticles[0] && (
-                            <motion.div
-                                className="latest-featured"
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                <Link to={`/article/${latestArticles[0].slug || latestArticles[0]._id}`} className="featured-card">
-                                    <div className="featured-image">
-                                        <img
-                                            src={latestArticles[0].image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800'}
-                                            alt={latestArticles[0].title}
-                                            loading="lazy"
-                                        />
-                                        <div className="featured-gradient"></div>
-                                    </div>
-                                    <div className="featured-content">
-                                        <span className="category-badge">{latestArticles[0].category || 'News'}</span>
-                                        <h1 className="featured-title">{latestArticles[0].title}</h1>
-                                        <p className="featured-excerpt">
-                                            {latestArticles[0].excerpt || latestArticles[0].content?.substring(0, 150) + '...'}
-                                        </p>
-                                        <div className="featured-meta">
-                                            <span>By {getAuthorName(latestArticles[0].author)}</span>
-                                            <span>•</span>
-                                            <span>{latestArticles[0].readTime || '5 min read'}</span>
-                                        </div>
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        )}
-
-                        {/* Side Articles */}
-                        <div className="latest-side">
-                            {latestArticles.slice(1, 4).map((article, index) => (
-                                <motion.div
-                                    key={article._id || index}
-                                    className="latest-side-item"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 + index * 0.1 }}
-                                >
-                                    <Link to={`/article/${article.slug || article._id}`} className="side-article">
-                                        <div className="side-article-image">
-                                            <img
-                                                src={article.image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400'}
-                                                alt={article.title}
-                                                loading="lazy"
-                                            />
-                                        </div>
-                                        <div className="side-article-content">
-                                            <span className="category-badge small">{article.category}</span>
-                                            <h3>{article.title}</h3>
-                                            <span className="article-date">
-                                                {new Date(article.createdAt || article.date).toLocaleDateString('en-US', {
-                                                    month: 'short', day: 'numeric'
-                                                })}
-                                            </span>
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============ BUSINESS & MARKETS WITH CALENDAR ============ */}
-            <section className="section business-calendar-section">
-                <div className="container">
-                    <div className="business-calendar-layout">
-                        {/* Business Content - Left Side */}
-                        <div className="business-content">
-                            <NewsCategorySection
-                                title="Business & Markets"
-                                icon=""
-                                articles={businessArticles.length > 0 ? businessArticles : articles.slice(0, 4)}
-                                videos={businessVideos}
-                                layout="featured"
-                                maxItems={5}
-                                viewAllLink="/economics"
-                            />
-                        </div>
-
-                        {/* Hindu Calendar - Right Sidebar */}
-                        <div className="calendar-sidebar">
-                            <HinduCalendar />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============ TECHNOLOGY ============ */}
-            <section className="section tech-section" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="container">
-                    <div className="section-header">
-                        <motion.h2
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            Technology
-                        </motion.h2>
-                        <Link to="/technology" className="view-all">View All →</Link>
-                    </div>
-
-                    <div className="content-with-sidebar">
-                        <div className="main-content-area">
-                            <div className="article-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                                {/* Fallback to general articles if tech filters return empty */}
-                                {(techArticles.length > 0 ? techArticles : articles).slice(0, 4).map((article, index) => (
-                                    <ArticleCard
-                                        key={article._id || index}
-                                        article={article}
-                                        index={index}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Sidebar - Popular This Week */}
-                        <aside className="sidebar-area">
-                            <div className="sidebar-widget">
-                                <h3 className="widget-title">Trending This Week</h3>
-                                {popularArticles.length > 0 ? (
-                                    popularArticles.map((article, index) => (
-                                        <Link
-                                            key={article._id || index}
-                                            to={`/article/${article.slug || article._id}`}
-                                            className="popular-article"
-                                            style={{ textDecoration: 'none', color: 'inherit' }}
-                                        >
-                                            <span className="popular-article-number">{index + 1}</span>
-                                            <div className="popular-article-content">
-                                                <h4>{article.title}</h4>
-                                                <span>{formatViews(article.views)} views</span>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <p className="empty-hint">Popular articles will appear here</p>
-                                )}
-                            </div>
-
-                            {/* Newsletter */}
-                            <div className="sidebar-widget newsletter-widget">
-                                <h3 className="widget-title">Newsletter</h3>
-                                <p>Get the latest news delivered to your inbox.</p>
-                                <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-                                    <input type="email" placeholder="Your email" required />
-                                    <button type="submit">Subscribe</button>
-                                </form>
-                            </div>
-                        </aside>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============ VIDEO NEWS ============ */}
-            {videos.length > 0 && (
-                <section className="section video-section">
+            {/* ============ FEATURED HERO SECTION ============ */}
+            {featuredArticles.length > 0 && (
+                <section className="section hero-section">
                     <div className="container">
-                        <motion.div
-                            className="section-header"
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            <h2>Video News</h2>
-                            <a href="/videos" className="view-all">View All →</a>
-                        </motion.div>
+                        <div className="hero-grid">
+                            {/* Main Featured Article */}
+                            <div className="hero-main">
+                                <ArticleCard 
+                                    article={featuredArticles[0]} 
+                                    variant="featured" 
+                                />
+                            </div>
 
-                        <div className="video-grid">
-                            {videos.slice(0, 4).map((video, index) => (
-                                <div key={video._id || index} className="video-grid-item">
-                                    <VideoCard video={video} />
+                            {/* Secondary Featured List */}
+                            <div className="hero-side">
+                                <div className="hero-side-list">
+                                    {featuredArticles.slice(1, 4).map((article, index) => (
+                                        <ArticleCard 
+                                            key={article._id || index} 
+                                            article={article} 
+                                            variant="compact" 
+                                            index={index}
+                                        />
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
                 </section>
             )}
 
-            {/* ============ WORLD NEWS ============ */}
-            {(worldArticles.length > 0 || articles.length > 8) && (
-                <NewsCategorySection
-                    title="World News"
-                    icon=""
-                    articles={worldArticles.length > 0 ? worldArticles : articles.slice(8, 12)}
-                    videos={[]}
-                    layout="grid"
-                    maxItems={4}
-                    viewAllLink="/world"
-                />
-            )}
+            {/* ============ DYNAMIC CATEGORY ROWS ============ */}
+            <div className="category-rows-container">
+                {CATEGORIES.map((cat) => (
+                    <CategoryRow 
+                        key={cat.id}
+                        categoryId={cat.id}
+                        title={cat.label}
+                        path={cat.path}
+                    />
+                ))}
+            </div>
+
+            {/* Optional: Add a "More News" or "Video News" section if needed later */}
         </div>
     );
 }

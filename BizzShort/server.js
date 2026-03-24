@@ -10,6 +10,18 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 const validator = require('validator');
+const cookieParser = require('cookie-parser');
+const NodeCache = require('node-cache');
+const { body, validationResult } = require('express-validator');
+
+// In-memory cache: 5-minute TTL for public API responses
+const apiCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
+// ============ Startup guard: crash fast on missing critical env vars ============
+if (!process.env.JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
+    process.exit(1);
+}
 
 // Load env vars
 dotenv.config();
@@ -33,17 +45,21 @@ connectDB().then(async connected => {
             });
             
             if (!adminExists) {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash('admin123', salt);
-                
-                await User.create({
-                    name: 'admin',
-                    email: 'admin@zplusenews.com',
-                    password: hashedPassword,
-                    role: 'ADMIN',
-                    status: 'APPROVED'
-                });
-                console.log('✅ Default admin user created (admin@zplusenews.com / admin123)');
+                const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD;
+                if (!defaultPassword) {
+                    console.warn('⚠️ Skipping admin seed: DEFAULT_ADMIN_PASSWORD env var is not set.');
+                } else {
+                    const salt = await bcrypt.genSalt(10);
+                    const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+                    await User.create({
+                        name: 'admin',
+                        email: 'admin@zplusenews.com',
+                        password: hashedPassword,
+                        role: 'ADMIN',
+                        status: 'APPROVED'
+                    });
+                    console.log('✅ Default admin user created: admin@zplusenews.com');
+                }
             } else {
                 console.log('ℹ️ Admin user already exists');
             }
@@ -98,12 +114,16 @@ if (process.env.NODE_ENV === 'production') {
 
 // ============ SECURITY MIDDLEWARE (Only for API routes) ============
 // Set security headers - Configured to allow Vite-generated assets
+const isProd = process.env.NODE_ENV === 'production';
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", "blob:", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
+            // In production remove unsafe-inline/unsafe-eval; in dev keep them for Vite HMR
+            scriptSrc: isProd
+                ? ["'self'", "'wasm-unsafe-eval'", "blob:", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"]
+                : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", "blob:", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com"],
             imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
             connectSrc: ["'self'", "https://zplusenews.com", "https://www.zplusenews.com", "https://zplusenews.onrender.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
@@ -115,6 +135,9 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: false
 }));
+
+// Parse cookies (needed for httpOnly auth cookie)
+app.use(cookieParser());
 
 // Rate limiting - Relaxed for production use
 const limiter = rateLimit({
@@ -210,54 +233,49 @@ const conditionalUpload = (fieldName) => (req, res, next) => {
 
 // ============ Helper Functions ============
 const generateToken = (id) => {
-    const secret = process.env.JWT_SECRET || 'zplusenews_fallback_secret_2025';
-    if (!process.env.JWT_SECRET) {
-        console.warn('⚠️ WARNING: JWT_SECRET is not defined. Using fallback secret.');
-    }
-    return jwt.sign({ id }, secret, { expiresIn: process.env.JWT_EXPIRE || '30d' });
+    // JWT_SECRET is guaranteed by the startup guard above
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
+};
+
+// Cookie options for the auth session
+const AUTH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
 };
 
 // ============ Middleware ============
 const protect = async (req, res, next) => {
     let token;
 
-    if (!process.env.JWT_SECRET) {
-        return res.status(500).json({ success: false, error: 'Server configuration error' });
+    // 1. Check Authorization header (Bearer token)
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    // 2. Check httpOnly cookie (preferred for admin sessions)
+    else if (req.cookies && req.cookies.adminToken) {
+        token = req.cookies.adminToken;
+    }
+    // 3. Backward compatibility: session-id header
+    else if (req.headers['session-id']) {
+        token = req.headers['session-id'];
     }
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-            token = req.headers.authorization.split(' ')[1];
-            const secret = process.env.JWT_SECRET || 'zplusenews_fallback_secret_2025';
-            const decoded = jwt.verify(token, secret);
-            req.user = await User.findById(decoded.id).select('-password');
-            
-            if (!req.user) {
-                return res.status(401).json({ success: false, error: 'User not found' });
-            }
-            
-            next();
-        } catch (error) {
-            console.error('Token verification error:', error);
-            res.status(401).json({ success: false, error: 'Not authorized, token failed' });
+    if (!token) {
+        return res.status(401).json({ success: false, error: 'Not authorized, no token' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id).select('-password');
+        if (!req.user) {
+            return res.status(401).json({ success: false, error: 'User not found' });
         }
-    } else if (req.headers['session-id']) {
-        // Backward compatibility for existing frontend using session-id header
-        try {
-            token = req.headers['session-id'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
-            
-            if (!req.user) {
-                return res.status(401).json({ success: false, error: 'User not found' });
-            }
-            
-            next();
-        } catch (error) {
-            res.status(401).json({ success: false, error: 'Not authorized, invalid session' });
-        }
-    } else {
-        res.status(401).json({ success: false, error: 'Not authorized, no token' });
+        next();
+    } catch (error) {
+        console.error('Token verification error:', error.message);
+        res.status(401).json({ success: false, error: 'Not authorized, token failed' });
     }
 };
 
@@ -298,8 +316,12 @@ app.get('/api/setup-production', async (req, res) => {
 
     try {
         // 1. Create OR Update Admin
+        const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD;
+        if (!defaultPassword) {
+            return res.status(400).send('Setup Error: DEFAULT_ADMIN_PASSWORD env var is not set. Refusing to create admin with a known default password.');
+        }
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('admin123', salt);
+        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
 
         // Search by email OR name to find existing admin (case-insensitive)
         let admin = await User.findOne({ 
@@ -535,9 +557,13 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
             
             const token = generateToken(user._id);
             console.log('Login successful for:', user.name);
-            
+
+            // Set httpOnly cookie for secure session management
+            res.cookie('adminToken', token, AUTH_COOKIE_OPTIONS);
+
             res.json({
                 success: true,
+                // sessionId kept for backward compat with clients still reading it
                 sessionId: token,
                 user: { id: user._id, name: user.name, role: user.role, status: user.status }
             });
@@ -549,6 +575,16 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
         console.error('Login error:', err.message, err.stack);
         res.status(500).json({ success: false, error: 'Server error: ' + err.message });
     }
+});
+
+// Admin: Logout - clear the auth cookie
+app.post('/api/admin/logout', (req, res) => {
+    res.clearCookie('adminToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.json({ success: true, message: 'Logged out successfully' });
 });
 
 // Admin: Change Password
@@ -1011,6 +1047,13 @@ app.get('/api/stats', protect, async (req, res) => {
 app.get('/api/articles', async (req, res) => {
     try {
         const { category, page = 1, limit = 10 } = req.query;
+        const cacheKey = `articles:${category || 'all'}:p${page}:l${limit}`;
+
+        const cached = apiCache.get(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+
         const query = category ? { category: new RegExp(category, 'i') } : {};
 
         const articles = await Article.find(query)
@@ -1020,17 +1063,31 @@ app.get('/api/articles', async (req, res) => {
 
         const count = await Article.countDocuments(query);
 
-        res.json({
+        const result = {
             success: true,
             data: articles.map(a => ({ ...a._doc, id: a._id })),
             pagination: { page: +page, limit: +limit, total: count, pages: Math.ceil(count / limit) }
-        });
+        };
+        apiCache.set(cacheKey, result);
+        res.json(result);
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-app.post('/api/articles', protect, conditionalUpload('image'), async (req, res) => {
+// Article creation validation rules
+const articleValidation = [
+    body('title').trim().isLength({ min: 5, max: 200 }).withMessage('Title must be 5–200 characters'),
+    body('content').trim().isLength({ min: 20 }).withMessage('Content must be at least 20 characters'),
+    body('category').trim().notEmpty().withMessage('Category is required'),
+];
+
+app.post('/api/articles', protect, articleValidation, conditionalUpload('image'), async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
     try {
         const { title, slug, category, excerpt, content, author, tags, videoUrl, image } = req.body;
 
@@ -1064,6 +1121,8 @@ app.post('/api/articles', protect, conditionalUpload('image'), async (req, res) 
         }
 
         const article = await Article.create(articleData);
+        // Invalidate articles list cache on new content
+        apiCache.flushAll();
 
         res.status(201).json({ success: true, data: { ...article._doc, id: article._id } });
     } catch (err) {
@@ -1151,8 +1210,8 @@ app.get('/api/articles/public/list', async (req, res) => {
     }
 });
 
-// Increment article view count
-app.put('/api/articles/:id/view', async (req, res) => {
+// Increment article view count (protected to prevent unauthenticated view-spamming)
+app.put('/api/articles/:id/view', protect, async (req, res) => {
     try {
         const article = await Article.findByIdAndUpdate(
             req.params.id,
@@ -1445,8 +1504,26 @@ app.delete('/api/advertisements/:id', protect, async (req, res) => {
 // Videos
 app.get('/api/videos', async (req, res) => {
     try {
-        const videos = await Video.find().sort({ createdAt: -1 });
-        res.json({ success: true, data: videos.map(v => ({ ...v._doc, id: v._id })) });
+        const { category, page = 1, limit = 20 } = req.query;
+        const cacheKey = `videos:${category || 'all'}:p${page}:l${limit}`;
+
+        const cached = apiCache.get(cacheKey);
+        if (cached) return res.json(cached);
+
+        const query = category ? { category: new RegExp(category, 'i') } : {};
+        const videos = await Video.find(query)
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+        const count = await Video.countDocuments(query);
+
+        const result = {
+            success: true,
+            data: videos.map(v => ({ ...v._doc, id: v._id })),
+            pagination: { page: +page, limit: +limit, total: count, pages: Math.ceil(count / limit) }
+        };
+        apiCache.set(cacheKey, result);
+        res.json(result);
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
@@ -1535,6 +1612,49 @@ app.delete('/api/videos/:id', protect, async (req, res) => {
         await Video.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Video deleted' });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+});
+
+// --- Dynamic Sitemap ---
+app.get('/sitemap.xml', async (req, res) => {
+    try {
+        const baseUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const articles = await Article.find(
+            { status: 'PUBLISHED', slug: { $exists: true, $ne: '' } },
+            'slug publishedAt'
+        ).lean();
+
+        const staticUrls = [
+            { loc: baseUrl, changefreq: 'daily', priority: '1.0' },
+            { loc: `${baseUrl}/latest`, changefreq: 'hourly', priority: '0.9' },
+            { loc: `${baseUrl}/videos`, changefreq: 'daily', priority: '0.8' },
+            { loc: `${baseUrl}/events`, changefreq: 'weekly', priority: '0.7' },
+            { loc: `${baseUrl}/about`, changefreq: 'monthly', priority: '0.5' },
+        ];
+
+        const articleUrls = articles.map(a => ({
+            loc: `${baseUrl}/article/${a.slug}`,
+            lastmod: a.publishedAt ? new Date(a.publishedAt).toISOString().split('T')[0] : undefined,
+            changefreq: 'weekly',
+            priority: '0.8'
+        }));
+
+        const allUrls = [...staticUrls, ...articleUrls];
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allUrls.map(u => `  <url>
+    <loc>${u.loc}</loc>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap generation error:', err.message);
+        res.status(500).send('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+    }
 });
 
 // SPA Fallback - Serve React app for any non-API routes (must be after all API routes)

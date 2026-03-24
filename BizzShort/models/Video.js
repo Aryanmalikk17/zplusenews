@@ -6,8 +6,8 @@ const videoSchema = new mongoose.Schema({
         type: String, 
         required: true,
         enum: [
-            // Special Categories
-            'positive', 'fake-news',
+            // Special Categories (positive removed from active UI; kept here for legacy docs)
+            'fake-news', 'positive',
             // Level-based Categories
             'international', 'national', 'state',
             // Interest-based Categories
@@ -35,5 +35,9 @@ const videoSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
+
+// Indexes for query performance
+videoSchema.index({ category: 1, createdAt: -1 });
+videoSchema.index({ videoId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Video', videoSchema);

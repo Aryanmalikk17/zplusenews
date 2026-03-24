@@ -42,7 +42,7 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
 
     const displayExcerpt = excerpt || (content ? content.substring(0, 120) + '...' : '');
     const articleUrl = isExternal ? source?.url : `/article/${slug || _id}`;
-    const imageUrl = image || `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600`;
+    const imageUrl = image || `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=75&fm=webp&fit=crop`;
 
     // Wrapper component for links
     const CardLink = ({ children, className }) => {
@@ -109,7 +109,6 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
                 variants={cardVariants}
                 initial="hidden"
                 animate="visible"
-                whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
             >
                 <CardLink>
@@ -151,12 +150,11 @@ export default function ArticleCard({ article, variant = 'default', index = 0 })
     // Default card variant
     return (
         <motion.article
-            className={`article-card ${isExternal ? 'article-card-external' : ''}`}
+            className={`article-card article-card-hover ${isExternal ? 'article-card-external' : ''}`}
             variants={cardVariants}
             initial="hidden"
             animate="visible"
             transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -5 }}
         >
             <CardLink>
                 <div className="article-card-image">
