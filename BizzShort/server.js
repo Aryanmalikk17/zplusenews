@@ -1170,19 +1170,6 @@ app.delete('/api/articles/:id', protect, async (req, res) => {
     }
 });
 
-// Get single article by ID (public)
-app.get('/api/articles/:id', async (req, res) => {
-    try {
-        const article = await Article.findById(req.params.id);
-        if (!article) {
-            return res.status(404).json({ success: false, error: 'Article not found' });
-        }
-        res.json({ success: true, data: { ...article._doc, id: article._id } });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
 // Get article by slug (public)
 app.get('/api/articles/slug/:slug', async (req, res) => {
     try {
@@ -1229,6 +1216,37 @@ app.get('/api/articles/public/list', async (req, res) => {
         };
         apiCache.set(cacheKey, result);
         res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Alias for old public API
+app.get('/api/articles/public', async (req, res) => {
+    try {
+        const { category } = req.query;
+        const query = { status: 'PUBLISHED' };
+        if (category) query.category = new RegExp(category, 'i');
+
+        const articles = await Article.find(query)
+            .sort({ publishedAt: -1 })
+            .limit(10)
+            .lean();
+        
+        res.json(articles);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Get single article by ID (public)
+app.get('/api/articles/:id', async (req, res) => {
+    try {
+        const article = await Article.findById(req.params.id);
+        if (!article) {
+            return res.status(404).json({ success: false, error: 'Article not found' });
+        }
+        res.json({ success: true, data: { ...article._doc, id: article._id } });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
