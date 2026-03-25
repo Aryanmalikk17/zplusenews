@@ -1,118 +1,88 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const multer = require('multer');
 const path = require('path');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
-const { body, validationResult } = require('express-validator');
+const validator = require('validator');
+const cookieParser = require('cookie-parser');
 const NodeCache = require('node-cache');
-const dotenv = require('dotenv');
+const { body, validationResult } = require('express-validator');
 
-// Load environment variables
-dotenv.config();
-
-const Article = require('./models/Article');
 const apiCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
+dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET environment variable is not set.');
+    process.exit(1);
+}
+
+connectDB();
+
+const Article = require('./models/Article');
+const User = require('./models/User');
+const Video = require('./models/Video');
+const Event = require('./models/Event');
+const Interview = require('./models/Interview');
+const News = require('./models/News');
+const IndustryUpdate = require('./models/IndustryUpdate');
+const Client = require('./models/Client');
+const Advertisement = require('./models/Advertisement');
+
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-// Security Middleware
-app.use(helmet({
-    contentSecurityPolicy: false, // For easier local development with images
-}));
-app.use(mongoSanitize());
+app.set('trust proxy', 1);
 
-// Rate Limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100 
-});
-app.use('/api/', limiter);
-
-// Middleware
-app.use(cors({
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : 'http://localhost:3000',
-    credentials: true
-}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// DB Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB Atlas'))
-    .catch(err => console.error('MongoDB connection error:', err));
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, 'client', 'dist')));
+}
 
-// Auth Middleware Mock (for local fix consistency)
-const protect = (req, res, next) => {
-    // In production this verifies JWT from cookie
-    // For this fix, we assume the user is authenticated via adminToken cookie
-    const token = req.cookies.adminToken;
-    if (!token && process.env.NODE_ENV === 'production') {
-        return res.status(401).json({ success: false, error: 'Not authorized' });
-    }
-    req.user = { id: 'admin_id', name: 'Admin' };
-    next();
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cookieParser());
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const protect = async (req, res, next) => {
+    const token = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+    if (!token) return res.status(401).json({ success: false, error: 'Not authorized' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id).select('-password');
+        next();
+    } catch (e) { res.status(401).json({ success: false }); }
 };
 
-// Conditional Upload Middleware
-const multer = require('multer');
 const storage = multer.diskStorage({
-    destination: './uploads/',
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+    destination: 'uploads/',
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
 const upload = multer({ storage });
-const conditionalUpload = (fieldName) => (req, res, next) => {
-    if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
-        return upload.single(fieldName)(req, res, next);
-    }
-    next();
-};
 
-// API Routes
+// API ROUTES
 
-// Stats
-app.get('/api/stats', async (req, res) => {
-    try {
-        const stats = {
-            articles: await Article.countDocuments(),
-            views: (await Article.aggregate([{ $group: { _id: null, total: { $sum: "$views" } } }]))[0]?.total || 0,
-            categories: (await Article.distinct('category')).length
-        };
-        res.json({ success: true, data: stats });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-// Articles
 app.get('/api/articles', async (req, res) => {
     try {
         const { category } = req.query;
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 10;
         const skip = (page - 1) * limit;
-
         const cacheKey = `articles:${category || 'all'}:p${page}:l${limit}`;
 
         const cached = apiCache.get(cacheKey);
-        if (cached) {
-            return res.json(cached);
-        }
+        if (cached) return res.json(cached);
 
         const query = category ? { category: new RegExp(category, 'i') } : {};
-
-        const articles = await Article.find(query)
-            .sort({ publishedAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
+        const articles = await Article.find(query).sort({ publishedAt: -1 }).skip(skip).limit(limit).lean();
         const count = await Article.countDocuments(query);
 
         const result = {
@@ -122,72 +92,35 @@ app.get('/api/articles', async (req, res) => {
         };
         apiCache.set(cacheKey, result);
         res.json(result);
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// Article validation
-const articleValidation = [
-    body('title').trim().isLength({ min: 5, max: 200 }).withMessage('Title too short/long'),
-    body('category').trim().notEmpty().withMessage('Category required'),
-];
-
-app.post('/api/articles', protect, articleValidation, conditionalUpload('image'), async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ success: false, errors: errors.array() });
-
+app.post('/api/articles', protect, upload.single('image'), async (req, res) => {
     try {
         const articleData = { ...req.body };
         if (req.file) articleData.image = `/uploads/${req.file.filename}`;
-        
         const article = await Article.create(articleData);
-        apiCache.flushAll(); // Invalidate cache
+        apiCache.flushAll();
         res.status(201).json({ success: true, data: article });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-app.put('/api/articles/:id', protect, conditionalUpload('image'), async (req, res) => {
+app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) => {
     try {
         const updateData = { ...req.body };
         if (req.file) updateData.image = `/uploads/${req.file.filename}`;
-        
         const article = await Article.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        if (!article) return res.status(404).json({ success: false, error: 'Article not found' });
-
-        apiCache.flushAll(); // Invalidate cache
+        apiCache.flushAll();
         res.json({ success: true, data: article });
-    } catch (err) {
-        res.status(500).json({ success: false, error: 'Update failed' });
-    }
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
 app.delete('/api/articles/:id', protect, async (req, res) => {
     try {
         await Article.findByIdAndDelete(req.params.id);
-        apiCache.flushAll(); // Invalidate cache
-        res.json({ success: true, message: 'Deleted' });
-    } catch (err) {
-        res.status(500).json({ success: false, error: 'Delete failed' });
-    }
-});
-
-app.get('/api/articles/:id', async (req, res) => {
-    try {
-        const article = await Article.findById(req.params.id);
-        if (!article) return res.status(404).json({ success: false, error: 'Not found' });
-        res.json({ success: true, data: article });
-    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
-});
-
-app.get('/api/articles/slug/:slug', async (req, res) => {
-    try {
-        const article = await Article.findOne({ slug: req.params.slug });
-        if (!article) return res.status(404).json({ success: false, error: 'Not found' });
-        res.json({ success: true, data: article });
-    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+        apiCache.flushAll();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.get('/api/articles/public/list', async (req, res) => {
@@ -219,33 +152,60 @@ app.get('/api/articles/public/list', async (req, res) => {
         };
         apiCache.set(cacheKey, result);
         res.json(result);
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// YouTube Video Row
+app.get('/api/articles/slug/:slug', async (req, res) => {
+    try {
+        const article = await Article.findOne({ slug: req.params.slug });
+        if (!article) return res.status(404).json({ success: false });
+        res.json({ success: true, data: article });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// Video highlights for row
 app.get('/api/articles/videos', async (req, res) => {
     try {
-        const cacheKey = 'videos_row';
-        const cached = apiCache.get(cacheKey);
-        if (cached) return res.json(cached);
-
         const videos = await Article.find({ videoUrl: { $exists: true, $ne: '' } })
             .sort({ publishedAt: -1 })
             .limit(8)
-            .select('title videoUrl excerpt category publishedAt')
             .lean();
-
-        const result = { success: true, data: videos.map(v => ({ ...v, id: v._id })) };
-        apiCache.set(cacheKey, result);
-        res.json(result);
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+        res.json({ success: true, data: videos.map(v => ({ ...v, id: v._id })) });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// Server Listen
+// Admin stats
+app.get('/api/stats', async (req, res) => {
+    try {
+        const stats = {
+            articles: await Article.countDocuments(),
+            videos: await Article.countDocuments({ videoUrl: { $exists: true, $ne: '' } }),
+            categories: (await Article.distinct('category')).length
+        };
+        res.json({ success: true, data: stats });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// Auth
+app.post('/api/admin/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const user = await User.findOne({ email: username });
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+        res.cookie('adminToken', token, { httpOnly: true, secure: true, sameSite: 'strict' });
+        res.json({ success: true, sessionId: token, user: { name: user.name, role: user.role } });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+    });
+}
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
