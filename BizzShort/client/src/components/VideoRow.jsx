@@ -1,96 +1,92 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useInView } from 'react-intersection-observer';
 import { videosAPI } from '../services/api';
 import VideoCard from './ui/VideoCard';
-import { motion, AnimatePresence } from 'framer-motion';
+import '../../styles/video-row.css';
 
 /**
  * VideoRow Component
- * 
- * Displays a row of latest synced videos on the Home page.
+ * Fetches latest 6 videos from the API and displays them in a responsive row.
+ * Includes a "Watch All" button and clean typography.
  */
-export default function VideoRow({ title = "Video Highlights", path = "/videos" }) {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+export default function VideoRow() {
+    const [videos, setVideos] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-    rootMargin: '200px 0px',
-  });
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                const response = await videosAPI.getAll({ limit: 6 });
+                const data = response?.data || response || [];
+                // Ensure data is an array
+                setVideos(Array.isArray(data) ? data.slice(0, 6) : []);
+            } catch (error) {
+                console.error('Error fetching videos for row:', error);
+                setVideos([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-  useEffect(() => {
-    if (inView && !hasFetched) {
-      fetchVideos();
-    }
-  }, [inView, hasFetched]);
+        fetchVideos();
+    }, []);
 
-  const fetchVideos = async () => {
-    setLoading(true);
-    try {
-      const response = await videosAPI.getAll({ limit: 4 });
-      const data = response?.data || response || [];
-      setVideos(Array.isArray(data) ? data : []);
-      setHasFetched(true);
-    } catch (err) {
-      console.error('Error fetching videos for row:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // If no videos are available after loading, don't render the section
+    if (!loading && videos.length === 0) return null;
 
-  if (hasFetched && videos.length === 0 && !loading) return null;
-
-  return (
-    <section className="video-row-section" ref={ref}>
-      <div className="container">
-        <div className="video-row-header">
-          <h2 className="video-row-title">{title}</h2>
-          <Link to={path} className="video-row-view-all">
-            Watch All <span>&rarr;</span>
-          </Link>
-        </div>
-
-        <div className="video-row-content">
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div 
-                key="skeleton"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="video-row-grid"
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="video-card-skeleton">
-                    <div className="skeleton-video-thumb shim"></div>
-                    <div className="skeleton-content" style={{ padding: '1rem' }}>
-                      <div className="skeleton-title shim" style={{ height: '1.2rem', marginBottom: '0.5rem' }}></div>
-                      <div className="skeleton-text shim" style={{ height: '0.8rem', width: '40%' }}></div>
+    return (
+        <section className="section video-row-section">
+            <div className="container">
+                <div className="section-header">
+                    <div className="header-info">
+                        <h2>
+                             Latest Video News
+                        </h2>
+                        <span className="live-badge">
+                            <span className="live-dot"></span> LIVE UPDATES
+                        </span>
                     </div>
-                  </div>
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div 
-                key="content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="video-row-grid"
-              >
-                {videos.map((video, index) => (
-                  <VideoCard 
-                    key={video._id || index} 
-                    video={video} 
-                  />
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </section>
-  );
+                    <Link to="/video-news" className="view-all">
+                        Watch All <i className="fa-solid fa-arrow-right"></i>
+                    </Link>
+                </div>
+
+                {loading ? (
+                    <div className="video-skeleton-row">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="video-skeleton-card">
+                                <div className="skeleton-thumb"></div>
+                                <div className="skeleton-text"></div>
+                                <div className="skeleton-text-short"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <motion.div 
+                        className="video-grid-row"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        {videos.map((video, index) => (
+                            <motion.div 
+                                key={video._id || index}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                            >
+                                <VideoCard video={video} />
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
+            </div>
+            
+            {/* Background Accent Gradient */}
+            <div className="video-section-accent"></div>
+        </section>
+    );
 }
