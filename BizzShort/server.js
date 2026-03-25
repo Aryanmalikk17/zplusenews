@@ -174,6 +174,38 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
+// Admin Stats / Analytics
+app.get('/api/admin/analytics', adminAuth, async (req, res) => {
+    try {
+        const totalArticles = await Article.countDocuments();
+        const totalVideos = await Video.countDocuments();
+        
+        // Aggregate total views across all articles
+        const articles = await Article.find({}, 'views');
+        const totalViews = articles.reduce((acc, curr) => acc + (curr.views || 0), 0);
+        
+        // Simplified trending topics (most viewed categories)
+        const trendingTopics = await Article.aggregate([
+            { $group: { _id: '$category', count: { $sum: '$views' } } },
+            { $sort: { count: -1 } },
+            { $limit: 3 }
+        ]);
+
+        res.json({
+            success: true,
+            data: {
+                totalArticles,
+                totalVideos,
+                totalViews,
+                trendingTopics: trendingTopics.map(t => t._id)
+            }
+        });
+    } catch (err) {
+        console.error('Analytics Error:', err);
+        res.status(500).json({ success: false, error: 'Failed to fetch analytics' });
+    }
+});
+
 // Logout
 app.post('/api/admin/logout', (req, res) => {
     res.clearCookie('adminToken');
