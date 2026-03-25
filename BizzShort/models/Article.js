@@ -42,13 +42,12 @@ ArticleSchema.index({ category: 1, publishedAt: -1 });
 ArticleSchema.index({ slug: 1 }, { unique: true });
 
 // Auto-generate slug from title if not provided
-ArticleSchema.pre('save', function (next) {
+ArticleSchema.pre('save', function () {
     if (this.isModified('title') && !this.slug) {
         this.slug = this.title.toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '') + '-' + Date.now();
     }
-    next();
 });
 
 module.exports = mongoose.model('Article', ArticleSchema);
