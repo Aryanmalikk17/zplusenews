@@ -1,334 +1,1120 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { articlesAPI, videosAPI, statsAPI } from '../services/api';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { articlesAPI, videosAPI, adminAPI } from '../services/api';
 import '../styles/admin.css';
 
-const AdminPanel = () => {
-    const [activeTab, setActiveTab] = useState('dashboard');
+export default function AdminPanel() {
+    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('articles');
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
-    const [stats, setStats] = useState({ totalArticles: 0, totalViews: 0, trendingTopics: [] });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(null);
-
-    // Form states
-    const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
-    const [editingArticle, setEditingArticle] = useState(null);
-    const [articleForm, setArticleForm] = useState({
-        title: '',
-        content: '',
-        category: 'National News',
-        author: 'Editorial Team',
-        image: '',
-        poster: '',
-        videoId: '',
-        videoUrl: '',
-        metaTitle: '',
-        metaDescription: ''
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+    const [stats, setStats] = useState({
+        totalArticles: 0,
+        totalVideos: 0,
+        byCategory: {}
     });
 
-    const categories = ['National News', 'Business', 'Technology', 'Sports', 'Entertainment', 'Health', 'World News', 'Economics', 'Video News'];
+    // Categories — 'positive' removed; must stay in sync with Mongoose enums
+    const categories = {
+        special: [
+            { value: 'fake-news', label: 'Fake News', icon: '🔍' }
+        ],
+        levels: [
+            { value: 'international', label: 'International News', icon: '🌍' },
+            { value: 'national', label: 'National News', icon: '🇮🇳' },
+            { value: 'state', label: 'State News', icon: '📍' }
+        ],
+        interests: [
+            { value: 'economics', label: 'Economics', icon: '💰' },
+            { value: 'polity', label: 'Polity', icon: '🏛️' },
+            { value: 'technology', label: 'Technology', icon: '💻' },
+            { value: 'environment', label: 'Environment', icon: '🌱' },
+            { value: 'sports', label: 'Sports', icon: '⚽' }
+        ]
+    };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        // Cookie-based auth: verify session by checking API health with credentials
+        // adminUser in localStorage is just a UI hint — the real auth is the httpOnly cookie
+        const adminUser = localStorage.getItem('adminUser');
+        if (!adminUser) {
+            navigate('/admin/login');
+            return;
+        }
+        setIsAuthenticated(true);
+        fetchContent();
+    }, [navigate]);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchContent = async () => {
+        setIsLoading(true);
         try {
-            const [articlesRes, videosRes, statsRes] = await Promise.all([
-                articlesAPI.getAll().catch(() => ({ data: [] })),
-                videosAPI.getAll().catch(() => ({ data: [] })),
-                statsAPI.getOverall().catch(() => ({ data: { totalArticles: 0, totalViews: 0, trendingTopics: [] } }))
+            const [articlesRes, videosRes] = await Promise.all([
+                articlesAPI.getAll({ limit: 100 }),
+                videosAPI.getAll({ limit: 100 })
             ]);
 
-            setArticles(articlesRes.data || articlesRes || []);
-            setVideos(videosRes.data || videosRes || []);
-            setStats(statsRes.data || statsRes || { totalArticles: 0, totalViews: 0, trendingTopics: [] });
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching admin data:', err);
-            setError('Failed to sync with server. Check your connection.');
-        } finally {
-            setLoading(false);
-        }
-    };
+            const articlesData = articlesRes?.data || articlesRes || [];
+            const videosData = videosRes?.data || videosRes || [];
 
-    const handleArticleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            if (editingArticle) {
-                await articlesAPI.update(editingArticle._id, articleForm);
-                setSuccessMessage('Article updated successfully!');
-            } else {
-                await articlesAPI.create(articleForm);
-                setSuccessMessage('Article published successfully!');
-            }
-            setIsArticleModalOpen(false);
-            setEditingArticle(null);
-            setArticleForm({
-                title: '',
-                content: '',
-                category: 'National News',
-                author: 'Editorial Team',
-                image: '',
-                poster: '',
-                videoId: '',
-                videoUrl: '',
-                metaTitle: '',
-                metaDescription: ''
+            setArticles(Array.isArray(articlesData) ? articlesData : []);
+            setVideos(Array.isArray(videosData) ? videosData : []);
+
+            // Calculate stats
+            const byCategory = {};
+            articlesData.forEach(a => {
+                byCategory[a.category] = (byCategory[a.category] || 0) + 1;
             });
-            await fetchData();
-            setTimeout(() => setSuccessMessage(null), 3000);
-        } catch (err) {
-            console.error('Submit error:', err);
-            setError(err.response?.data?.message || 'Failed to save article. Possible duplicate title.');
+
+            setStats({
+                totalArticles: articlesData.length,
+                totalVideos: videosData.length,
+                byCategory
+            });
+        } catch (error) {
+            console.error('Error fetching content:', error);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleDeleteArticle = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this article?')) return;
+    const handleLogout = async () => {
         try {
-            await articlesAPI.delete(id);
-            setSuccessMessage('Article deleted.');
-            await fetchData();
-            setTimeout(() => setSuccessMessage(null), 3000);
-        } catch (err) {
-            setError('Delete failed.');
+            // Clear the httpOnly cookie on the server
+            await adminAPI.logout();
+        } catch {
+            // Proceed even if the server call fails
         }
+        localStorage.removeItem('adminUser');
+        navigate('/admin/login');
     };
 
-    const openEditModal = (article) => {
-        setEditingArticle(article);
-        setArticleForm({
-            title: article.title || '',
-            content: article.content || '',
-            category: article.category || 'National News',
-            author: article.author || 'Editorial Team',
-            image: article.image || '',
-            poster: article.poster || '',
-            videoId: article.videoId || '',
-            videoUrl: article.videoUrl || '',
-            metaTitle: article.metaTitle || '',
-            metaDescription: article.metaDescription || ''
-        });
-        setIsArticleModalOpen(true);
-    };
-
-    // Render components
-    const DashboardTab = () => (
-        <div className="admin-dashboard-grid">
-            <div className="stat-card">
-                <div className="stat-icon"><i className="fa-solid fa-file-lines"></i></div>
-                <div className="stat-content">
-                    <h3>{articles.length}</h3>
-                    <p>Total Articles</p>
-                </div>
+    // Show loading while checking auth
+    if (!isAuthenticated) {
+        return (
+            <div className="admin-loading">
+                <div className="spinner"></div>
+                <p>Checking authentication...</p>
             </div>
-            <div className="stat-card">
-                <div className="stat-icon"><i className="fa-solid fa-eye"></i></div>
-                <div className="stat-content">
-                    <h3>{stats.totalViews || articles.reduce((acc, art) => acc + (art.views || 0), 0).toLocaleString()}</h3>
-                    <p>Total Reach</p>
-                </div>
-            </div>
-            <div className="stat-card">
-                <div className="stat-icon"><i className="fa-solid fa-video"></i></div>
-                <div className="stat-content">
-                    <h3>{videos.length}</h3>
-                    <p>Videos Synced</p>
-                </div>
-            </div>
-            
-            <div className="dashboard-main">
-                <div className="recent-activity-card">
-                    <h3>Recent News Flow</h3>
-                    <div className="activity-list">
-                        {articles.slice(0, 5).map((art, i) => (
-                            <div key={art._id || i} className="activity-item">
-                                <div className="activity-dot"></div>
-                                <div className="activity-text">
-                                    <strong>{art.title}</strong>
-                                    <span>in {art.category} • {new Date(art.publishedAt || art.createdAt || Date.now()).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
-    const ArticlesTab = () => (
-        <div className="admin-table-container">
-            <div className="table-header">
-                <h2>Article Archive</h2>
-                <button 
-                    className="add-btn"
-                    onClick={() => {
-                        setEditingArticle(null);
-                        setArticleForm({
-                            title: '', content: '', category: 'National News',
-                            author: 'Editorial Team', image: '', poster: '',
-                            videoId: '', videoUrl: '', metaTitle: '', metaDescription: ''
-                        });
-                        setIsArticleModalOpen(true);
-                    }}
-                >
-                    <i className="fa-solid fa-plus"></i> New News
-                </button>
-            </div>
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th>Headline</th>
-                        <th>Category</th>
-                        <th>Date Published</th>
-                        <th>Views</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {articles.map(art => (
-                        <tr key={art._id}>
-                            <td className="headline-cell">{art.title}</td>
-                            <td><span className={`cat-pill ${art.category?.toLowerCase().replace(' ', '-')}`}>{art.category}</span></td>
-                            <td>{new Date(art.publishedAt || art.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                            <td>{art.views?.toLocaleString() || 0}</td>
-                            <td className="actions-cell">
-                                <button className="icon-btn edit" onClick={() => openEditModal(art)}><i className="fa-solid fa-pen"></i></button>
-                                <button className="icon-btn delete" onClick={() => handleDeleteArticle(art._id)}><i className="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
+        );
+    }
 
     return (
         <div className="admin-panel">
-            <aside className="admin-sidebar">
-                <div className="admin-logo">
-                    <img src="/zplus_black.png" alt="ZPluse" />
-                    <span>Admin Central</span>
+            {/* Header */}
+            <header className="admin-header">
+                <div className="admin-header-content">
+                    <img src="/assets/images/logo.png" alt="ZPluse News" className="admin-header-logo" />
+                    <h1>📰 ZPlusNews Admin Panel</h1>
+                    <div className="header-actions">
+                        <button onClick={() => setShowPasswordModal(true)} className="btn-secondary">
+                            🔑 Change Password
+                        </button>
+                        <button onClick={handleLogout} className="btn-logout">
+                            Logout
+                        </button>
+                    </div>
                 </div>
-                <nav className="admin-nav">
-                    <button className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
-                        <i className="fa-solid fa-gauge-high"></i> Dashboard
-                    </button>
-                    <button className={activeTab === 'articles' ? 'active' : ''} onClick={() => setActiveTab('articles')}>
-                        <i className="fa-solid fa-file-pen"></i> All Articles
-                    </button>
-                    <button className={activeTab === 'videos' ? 'active' : ''} onClick={() => setActiveTab('videos')}>
-                        <i className="fa-solid fa-play"></i> Video Sync
-                    </button>
-                    <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>
-                        <i className="fa-solid fa-sliders"></i> Settings
-                    </button>
-                </nav>
-            </aside>
+            </header>
 
-            <main className="admin-main">
-                <header className="admin-header">
-                    <div className="header-search">
-                        <i className="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" placeholder="Search entries..." />
+            {/* Dashboard Stats */}
+            <section className="admin-stats">
+                <div className="stat-card">
+                    <div className="stat-icon">📝</div>
+                    <div className="stat-info">
+                        <h3>{stats.totalArticles}</h3>
+                        <p>Total Articles</p>
                     </div>
-                    <div className="admin-user-flow">
-                        <div className="notification-bell"><i className="fa-regular fa-bell"></i></div>
-                        <div className="user-profile">
-                            <div className="user-avatar">AM</div>
-                            <span>Aryan Malik</span>
-                        </div>
-                    </div>
-                </header>
-
-                <div className="admin-content">
-                    {error && <div className="admin-alert error">{error}</div>}
-                    {successMessage && <div className="admin-alert success">{successMessage}</div>}
-
-                    {activeTab === 'dashboard' && <DashboardTab />}
-                    {activeTab === 'articles' && <ArticlesTab />}
-                    {activeTab === 'videos' && (
-                        <div className="admin-placeholder">
-                            <i className="fa-solid fa-rotate"></i>
-                            <h3>YouTube Engine is Active</h3>
-                            <p>Videos are automatically synced from ZPluse News channel.</p>
-                        </div>
-                    )}
                 </div>
-            </main>
-
-            {/* Article Modal */}
-            <AnimatePresence>
-                {isArticleModalOpen && (
-                    <div className="modal-overlay">
-                        <motion.div 
-                            className="article-modal"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                        >
-                            <div className="modal-header">
-                                <h3>{editingArticle ? 'Update Article' : 'Compose New Story'}</h3>
-                                <button className="close-btn" onClick={() => setIsArticleModalOpen(false)}>×</button>
-                            </div>
-                            <form onSubmit={handleArticleSubmit} className="article-form">
-                                <div className="form-grid">
-                                    <div className="form-group full-width">
-                                        <label>Headline</label>
-                                        <input type="text" value={articleForm.title} onChange={e => setArticleForm({...articleForm, title: e.target.value})} required />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Category</label>
-                                        <select value={articleForm.category} onChange={e => setArticleForm({...articleForm, category: e.target.value})}>
-                                            {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Author / Source</label>
-                                        <input type="text" value={articleForm.author} onChange={e => setArticleForm({...articleForm, author: e.target.value})} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Featured Image URL</label>
-                                        <input type="text" value={articleForm.image} onChange={e => setArticleForm({...articleForm, image: e.target.value})} placeholder="https://..." />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>YouTube Video ID (Optional)</label>
-                                        <input type="text" value={articleForm.videoId} onChange={e => setArticleForm({...articleForm, videoId: e.target.value})} placeholder="e.g. dQw4w9WgXcQ" />
-                                    </div>
-                                    <div className="form-group full-width">
-                                        <label>Article Content (HTML Supported)</label>
-                                        <textarea value={articleForm.content} onChange={e => setArticleForm({...articleForm, content: e.target.value})} required rows="12"></textarea>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>SEO Title</label>
-                                        <input type="text" value={articleForm.metaTitle} onChange={e => setArticleForm({...articleForm, metaTitle: e.target.value})} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>SEO Description</label>
-                                        <input type="text" value={articleForm.metaDescription} onChange={e => setArticleForm({...articleForm, metaDescription: e.target.value})} />
-                                    </div>
-                                </div>
-                                <div className="form-footer">
-                                    <button type="button" className="cancel-btn" onClick={() => setIsArticleModalOpen(false)}>Discard</button>
-                                    <button type="submit" className="submit-btn" disabled={loading}>
-                                        {loading ? 'Processing...' : (editingArticle ? 'Save Changes' : 'Publish News')}
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
+                <div className="stat-card">
+                    <div className="stat-icon">🎬</div>
+                    <div className="stat-info">
+                        <h3>{stats.totalVideos}</h3>
+                        <p>Total Videos</p>
                     </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon">📊</div>
+                    <div className="stat-info">
+                        <h3>{Object.keys(stats.byCategory).length}</h3>
+                        <p>Active Categories</p>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon">✅</div>
+                    <div className="stat-info">
+                        <h3>{stats.totalArticles + stats.totalVideos}</h3>
+                        <p>Total Content</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Tabs */}
+            <div className="admin-tabs">
+                <button
+                    className={`tab ${activeTab === 'articles' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('articles')}
+                >
+                    📝 Articles
+                </button>
+                <button
+                    className={`tab ${activeTab === 'videos' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('videos')}
+                >
+                    🎬 Videos
+                </button>
+                <button
+                    className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('analytics')}
+                >
+                    📊 Analytics
+                </button>
+            </div>
+
+            {/* Content Area */}
+            <div className="admin-content">
+                {activeTab === 'articles' && (
+                    <ArticlesTab
+                        articles={articles}
+                        categories={categories}
+                        onRefresh={fetchContent}
+                        setShowCreateModal={setShowCreateModal}
+                        setEditingItem={setEditingItem}
+                    />
                 )}
-            </AnimatePresence>
+
+                {activeTab === 'videos' && (
+                    <VideosTab
+                        videos={videos}
+                        categories={categories}
+                        onRefresh={fetchContent}
+                        setShowCreateModal={setShowCreateModal}
+                        setEditingItem={setEditingItem}
+                    />
+                )}
+
+                {activeTab === 'analytics' && (
+                    <AnalyticsTab stats={stats} categories={categories} articles={articles} videos={videos} />
+                )}
+            </div>
+
+            {/* Create/Edit Modal */}
+            {showCreateModal && (
+                <ContentModal
+                    type={activeTab === 'articles' ? 'article' : 'video'}
+                    categories={categories}
+                    editingItem={editingItem}
+                    onClose={() => {
+                        setShowCreateModal(false);
+                        setEditingItem(null);
+                    }}
+                    onSuccess={() => {
+                        setShowCreateModal(false);
+                        setEditingItem(null);
+                        fetchContent();
+                    }}
+                />
+            )}
+
+            {/* Password Modal */}
+            {showPasswordModal && (
+                <PasswordModal onClose={() => setShowPasswordModal(false)} />
+            )}
         </div>
     );
-};
+}
 
-export default AdminPanel;
+// Password Modal Component
+function PasswordModal({ onClose }) {
+    const [formData, setFormData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+
+        if (formData.newPassword !== formData.confirmPassword) {
+            setError('New passwords do not match');
+            return;
+        }
+
+        if (formData.newPassword.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await adminAPI.changePassword({
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword
+            });
+
+            setSuccess(res.message || 'Password updated successfully');
+            setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setTimeout(() => {
+                onClose();
+            }, 2000);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to update password');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content password-modal" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>🔑 Change Password</h2>
+                    <button onClick={onClose} className="modal-close">×</button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="modal-form">
+                    {error && <div className="login-error">{error}</div>}
+                    {success && <div className="add-message add-success" style={{ marginBottom: '20px' }}>{success}</div>}
+
+                    <div className="form-group">
+                        <label>Current Password</label>
+                        <input
+                            type="password"
+                            value={formData.currentPassword}
+                            onChange={e => setFormData({ ...formData, currentPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>New Password (min 8 chars)</label>
+                        <input
+                            type="password"
+                            value={formData.newPassword}
+                            onChange={e => setFormData({ ...formData, newPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Confirm New Password</label>
+                        <input
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="modal-actions">
+                        <button type="button" onClick={onClose} className="btn-cancel" disabled={loading}>
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn-save" disabled={loading}>
+                            {loading ? 'Updating...' : 'Update Password'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// Articles Tab Component
+function ArticlesTab({ articles, categories, onRefresh, setShowCreateModal, setEditingItem }) {
+    const [filterCategory, setFilterCategory] = useState('all');
+
+    const filteredArticles = filterCategory === 'all'
+        ? articles
+        : articles.filter(a => a.category === filterCategory);
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this article?')) return;
+        console.log('Attempting to delete article with ID:', id);
+
+        try {
+            await articlesAPI.delete(id);
+            console.log('Delete successful');
+            onRefresh();
+        } catch (error) {
+            console.error('Delete failed:', error);
+            alert(`Failed to delete article: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    return (
+        <div className="content-tab">
+            <div className="tab-header">
+                <div className="tab-actions">
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="all">All Categories</option>
+                        <optgroup label="📌 Special">
+                            {categories.special.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🌐 Levels">
+                            {categories.levels.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🎯 Interests">
+                            {categories.interests.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                    </select>
+                </div>
+                <button
+                    onClick={() => {
+                        setEditingItem(null);
+                        setShowCreateModal(true);
+                    }}
+                    className="btn-primary"
+                >
+                    + Create Article
+                </button>
+            </div>
+
+            <div className="content-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Author</th>
+                            <th>Date</th>
+                            <th>Views</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredArticles.map(article => (
+                            <tr key={article._id}>
+                                <td className="title-cell">
+                                    <div className="article-title">{article.title}</div>
+                                </td>
+                                <td>
+                                    <span className={`category-badge ${article.category}`}>
+                                        {article.category}
+                                    </span>
+                                </td>
+                                <td>{typeof article.author === 'object' ? article.author?.name : article.author || 'Unknown'}</td>
+                                <td>{new Date(article.publishedAt || article.createdAt || Date.now()).toLocaleDateString()}</td>
+                                <td>{article.views || 0}</td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button
+                                            onClick={() => {
+                                                setEditingItem(article);
+                                                setShowCreateModal(true);
+                                            }}
+                                            className="btn-edit"
+                                            title="Edit"
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(article._id)}
+                                            className="btn-delete"
+                                            title="Delete"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {filteredArticles.length === 0 && (
+                    <div className="empty-state">
+                        <p>No articles found</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// Videos Tab Component  
+function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditingItem }) {
+    const [filterCategory, setFilterCategory] = useState('all');
+    const [youtubeInput, setYoutubeInput] = useState('');
+    const [addCategory, setAddCategory] = useState('general');
+    const [addLoading, setAddLoading] = useState(false);
+    const [addError, setAddError] = useState('');
+    const [addSuccess, setAddSuccess] = useState('');
+    const [transcribingId, setTranscribingId] = useState(null);
+    const [syncing, setSyncing] = useState(false);
+    const [syncMessage, setSyncMessage] = useState('');
+    const [transcribingAll, setTranscribingAll] = useState(false);
+    const [transcribeAllMsg, setTranscribeAllMsg] = useState('');
+
+    const filteredVideos = filterCategory === 'all'
+        ? videos
+        : videos.filter(v => v.category === filterCategory);
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this video?')) return;
+
+        try {
+            await videosAPI.delete(id);
+            onRefresh();
+        } catch (error) {
+            alert('Failed to delete video');
+        }
+    };
+
+    const handleAddById = async (e) => {
+        e.preventDefault();
+        if (!youtubeInput.trim()) return;
+
+        setAddLoading(true);
+        setAddError('');
+        setAddSuccess('');
+
+        try {
+            const res = await videosAPI.addById(youtubeInput.trim(), addCategory);
+            const data = res?.data || res;
+            setAddSuccess(`Video "${data.video?.title || 'Video'}" added successfully!`);
+            setYoutubeInput('');
+            onRefresh();
+
+            setTimeout(() => setAddSuccess(''), 5000);
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Failed to add video';
+            setAddError(msg);
+            setTimeout(() => setAddError(''), 5000);
+        } finally {
+            setAddLoading(false);
+        }
+    };
+
+    const handleTranscribe = async (videoId) => {
+        setTranscribingId(videoId);
+
+        try {
+            await videosAPI.transcribe(videoId);
+            alert('Transcription complete! Article content generated.');
+            onRefresh();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Transcription failed';
+            alert(`Transcription error: ${msg}`);
+        } finally {
+            setTranscribingId(null);
+        }
+    };
+
+    const handleSyncChannel = async () => {
+        if (!window.confirm('Import ALL videos from the ZPluse News YouTube channel?')) return;
+        setSyncing(true);
+        setSyncMessage('');
+        try {
+            const res = await videosAPI.syncChannel('@zplusenews', addCategory);
+            const data = res?.data || res;
+            setSyncMessage(`✅ ${data.message || 'Sync complete!'} (${data.imported || 0} new, ${data.skipped || 0} existing)`);
+            onRefresh();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || 'Sync failed';
+            setSyncMessage(`❌ ${msg}`);
+        } finally {
+            setSyncing(false);
+            setTimeout(() => setSyncMessage(''), 8000);
+        }
+    };
+
+    const handleTranscribeAll = async () => {
+        // Find videos that don't have transcripts yet
+        const untranscribed = videos.filter(v => v.source === 'youtube' && !v.transcript);
+        if (untranscribed.length === 0) {
+            setTranscribeAllMsg('✅ All videos already have transcripts!');
+            setTimeout(() => setTranscribeAllMsg(''), 5000);
+            return;
+        }
+        if (!window.confirm(`Transcribe ${untranscribed.length} videos without transcripts? This will process them one by one.`)) return;
+
+        setTranscribingAll(true);
+        setTranscribeAllMsg('');
+        let success = 0;
+        let failed = 0;
+
+        for (let i = 0; i < untranscribed.length; i++) {
+            const v = untranscribed[i];
+            setTranscribeAllMsg(`⏳ Transcribing ${i + 1}/${untranscribed.length}: "${v.title?.slice(0, 40)}..."`);
+            try {
+                await videosAPI.transcribe(v._id);
+                success++;
+            } catch {
+                failed++;
+            }
+        }
+
+        setTranscribeAllMsg(`✅ Done! ${success} transcribed, ${failed} failed.`);
+        setTranscribingAll(false);
+        onRefresh();
+        setTimeout(() => setTranscribeAllMsg(''), 10000);
+    };
+
+    return (
+        <div className="content-tab">
+            {/* Add Video by YouTube ID */}
+            <div className="add-by-id-section">
+                <h3 className="section-label">📺 Add Video by YouTube Link / ID</h3>
+                <form onSubmit={handleAddById} className="add-by-id-form">
+                    <input
+                        type="text"
+                        value={youtubeInput}
+                        onChange={(e) => setYoutubeInput(e.target.value)}
+                        placeholder="Paste YouTube URL or Video ID (e.g. dQw4w9WgXcQ)"
+                        className="input-youtube-id"
+                        disabled={addLoading}
+                    />
+                    <select
+                        value={addCategory}
+                        onChange={(e) => setAddCategory(e.target.value)}
+                        className="filter-select"
+                        disabled={addLoading}
+                    >
+                        <optgroup label="📌 Special">
+                            {categories.special.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🌐 Levels">
+                            {categories.levels.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🎯 Interests">
+                            {categories.interests.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                    </select>
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                        disabled={addLoading || !youtubeInput.trim()}
+                    >
+                        {addLoading ? '⏳ Adding...' : '+ Add Video'}
+                    </button>
+                </form>
+                {addError && <p className="add-message add-error">❌ {addError}</p>}
+                {addSuccess && <p className="add-message add-success">✅ {addSuccess}</p>}
+            </div>
+
+            {/* Channel Sync Actions */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                    onClick={handleSyncChannel}
+                    className="btn-primary"
+                    disabled={syncing}
+                    style={{ background: 'linear-gradient(135deg, #ff0000, #cc0000)' }}
+                >
+                    {syncing ? '⏳ Syncing Channel...' : '🔄 Sync All Videos from @zplusenews'}
+                </button>
+                <button
+                    onClick={handleTranscribeAll}
+                    className="btn-transcribe"
+                    disabled={transcribingAll}
+                    style={{ padding: '12px 24px', fontSize: '14px' }}
+                >
+                    {transcribingAll ? '⏳ Transcribing All...' : '🎙️ Transcribe All Videos'}
+                </button>
+                {syncMessage && <span style={{ fontWeight: 600, fontSize: '14px' }}>{syncMessage}</span>}
+                {transcribeAllMsg && <span style={{ fontWeight: 600, fontSize: '14px' }}>{transcribeAllMsg}</span>}
+            </div>
+
+            <div className="tab-header">
+                <div className="tab-actions">
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="all">All Categories</option>
+                        <optgroup label="📌 Special">
+                            {categories.special.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🌐 Levels">
+                            {categories.levels.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="🎯 Interests">
+                            {categories.interests.map(cat => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.icon} {cat.label}
+                                </option>
+                            ))}
+                        </optgroup>
+                    </select>
+                </div>
+                <button
+                    onClick={() => {
+                        setEditingItem(null);
+                        setShowCreateModal(true);
+                    }}
+                    className="btn-primary"
+                >
+                    + Create Video
+                </button>
+            </div>
+
+            <div className="content-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Duration</th>
+                            <th>Date</th>
+                            <th>Views</th>
+                            <th>Transcript</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredVideos.map(video => (
+                            <tr key={video._id}>
+                                <td className="title-cell">
+                                    <div className="article-title">{video.title}</div>
+                                </td>
+                                <td>
+                                    <span className={`category-badge ${video.category}`}>
+                                        {video.category}
+                                    </span>
+                                </td>
+                                <td>{video.duration || 'N/A'}</td>
+                                <td>{new Date(video.createdAt).toLocaleDateString()}</td>
+                                <td>{video.views || 0}</td>
+                                <td>
+                                    {video.transcript ? (
+                                        <span className="status-badge status-done">✅ Done</span>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleTranscribe(video._id)}
+                                            className="btn-transcribe"
+                                            disabled={transcribingId === video._id}
+                                            title="Generate article from video audio"
+                                        >
+                                            {transcribingId === video._id ? '⏳ ...' : '🎙️ Transcribe'}
+                                        </button>
+                                    )}
+                                </td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button
+                                            onClick={() => {
+                                                setEditingItem(video);
+                                                setShowCreateModal(true);
+                                            }}
+                                            className="btn-edit"
+                                            title="Edit"
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(video._id)}
+                                            className="btn-delete"
+                                            title="Delete"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {filteredVideos.length === 0 && (
+                    <div className="empty-state">
+                        <p>No videos found</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// Analytics Tab Component
+function AnalyticsTab({ stats, categories, articles, videos }) {
+    const allCategories = [...categories.special, ...categories.levels, ...categories.interests];
+
+    // Calculate per-category video counts
+    const videosByCategory = {};
+    (videos || []).forEach(v => {
+        videosByCategory[v.category] = (videosByCategory[v.category] || 0) + 1;
+    });
+
+    const totalViews = [...(articles || []), ...(videos || [])].reduce(
+        (sum, item) => sum + (parseInt(item.views) || 0), 0
+    );
+
+    return (
+        <div className="content-tab analytics-tab">
+            <div className="analytics-summary" style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
+                <div className="stat-card"><div className="stat-icon">👁️</div><div className="stat-info"><h3>{totalViews.toLocaleString()}</h3><p>Total Views</p></div></div>
+                <div className="stat-card"><div className="stat-icon">📝</div><div className="stat-info"><h3>{stats.totalArticles}</h3><p>Articles</p></div></div>
+                <div className="stat-card"><div className="stat-icon">🎬</div><div className="stat-info"><h3>{stats.totalVideos}</h3><p>Videos</p></div></div>
+                <div className="stat-card"><div className="stat-icon">📦</div><div className="stat-info"><h3>{stats.totalArticles + stats.totalVideos}</h3><p>Total Content</p></div></div>
+            </div>
+
+            <h2>Content by Category</h2>
+            <div className="analytics-grid">
+                {allCategories.map(cat => {
+                    const artCount = stats.byCategory[cat.value] || 0;
+                    const vidCount = videosByCategory[cat.value] || 0;
+                    const total = artCount + vidCount;
+                    const maxTotal = stats.totalArticles + stats.totalVideos || 1;
+                    return (
+                        <div key={cat.value} className="analytics-card">
+                            <div className="analytics-icon">{cat.icon}</div>
+                            <h3>{cat.label}</h3>
+                            <p className="analytics-count">
+                                {artCount} articles · {vidCount} videos
+                            </p>
+                            <div className="analytics-bar">
+                                <div
+                                    className="analytics-bar-fill"
+                                    style={{
+                                        width: `${(total / maxTotal) * 100}%`,
+                                        maxWidth: '100%'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+// Content Modal Component
+function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
+    const allCategories = [...categories.special, ...categories.levels, ...categories.interests];
+    const [formData, setFormData] = useState({
+        title: editingItem?.title || '',
+        category: editingItem?.category || '',
+        content: editingItem?.content || '',
+        excerpt: editingItem?.excerpt || '',
+        image: editingItem?.image || editingItem?.thumbnail || '',
+        author: typeof editingItem?.author === 'object' ? editingItem?.author?.name || '' : editingItem?.author || '',
+        tags: editingItem?.tags?.join(', ') || '',
+        videoUrl: editingItem?.videoUrl || (editingItem?.videoId ? `https://www.youtube.com/watch?v=${editingItem.videoId}` : ''),
+        duration: editingItem?.duration || '',
+        description: editingItem?.description || '',
+        publishedAt: editingItem?.publishedAt
+            ? new Date(editingItem.publishedAt).toISOString().slice(0, 16)
+            : new Date().toISOString().slice(0, 16),
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    // Extract YouTube video ID from URL for preview
+    const getYouTubeId = (url) => {
+        if (!url) return null;
+        const str = String(url).trim();
+        try {
+            const parsed = new URL(str);
+            if (parsed.searchParams.get('v')) return parsed.searchParams.get('v');
+            const parts = parsed.pathname.split('/').filter(Boolean);
+            if (parts.length > 0) return parts[parts.length - 1];
+        } catch {
+            if (/^[a-zA-Z0-9_-]{10,12}$/.test(str)) return str;
+        }
+        return null;
+    };
+
+    const youtubeId = getYouTubeId(formData.videoUrl);
+    const autoThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '';
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const data = {
+                ...formData,
+                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+                // Use auto-generated thumbnail if none provided
+                image: formData.image || autoThumbnail,
+                thumbnail: formData.image || autoThumbnail,
+            };
+
+            if (type === 'article') {
+                if (editingItem) {
+                    await articlesAPI.update(editingItem._id, data);
+                } else {
+                    await articlesAPI.create(data);
+                }
+            } else {
+                if (editingItem) {
+                    await videosAPI.update(editingItem._id, data);
+                } else {
+                    await videosAPI.create(data);
+                }
+            }
+
+            onSuccess();
+        } catch (error) {
+            alert(`Failed to ${editingItem ? 'update' : 'create'} ${type}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>{editingItem ? '✏️ Edit' : '➕ Create'} {type === 'article' ? 'Article' : 'Video'}</h2>
+                    <button onClick={onClose} className="modal-close">×</button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="modal-form">
+                    {/* Title */}
+                    <div className="form-group">
+                        <label>Title *</label>
+                        <input
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="Enter a descriptive title"
+                            required
+                        />
+                    </div>
+
+                    {/* Category */}
+                    <div className="form-group">
+                        <label>Category *</label>
+                        <select
+                            value={formData.category}
+                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            <optgroup label="📌 Special Categories">
+                                {categories.special.map(cat => (
+                                    <option key={cat.value} value={cat.value}>
+                                        {cat.icon} {cat.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="🌐 Level-Based News">
+                                {categories.levels.map(cat => (
+                                    <option key={cat.value} value={cat.value}>
+                                        {cat.icon} {cat.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="🎯 Interest-Based Categories">
+                                {categories.interests.map(cat => (
+                                    <option key={cat.value} value={cat.value}>
+                                        {cat.icon} {cat.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    {type === 'article' ? (
+                        <>
+                            <div className="form-group">
+                                <label>Published Date & Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.publishedAt}
+                                    onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Excerpt</label>
+                                <textarea
+                                    value={formData.excerpt}
+                                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                                    rows="2"
+                                    placeholder="Brief summary of the article"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Content *</label>
+                                <textarea
+                                    value={formData.content}
+                                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                                    rows="6"
+                                    required
+                                    placeholder="Full article content (supports HTML)"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Image URL</label>
+                                <input
+                                    type="url"
+                                    value={formData.image}
+                                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Author</label>
+                                <input
+                                    type="text"
+                                    value={formData.author}
+                                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                                    placeholder="Author Name"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Tags (comma-separated)</label>
+                                <input
+                                    type="text"
+                                    value={formData.tags}
+                                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                                    placeholder="tag1, tag2, tag3"
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Video URL with live preview */}
+                            <div className="form-group">
+                                <label>Video URL *</label>
+                                <input
+                                    type="text"
+                                    value={formData.videoUrl}
+                                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                                    placeholder="https://youtube.com/watch?v=... or video ID"
+                                    required
+                                />
+                                {youtubeId && (
+                                    <div className="video-preview-section">
+                                        <div className="video-preview-thumb">
+                                            <img
+                                                src={autoThumbnail}
+                                                alt="Video Preview"
+                                                onError={(e) => { e.target.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`; }}
+                                            />
+                                            <div className="preview-play-icon">▶</div>
+                                        </div>
+                                        <div className="video-preview-info">
+                                            <span className="video-id-badge">
+                                                🎬 YouTube ID: <code>{youtubeId}</code>
+                                            </span>
+                                            <a
+                                                href={`https://www.youtube.com/watch?v=${youtubeId}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="preview-link"
+                                            >
+                                                Open in YouTube ↗
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Description */}
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    rows="3"
+                                    placeholder="Video description or summary"
+                                />
+                            </div>
+
+                            {/* Thumbnail + Duration in grid row */}
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Thumbnail URL</label>
+                                    <input
+                                        type="url"
+                                        value={formData.image}
+                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                        placeholder={autoThumbnail ? 'Auto-generated from YouTube' : 'https://example.com/thumb.jpg'}
+                                    />
+                                    {!formData.image && autoThumbnail && (
+                                        <span className="form-hint">💡 Auto-generated from YouTube URL</span>
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Duration</label>
+                                    <input
+                                        type="text"
+                                        value={formData.duration}
+                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                        placeholder="10:30"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Tags */}
+                            <div className="form-group">
+                                <label>Tags (comma-separated)</label>
+                                <input
+                                    type="text"
+                                    value={formData.tags}
+                                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                                    placeholder="news, politics, breaking"
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    <div className="form-actions">
+                        <button type="button" onClick={onClose} className="btn-secondary">
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn-primary" disabled={loading}>
+                            {loading ? '⏳ Saving...' : (editingItem ? '✅ Update' : '➕ Create')}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}

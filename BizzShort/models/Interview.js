@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const InterviewSchema = new mongoose.Schema({
     intervieweeName: { type: String, required: true },
@@ -12,5 +12,4 @@ const InterviewSchema = new mongoose.Schema({
     publishedAt: { type: Date, default: Date.now }
 });
 
-const Interview = mongoose.model('Interview', InterviewSchema);
-export default Interview;
+module.exports = mongoose.model('Interview', InterviewSchema);

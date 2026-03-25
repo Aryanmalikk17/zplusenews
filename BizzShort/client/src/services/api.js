@@ -123,8 +123,3 @@ export const adminAPI = {
   approveUser: (id) => api.post(`/admin/approve-user/${id}`),
   rejectUser: (id, reason) => api.post(`/admin/reject-user/${id}`, { reason }),
 };
-
-// Stats
-export const statsAPI = {
-  getOverall: () => api.get('/admin/analytics'),
-};

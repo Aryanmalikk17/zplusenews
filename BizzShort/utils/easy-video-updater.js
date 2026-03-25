@@ -11,14 +11,9 @@
  * 4. Paste into video-manager.js
  */
 
-import readline from 'readline';
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const readline = require('readline');
+const https = require('https');
+const fs = require('fs');
 
 const rl = readline.createInterface({
     input: process.stdin,

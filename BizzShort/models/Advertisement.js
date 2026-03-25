@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const AdvertisementSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -53,5 +53,4 @@ AdvertisementSchema.virtual('ctr').get(function () {
     return ((this.metrics.clicks / this.metrics.impressions) * 100).toFixed(2);
 });
 
-const Advertisement = mongoose.model('Advertisement', AdvertisementSchema);
-export default Advertisement;
+module.exports = mongoose.model('Advertisement', AdvertisementSchema);

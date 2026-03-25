@@ -13,14 +13,9 @@
  * node fetch-youtube-videos.js
  */
 
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import 'dotenv/config';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const https = require('https');
+const fs = require('fs');
+require('dotenv').config();
 
 // ============ CONFIGURATION ============
 const CONFIG = {

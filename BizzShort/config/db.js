@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 let isConnected = false;
 let connectionAttempts = 0;
@@ -65,5 +65,5 @@ mongoose.connection.on('reconnected', () => {
 // Export connection status checker
 const isDBConnected = () => isConnected;
 
-export { isDBConnected };
-export default connectDB;
+module.exports = connectDB;
+module.exports.isDBConnected = isDBConnected;

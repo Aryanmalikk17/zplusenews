@@ -2,11 +2,11 @@
  * Video Routes
  * API endpoints for video management and YouTube integration
  */
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import Video from '../models/Video.js';
-import { fetchVideoDetails, resolveChannelId, fetchChannelVideoIds, fetchMultipleVideoDetails } from '../services/youtubeService.js';
-import { fetchTranscript, formatAsArticle } from '../services/transcriptionService.js';
+const Video = require('../models/Video');
+const { fetchVideoDetails } = require('../services/youtubeService');
+const { fetchTranscript, formatAsArticle } = require('../services/transcriptionService');
 
 /**
  * POST /api/videos/add-by-id
@@ -164,8 +164,7 @@ router.get('/by-video-id/:videoId', async (req, res) => {
  */
 router.post('/sync-channel', async (req, res) => {
     try {
-        // Moved imports to top-level for ESM compatibility
-        // const { resolveChannelId, fetchChannelVideoIds, fetchMultipleVideoDetails } = require('../services/youtubeService');
+        const { resolveChannelId, fetchChannelVideoIds, fetchMultipleVideoDetails } = require('../services/youtubeService');
 
         const channelHandle = req.body.channelHandle || process.env.YOUTUBE_CHANNEL_HANDLE || '@zplusenews';
         const defaultCategory = req.body.category || 'general';
@@ -296,5 +295,5 @@ router.post('/transcribe-all', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;
 

@@ -2,7 +2,7 @@
  * YouTube Service
  * Fetches video metadata from YouTube Data API v3
  */
-import axios from 'axios';
+const axios = require('axios');
 
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
@@ -211,7 +211,7 @@ function parseDuration(iso) {
     return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-export {
+module.exports = {
     resolveChannelId,
     fetchChannelVideoIds,
     fetchVideoDetails,
