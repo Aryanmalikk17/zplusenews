@@ -5,11 +5,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
-import rateLimit from 'express-limit';
+import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import NodeCache from 'node-cache';
 import cookieParser from 'cookie-parser';
-import jwt from 'cookie-parser'; 
+import jwt from 'jsonwebtoken'; 
 
 // Import Models
 import Article from './models/Article.js';
