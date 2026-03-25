@@ -4,9 +4,9 @@
  * Hides API key from client and provides caching
  */
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const currentsAPI = require('../services/currentsAPI');
+import currentsAPI from '../services/currentsAPI.js';
 
 /**
  * GET /api/news/latest
@@ -142,4 +142,4 @@ router.post('/cache/clear', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

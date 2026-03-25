@@ -4,7 +4,8 @@
  * Uses the youtube-transcript package
  */
 
-const { YoutubeTranscript } = require('youtube-transcript');
+import { YoutubeTranscript } from 'youtube-transcript';
+import Video from '../models/Video.js';
 
 /**
  * Fetch transcript from YouTube's auto-generated captions
@@ -112,7 +113,7 @@ function formatAsArticle(transcript, title) {
     return paragraphs.join('\n');
 }
 
-module.exports = {
+export {
     fetchTranscript,
     formatAsArticle,
 };

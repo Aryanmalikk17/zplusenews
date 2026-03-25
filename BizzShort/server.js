@@ -15,7 +15,7 @@ import jwt from 'jsonwebtoken';
 import Article from './models/Article.js';
 import User from './models/User.js';
 import Video from './models/Video.js';
-import Category from './models/Categories.js';
+// Removed unused/missing Categories.js import
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

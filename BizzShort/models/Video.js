@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const videoSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -40,4 +40,5 @@ const videoSchema = new mongoose.Schema({
 videoSchema.index({ category: 1, createdAt: -1 });
 videoSchema.index({ videoId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Video', videoSchema);
+const Video = mongoose.model('Video', videoSchema);
+export default Video;

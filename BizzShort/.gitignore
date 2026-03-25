@@ -46,4 +46,4 @@ ENV/
 *_old.html
 *_backup.*
 analytics_old.html
-.env
+.envnode_modules_old

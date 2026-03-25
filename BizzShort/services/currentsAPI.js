@@ -4,7 +4,7 @@
  * Includes caching to minimize API calls
  */
 
-const axios = require('axios');
+import axios from 'axios';
 
 const CURRENTS_API_URL = 'https://api.currentsapi.services/v1';
 const API_KEY = process.env.CURRENTS_API_KEY;
@@ -325,7 +325,7 @@ function getCacheStats() {
     };
 }
 
-module.exports = {
+export default {
     getLatestNews,
     searchNews,
     getNewsByCategory,

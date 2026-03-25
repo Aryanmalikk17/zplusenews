@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const IndustryUpdateSchema = new mongoose.Schema({
     sector: { type: String, required: true }, // e.g. "Semiconductor"
@@ -9,4 +9,5 @@ const IndustryUpdateSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('IndustryUpdate', IndustryUpdateSchema);
+const IndustryUpdate = mongoose.model('IndustryUpdate', IndustryUpdateSchema);
+export default IndustryUpdate;
