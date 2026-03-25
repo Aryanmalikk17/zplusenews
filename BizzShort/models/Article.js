@@ -1,54 +1,48 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-const ArticleSchema = new mongoose.Schema({
+const ArticleSchema = new Schema({
     title: { type: String, required: true },
-    slug: { type: String, unique: true },
-    category: { 
-        type: String, 
-        required: true,
-        enum: [
-            // Special Categories (positive removed)
-            'fake-news',
-            // Level-based Categories
-            'international', 'national', 'state',
-            // Interest-based Categories
-            'economics', 'polity', 'technology', 'environment', 'sports',
-            // Legacy categories (for backward compatibility with existing DB records)
-            'positive', 'business', 'innovation', 'tech', 'ai', 'gadgets', 'software', 
-            'startups', 'markets', 'crypto', 'general'
-        ]
-    },
-    subcategory: { type: String }, // For additional granularity
-    excerpt: String,
     content: { type: String, required: true },
-    image: String,
-    author: {
-        name: String,
-        avatar: String,
-        bio: String
-    },
-    tags: [String],
-    status: { type: String, default: 'PUBLISHED', enum: ['PUBLISHED', 'DRAFT', 'ARCHIVED'] },
+    category: { type: String, required: true, enum: ['National News', 'Business', 'Technology', 'Sports', 'Entertainment', 'Health', 'World News', 'Economics', 'Video News'] },
+    image: { type: String },
+    poster: { type: String },
+    slug: { type: String, unique: true },
+    author: { type: String, default: 'Editorial Team' },
     views: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
-    readTime: { type: Number, default: 3 },
+    videoId: { type: String },
+    videoUrl: { type: String },
+    isPremium: { type: Boolean, default: false },
+    status: { type: String, enum: ['draft', 'published', 'archived'], default: 'published' },
     publishedAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    metaTitle: String,
+    metaDescription: String,
+    keywords: [String],
+    source: {
+        name: String,
+        url: String
+    }
+}, { 
+    timestamps: true 
 });
 
-// Indexes for query performance
-ArticleSchema.index({ category: 1, publishedAt: -1 });
-ArticleSchema.index({ slug: 1 }, { unique: true });
+// Create index for search
+ArticleSchema.index({ title: 'text', content: 'text', category: 'text' });
 
-// Auto-generate slug from title
-ArticleSchema.pre('save', function (next) {
-    if (this.isModified('title') && !this.slug) {
-        this.slug = this.title.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '') + '-' + Date.now();
+// Auto-generate slug before saving if it doesn't exist
+ArticleSchema.pre('save', function(next) {
+    if (this.isModified('title') || !this.slug) {
+        // Create base slug
+        const baseSlug = this.title
+            .toLowerCase()
+            .replace(/[^\w ]+/g, '')
+            .replace(/ +/g, '-');
+        
+        // Always add a unique identifier (timestamp) to prevent unique key constraint errors
+        this.slug = `${baseSlug}-${Date.now()}`;
     }
-    this.updatedAt = Date.now();
     next();
 });
 
-module.exports = mongoose.model('Article', ArticleSchema);
+const Article = mongoose.model('Article', ArticleSchema);
+export default Article;
