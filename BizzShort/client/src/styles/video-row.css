@@ -1,0 +1,93 @@
+/* Video Row Styles */
+.video-row-section {
+    padding: 4rem 0;
+    background: linear-gradient(to bottom, #f8fafc, #ffffff);
+}
+
+.video-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+}
+
+.video-row-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #1e293b;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.video-row-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.5rem;
+    background: #ef4444;
+    border-radius: 2px;
+}
+
+.video-row-view-all {
+    color: #ef4444;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 0.9375rem;
+}
+
+.video-row-view-all:hover {
+    color: #b91c1c;
+    transform: translateX(3px);
+}
+
+.video-row-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+/* Horizontal scrolling for mobile */
+@media (max-width: 768px) {
+    .video-row-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 1rem;
+        gap: 1rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Hide scrollbar for cleaner look */
+    }
+    
+    .video-row-grid::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .video-row-grid > * {
+        flex: 0 0 85%; /* Show 85% of one card to hint at more */
+        scroll-snap-align: start;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .video-row-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.video-card-skeleton {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-video-thumb {
+    height: 180px;
+    background: #e2e8f0;
+}
