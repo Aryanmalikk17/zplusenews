@@ -25,7 +25,7 @@ const footerLinks = {
 const socialLinks = [
     { href: 'https://facebook.com/zplusenews', icon: 'facebook', label: 'Facebook' },
     { href: 'https://twitter.com/zplusenews', icon: 'twitter', label: 'Twitter' },
-    { href: 'https://linkedin.com/company/zplusenews', icon: 'linkedin', label: 'LinkedIn' },
+    { href: 'https://www.linkedin.com/in/zpluse-news-320461390/', icon: 'linkedin', label: 'LinkedIn' },
     { href: 'https://instagram.com/zplusenews', icon: 'instagram', label: 'Instagram' },
     { href: 'https://youtube.com/@zplusenews', icon: 'youtube', label: 'YouTube' },
 ];
