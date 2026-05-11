@@ -209,21 +209,30 @@
 .share-buttons {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .share-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 20px;
   border-radius: 50px;
   font-size: 13px;
   font-weight: 600;
   color: white;
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
+}
+
+.share-btn i {
+  font-size: 14px;
 }
 
 .share-btn:hover {
   opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .share-btn.facebook {
@@ -231,11 +240,31 @@
 }
 
 .share-btn.twitter {
-  background: #1da1f2;
+  background: #000000; /* X brand color */
 }
 
 .share-btn.linkedin {
   background: #0a66c2;
+}
+
+.share-btn.whatsapp {
+  background: #25d366;
+}
+
+.share-btn.telegram {
+  background: #0088cc;
+}
+
+.share-btn.reddit {
+  background: #ff4500;
+}
+
+.share-btn.pinterest {
+  background: #bd081c;
+}
+
+.share-btn.email {
+  background: #7f8c8d;
 }
 
 /* Related */

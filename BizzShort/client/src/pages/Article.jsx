@@ -240,7 +240,7 @@ export default function Article() {
         <div className="container article-header-inner">
           <Link to="/" className="article-logo-link">
             <img
-              src="/zplus_black.png"
+              src="/assets/images/logo.png"
               alt="ZPluse News"
               className="article-logo"
               onError={(e) => { e.target.style.display = 'none'; }}
@@ -351,19 +351,79 @@ export default function Article() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="share-btn facebook"
-              >Facebook</a>
+                title="Share on Facebook"
+              >
+                <i className="fab fa-facebook-f"></i>
+                <span>Facebook</span>
+              </a>
               <a
                 href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="share-btn twitter"
-              >Twitter</a>
+                title="Share on Twitter"
+              >
+                <i className="fab fa-x-twitter"></i>
+                <span>Twitter</span>
+              </a>
               <a
                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="share-btn linkedin"
-              >LinkedIn</a>
+                title="Share on LinkedIn"
+              >
+                <i className="fab fa-linkedin-in"></i>
+                <span>LinkedIn</span>
+              </a>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-btn whatsapp"
+                title="Share on WhatsApp"
+              >
+                <i className="fab fa-whatsapp"></i>
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-btn telegram"
+                title="Share on Telegram"
+              >
+                <i className="fab fa-telegram-plane"></i>
+                <span>Telegram</span>
+              </a>
+              <a
+                href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(article.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-btn reddit"
+                title="Share on Reddit"
+              >
+                <i className="fab fa-reddit-alien"></i>
+                <span>Reddit</span>
+              </a>
+              <a
+                href={`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&media=${encodeURIComponent(article.image || '')}&description=${encodeURIComponent(article.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-btn pinterest"
+                title="Share on Pinterest"
+              >
+                <i className="fab fa-pinterest-p"></i>
+                <span>Pinterest</span>
+              </a>
+              <a
+                href={`mailto:?subject=${encodeURIComponent(article.title)}&body=${encodeURIComponent(window.location.href)}`}
+                className="share-btn email"
+                title="Share via Email"
+              >
+                <i className="fas fa-envelope"></i>
+                <span>Email</span>
+              </a>
             </div>
           </div>
         </div>

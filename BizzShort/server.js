@@ -350,13 +350,26 @@ app.get('/api/setup-production', async (req, res) => {
             console.log('Setup: Admin Password Reset');
         }
 
-        // Helper to slugify
-        const slugify = (text) => text.toString().toLowerCase()
-            .replace(/\s+/g, '-')           // Replace spaces with -
-            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-            .replace(/^-+/, '')             // Trim - from start of text
-            .replace(/-+$/, '');            // Trim - from end of text
+        // Helper to slugify (SEO optimized)
+        const slugify = (text) => {
+            let slug = text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           // Replace spaces with -
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                .replace(/^-+/, '')             // Trim - from start of text
+                .replace(/-+$/, '');            // Trim - from end of text
+            
+            // Remove stop words
+            const stopWords = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with'];
+            slug = slug.split('-').filter(word => !stopWords.includes(word)).join('-');
+            
+            // Truncate
+            if (slug.length > 70) {
+                const lastHyphen = slug.lastIndexOf('-', 70);
+                slug = lastHyphen > 30 ? slug.substring(0, lastHyphen) : slug.substring(0, 70);
+            }
+            return slug || 'article';
+        };
 
         // 2. Data to Seed
         const seedData = {
