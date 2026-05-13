@@ -42,7 +42,7 @@ ArticleSchema.index({ category: 1, publishedAt: -1 });
 ArticleSchema.index({ slug: 1 }, { unique: true });
 
 // Auto-generate slug from title if not provided
-ArticleSchema.pre('save', async function (next) {
+ArticleSchema.pre('save', async function () {
     if (this.isModified('title') && !this.slug) {
         // 1. Basic cleaning and lowercase
         let baseSlug = this.title
@@ -55,7 +55,7 @@ ArticleSchema.pre('save', async function (next) {
         const stopWords = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with'];
         const words = baseSlug.split('-');
         const filteredWords = words.filter(word => !stopWords.includes(word));
-        
+
         // If filtering leaves nothing (e.g. title was "To Be Or Not To Be"), use original words
         baseSlug = (filteredWords.length > 0 ? filteredWords : words).join('-');
 
@@ -68,7 +68,7 @@ ArticleSchema.pre('save', async function (next) {
         // 4. Ensure Uniqueness (append -1, -2 etc. if collision occurs)
         let slug = baseSlug;
         let counter = 1;
-        
+
         // Use this.constructor to query the Article model directly
         while (await this.constructor.findOne({ slug, _id: { $ne: this._id } })) {
             slug = `${baseSlug}-${counter++}`;
@@ -76,7 +76,6 @@ ArticleSchema.pre('save', async function (next) {
 
         this.slug = slug;
     }
-    next();
 });
 
 module.exports = mongoose.model('Article', ArticleSchema);

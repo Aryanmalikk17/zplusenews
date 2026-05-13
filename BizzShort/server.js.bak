@@ -1100,7 +1100,7 @@ const articleValidation = [
     body('category').trim().notEmpty().withMessage('Category is required'),
 ];
 
-app.post('/api/articles', protect, articleValidation, conditionalUpload('image'), async (req, res) => {
+app.post('/api/articles', protect, conditionalUpload('image'), articleValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
