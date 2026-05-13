@@ -14,6 +14,9 @@ const cookieParser = require('cookie-parser');
 const NodeCache = require('node-cache');
 const { body, validationResult } = require('express-validator');
 
+// Load env vars FIRST — must be before any process.env access
+dotenv.config();
+
 // In-memory cache: 5-minute TTL for public API responses
 const apiCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
@@ -22,9 +25,6 @@ if (!process.env.JWT_SECRET) {
     console.error('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
     process.exit(1);
 }
-
-// Load env vars
-dotenv.config();
 
 // Connect to Database (non-blocking - server will start even if DB fails)
 connectDB().then(async connected => {
@@ -1096,11 +1096,14 @@ app.get('/api/articles', async (req, res) => {
 // Article creation validation rules
 const articleValidation = [
     body('title').trim().isLength({ min: 5, max: 200 }).withMessage('Title must be 5–200 characters'),
-    body('content').trim().isLength({ min: 20 }).withMessage('Content must be at least 20 characters'),
+    body('content')
+        .customSanitizer(value => (value || '').replace(/<[^>]*>/g, '').trim())
+        .isLength({ min: 20 })
+        .withMessage('Content must be at least 20 characters'),
     body('category').trim().notEmpty().withMessage('Category is required'),
 ];
 
-app.post('/api/articles', protect, conditionalUpload('image'), articleValidation, async (req, res) => {
+app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
@@ -1284,8 +1287,10 @@ app.put('/api/articles/:id/view', protect, async (req, res) => {
 
 // Events
 app.get('/api/events', async (req, res) => {
-    const events = await Event.find().sort({ date: 1 });
-    res.json({ success: true, data: events.map(e => ({ ...e._doc, id: e._id })) });
+    try {
+        const events = await Event.find().sort({ date: 1 });
+        res.json({ success: true, data: events.map(e => ({ ...e._doc, id: e._id })) });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.get('/api/events/:id', async (req, res) => {
@@ -1351,12 +1356,16 @@ app.delete('/api/interviews/:id', protect, async (req, res) => {
 
 // News
 app.get('/api/news', async (req, res) => {
-    const items = await News.find().sort({ publishedAt: -1 });
-    res.json({ success: true, data: items.map(n => ({ ...n._doc, id: n._id })) });
+    try {
+        const items = await News.find().sort({ publishedAt: -1 });
+        res.json({ success: true, data: items.map(n => ({ ...n._doc, id: n._id })) });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 app.post('/api/news', protect, async (req, res) => {
-    const item = await News.create(req.body);
-    res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    try {
+        const item = await News.create(req.body);
+        res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.put('/api/news/:id', protect, async (req, res) => {
@@ -1372,13 +1381,17 @@ app.delete('/api/news/:id', protect, async (req, res) => {
 });
 // Industry
 app.get('/api/industry', async (req, res) => {
-    const items = await IndustryUpdate.find().sort({ updatedAt: -1 });
-    res.json({ success: true, data: items.map(i => ({ ...i._doc, id: i._id })) });
+    try {
+        const items = await IndustryUpdate.find().sort({ updatedAt: -1 });
+        res.json({ success: true, data: items.map(i => ({ ...i._doc, id: i._id })) });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.post('/api/industry', protect, async (req, res) => {
-    const item = await IndustryUpdate.create(req.body);
-    res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    try {
+        const item = await IndustryUpdate.create(req.body);
+        res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.put('/api/industry/:id', protect, async (req, res) => {
@@ -1395,13 +1408,17 @@ app.delete('/api/industry/:id', protect, async (req, res) => {
 
 // Clients
 app.get('/api/clients', async (req, res) => {
-    const items = await Client.find({});
-    res.json({ success: true, data: items.map(c => ({ ...c._doc, id: c._id })) });
+    try {
+        const items = await Client.find({});
+        res.json({ success: true, data: items.map(c => ({ ...c._doc, id: c._id })) });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.post('/api/clients', protect, conditionalUpload('logo'), async (req, res) => {
-    const item = await Client.create({ ...req.body, logo: req.file ? `/uploads/${req.file.filename}` : undefined });
-    res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    try {
+        const item = await Client.create({ ...req.body, logo: req.file ? `/uploads/${req.file.filename}` : undefined });
+        res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 
@@ -1422,8 +1439,10 @@ app.delete('/api/clients/:id', protect, async (req, res) => {
 
 // Users
 app.get('/api/users', protect, async (req, res) => {
-    const users = await User.find({}, '-password'); // Exclude password
-    res.json({ success: true, data: users.map(u => ({ ...u._doc, id: u._id })) });
+    try {
+        const users = await User.find({}, '-password');
+        res.json({ success: true, data: users.map(u => ({ ...u._doc, id: u._id })) });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
 app.post('/api/users', protect, async (req, res) => {
