@@ -48,8 +48,69 @@
 
 .video-row-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+}
+
+/* Premium 2-column video card layout on desktop */
+@media (min-width: 769px) {
+    .video-row-grid .video-card,
+    .video-row-grid .video-card-skeleton {
+        display: flex;
+        flex-direction: row;
+        height: 230px;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .video-row-grid .video-card-media,
+    .video-row-grid .skeleton-video-thumb {
+        width: 42%;
+        height: 100%;
+        flex-shrink: 0;
+        border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+        overflow: hidden;
+    }
+    
+    .video-row-grid .video-card-media img {
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .video-row-grid .video-card-content,
+    .video-row-grid .video-card-skeleton .skeleton-content {
+        width: 58%;
+        height: 100%;
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+    
+    .video-row-grid .video-title {
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+    
+    .video-row-grid .video-description {
+        font-size: 13.5px;
+        margin-bottom: 0;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        flex-grow: 1;
+        margin-top: 4px;
+    }
+    
+    .video-row-grid .video-meta {
+        margin-top: 12px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
 /* Horizontal scrolling for mobile */
@@ -71,12 +132,6 @@
     .video-row-grid > * {
         flex: 0 0 85%; /* Show 85% of one card to hint at more */
         scroll-snap-align: start;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .video-row-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 

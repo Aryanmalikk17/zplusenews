@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { articlesAPI, videosAPI, adminAPI } from '../services/api';
+import { articlesAPI, videosAPI, adminAPI, adsAPI } from '../services/api';
 import '../styles/admin.css';
 
 export default function AdminPanel() {
@@ -10,6 +10,7 @@ export default function AdminPanel() {
     const [activeTab, setActiveTab] = useState('articles');
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
+    const [ads, setAds] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
@@ -61,16 +62,19 @@ export default function AdminPanel() {
     const fetchContent = async () => {
         setIsLoading(true);
         try {
-            const [articlesRes, videosRes] = await Promise.all([
+            const [articlesRes, videosRes, adsRes] = await Promise.all([
                 articlesAPI.getAll({ limit: 100 }),
-                videosAPI.getAll({ limit: 100 })
+                videosAPI.getAll({ limit: 100 }),
+                adsAPI.getAll()
             ]);
 
             const articlesData = articlesRes?.data || articlesRes || [];
             const videosData = videosRes?.data || videosRes || [];
+            const adsData = adsRes?.data || adsRes || [];
 
             setArticles(Array.isArray(articlesData) ? articlesData : []);
             setVideos(Array.isArray(videosData) ? videosData : []);
+            setAds(Array.isArray(adsData) ? adsData : []);
 
             // Calculate stats
             const byCategory = {};
@@ -81,6 +85,7 @@ export default function AdminPanel() {
             setStats({
                 totalArticles: articlesData.length,
                 totalVideos: videosData.length,
+                totalAds: adsData.length,
                 byCategory
             });
         } catch (error) {
@@ -146,6 +151,13 @@ export default function AdminPanel() {
                     </div>
                 </div>
                 <div className="stat-card">
+                    <div className="stat-icon">📢</div>
+                    <div className="stat-info">
+                        <h3>{stats.totalAds || 0}</h3>
+                        <p>Sponsor Ads</p>
+                    </div>
+                </div>
+                <div className="stat-card">
                     <div className="stat-icon">📊</div>
                     <div className="stat-info">
                         <h3>{Object.keys(stats.byCategory).length}</h3>
@@ -174,6 +186,12 @@ export default function AdminPanel() {
                     onClick={() => setActiveTab('videos')}
                 >
                     🎬 Videos
+                </button>
+                <button
+                    className={`tab ${activeTab === 'ads' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('ads')}
+                >
+                    📢 Sponsor Ads
                 </button>
                 <button
                     className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
@@ -205,16 +223,40 @@ export default function AdminPanel() {
                     />
                 )}
 
+                {activeTab === 'ads' && (
+                    <AdsTab
+                        ads={ads}
+                        onRefresh={fetchContent}
+                        setShowCreateModal={setShowCreateModal}
+                        setEditingItem={setEditingItem}
+                    />
+                )}
+
                 {activeTab === 'analytics' && (
                     <AnalyticsTab stats={stats} categories={categories} articles={articles} videos={videos} />
                 )}
             </div>
 
             {/* Create/Edit Modal */}
-            {showCreateModal && (
+            {showCreateModal && activeTab !== 'ads' && (
                 <ContentModal
                     type={activeTab === 'articles' ? 'article' : 'video'}
                     categories={categories}
+                    editingItem={editingItem}
+                    onClose={() => {
+                        setShowCreateModal(false);
+                        setEditingItem(null);
+                    }}
+                    onSuccess={() => {
+                        setShowCreateModal(false);
+                        setEditingItem(null);
+                        fetchContent();
+                    }}
+                />
+            )}
+
+            {showCreateModal && activeTab === 'ads' && (
+                <AdModal
                     editingItem={editingItem}
                     onClose={() => {
                         setShowCreateModal(false);
@@ -1158,6 +1200,419 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                             onChange={(e) => setFormData({ ...formData, calendarDate: e.target.value })}
                         />
                         <span className="form-hint" style={{ color: '#666', fontWeight: 'normal' }}>💡 Select a date if you want this content to display as a historical event or news archive for that day on the homepage calendar.</span>
+                    </div>
+
+                    <div className="form-actions">
+                        <button type="button" onClick={onClose} className="btn-secondary">
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn-primary" disabled={loading}>
+                            {loading ? '⏳ Saving...' : (editingItem ? '✅ Update' : '➕ Create')}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// Sponsor Ads Tab Component
+function AdsTab({ ads, onRefresh, setShowCreateModal, setEditingItem }) {
+    const [filterPosition, setFilterPosition] = useState('all');
+
+    const filteredAds = filterPosition === 'all'
+        ? ads
+        : ads.filter(ad => ad.position === filterPosition);
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this sponsor ad?')) return;
+        try {
+            await adsAPI.delete(id);
+            onRefresh();
+        } catch (error) {
+            console.error('Delete failed:', error);
+            alert(`Failed to delete ad: ${error.message || error}`);
+        }
+    };
+
+    return (
+        <div className="content-tab">
+            <div className="tab-header">
+                <div className="tab-actions">
+                    <select
+                        value={filterPosition}
+                        onChange={(e) => setFilterPosition(e.target.value)}
+                        className="filter-select"
+                        aria-label="Filter advertisements by position"
+                    >
+                        <option value="all">All Positions</option>
+                        <option value="sidebar-rectangle">Sidebar Rectangle</option>
+                        <option value="horizontal-banner">Horizontal Banner</option>
+                        <option value="inline">Inline Banner</option>
+                        <option value="vertical-sidebar">Vertical Sidebar</option>
+                    </select>
+                </div>
+                <button
+                    onClick={() => {
+                        setEditingItem(null);
+                        setShowCreateModal(true);
+                    }}
+                    className="btn-primary"
+                >
+                    + Add Sponsor Ad
+                </button>
+            </div>
+
+            <div className="content-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Preview</th>
+                            <th>Title & Label</th>
+                            <th>Position</th>
+                            <th>Target URL</th>
+                            <th>Status</th>
+                            <th>Analytics (Imp / Clicks / CTR)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredAds.map(ad => {
+                            const impressions = ad.metrics?.impressions || 0;
+                            const clicks = ad.metrics?.clicks || 0;
+                            const ctr = impressions > 0 ? ((clicks / impressions) * 100).toFixed(2) : '0.00';
+
+                            return (
+                                <tr key={ad._id}>
+                                    <td style={{ width: '80px', padding: '8px' }}>
+                                        <div style={{ width: '70px', height: '40px', overflow: 'hidden', borderRadius: '4px', border: '1px solid var(--border-color)', background: '#111' }}>
+                                            <img
+                                                src={ad.imageUrl}
+                                                alt={ad.title}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                onError={(e) => { e.target.src = 'https://placehold.co/300x250/111/fff?text=Error'; }}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="title-cell">
+                                        <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{ad.title}</div>
+                                        {ad.label && (
+                                            <span style={{ fontSize: '10px', background: 'rgba(255, 255, 255, 0.1)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-muted)', display: 'inline-block', marginTop: '4px' }}>
+                                                {ad.label}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <span style={{ textTransform: 'capitalize', fontSize: '12px' }}>
+                                            {ad.position?.replace('-', ' ')}
+                                        </span>
+                                    </td>
+                                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <a href={ad.targetUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '13px' }}>
+                                            {ad.targetUrl}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge status-${ad.status || 'active'}`} style={{
+                                            padding: '4px 8px',
+                                            borderRadius: '12px',
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            textTransform: 'uppercase',
+                                            background: ad.status === 'active' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)',
+                                            color: ad.status === 'active' ? '#4CAF50' : '#F44336'
+                                        }}>
+                                            {ad.status || 'active'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                            <div>👁️ <strong>{impressions}</strong> views</div>
+                                            <div>🖱️ <strong>{clicks}</strong> clicks</div>
+                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>CTR: {ctr}%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="action-buttons">
+                                            <button
+                                                onClick={() => {
+                                                    setEditingItem(ad);
+                                                    setShowCreateModal(true);
+                                                }}
+                                                className="btn-edit"
+                                                title="Edit"
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(ad._id)}
+                                                className="btn-delete"
+                                                title="Delete"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+
+                {filteredAds.length === 0 && (
+                    <div className="empty-state">
+                        <p>No advertisements found</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// Sponsor Ad Add/Edit Modal
+function AdModal({ editingItem, onClose, onSuccess }) {
+    const [imageSourceType, setImageSourceType] = useState(editingItem?.imageUrl ? 'url' : 'file');
+    const [imageFile, setImageFile] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const [formData, setFormData] = useState({
+        title: editingItem?.title || '',
+        label: editingItem?.label || '',
+        targetUrl: editingItem?.targetUrl || '',
+        position: editingItem?.position || 'sidebar-rectangle',
+        status: editingItem?.status || 'active',
+        priority: editingItem?.priority || 0,
+        ctaText: editingItem?.ctaText || 'Shop Now',
+        altText: editingItem?.altText || 'Advertisement',
+        imageUrl: editingItem?.imageUrl || ''
+    });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            if (imageSourceType === 'file' && imageFile) {
+                // Submit as multipart/form-data
+                const data = new FormData();
+                data.append('title', formData.title);
+                data.append('label', formData.label);
+                data.append('targetUrl', formData.targetUrl);
+                data.append('position', formData.position);
+                data.append('status', formData.status);
+                data.append('priority', formData.priority);
+                data.append('ctaText', formData.ctaText);
+                data.append('altText', formData.altText);
+                data.append('image', imageFile);
+
+                if (editingItem) {
+                    await adsAPI.update(editingItem._id, data);
+                } else {
+                    await adsAPI.create(data);
+                }
+            } else {
+                // Submit as JSON
+                const data = {
+                    title: formData.title,
+                    label: formData.label,
+                    targetUrl: formData.targetUrl,
+                    position: formData.position,
+                    status: formData.status,
+                    priority: Number(formData.priority) || 0,
+                    ctaText: formData.ctaText,
+                    altText: formData.altText,
+                    imageUrl: formData.imageUrl || editingItem?.imageUrl
+                };
+
+                if (!data.imageUrl && !editingItem) {
+                    throw new Error('Please provide an image URL or upload an image file');
+                }
+
+                if (editingItem) {
+                    await adsAPI.update(editingItem._id, data);
+                } else {
+                    await adsAPI.create(data);
+                }
+            }
+
+            onSuccess();
+        } catch (err) {
+            console.error('Ad submit error:', err);
+            setError(err.message || 'Failed to save sponsor ad');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>{editingItem ? '✏️ Edit' : '➕ Create'} Sponsor Ad</h2>
+                    <button onClick={onClose} className="modal-close">×</button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="modal-form">
+                    {error && (
+                        <div className="error-message" style={{ background: 'rgba(244, 67, 54, 0.1)', color: '#F44336', padding: '12px', borderRadius: '8px', marginBottom: '15px', fontSize: '14px', border: '1px solid rgba(244, 67, 54, 0.2)' }}>
+                            ⚠️ {error}
+                        </div>
+                    )}
+
+                    <div className="form-group">
+                        <label htmlFor="ad-title">Sponsor Title *</label>
+                        <input
+                            id="ad-title"
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="e.g. ZPlus Premium Offer"
+                            required
+                        />
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="ad-position">Placement Position *</label>
+                            <select
+                                id="ad-position"
+                                value={formData.position}
+                                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                                required
+                            >
+                                <option value="sidebar-rectangle">Sidebar Rectangle (300x250)</option>
+                                <option value="horizontal-banner">Horizontal Banner (970x90)</option>
+                                <option value="inline">Inline Banner (728x90)</option>
+                                <option value="vertical-sidebar">Vertical Sidebar (300x600)</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="ad-status">Status</label>
+                            <select
+                                id="ad-status"
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                            >
+                                <option value="active">Active</option>
+                                <option value="paused">Paused</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="ad-target-url">Target Sponsor Website URL *</label>
+                        <input
+                            id="ad-target-url"
+                            type="url"
+                            value={formData.targetUrl}
+                            onChange={(e) => setFormData({ ...formData, targetUrl: e.target.value })}
+                            placeholder="https://sponsorwebsite.com"
+                            required
+                        />
+                    </div>
+
+                    {/* Image Upload Option Selector */}
+                    <div className="form-group" style={{ marginBottom: '8px' }}>
+                        <label>Image Source Option</label>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                            <button
+                                type="button"
+                                className={`btn-secondary ${imageSourceType === 'file' ? 'active' : ''}`}
+                                style={{ flex: 1, padding: '10px', background: imageSourceType === 'file' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}
+                                onClick={() => setImageSourceType('file')}
+                            >
+                                📤 Upload Image File
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn-secondary ${imageSourceType === 'url' ? 'active' : ''}`}
+                                style={{ flex: 1, padding: '10px', background: imageSourceType === 'url' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}
+                                onClick={() => setImageSourceType('url')}
+                            >
+                                🔗 Provide Image URL
+                            </button>
+                        </div>
+                    </div>
+
+                    {imageSourceType === 'file' ? (
+                        <div className="form-group">
+                            <label htmlFor="ad-image-file">Upload Image File {editingItem ? '' : '*'}</label>
+                            <input
+                                id="ad-image-file"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImageFile(e.target.files[0])}
+                                required={!editingItem}
+                                style={{ padding: '8px 12px', border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)', width: '100%' }}
+                            />
+                            {editingItem?.imageUrl && (
+                                <span className="form-hint" style={{ color: 'var(--text-muted)' }}>💡 Current image: {editingItem.imageUrl} (leave empty to keep current image)</span>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="form-group">
+                            <label htmlFor="ad-image-url">Image URL *</label>
+                            <input
+                                id="ad-image-url"
+                                type="url"
+                                value={formData.imageUrl}
+                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                placeholder="https://example.com/ad-banner.jpg"
+                                required={!editingItem}
+                            />
+                        </div>
+                    )}
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="ad-label">Ad Tagline / Label</label>
+                            <input
+                                id="ad-label"
+                                type="text"
+                                value={formData.label}
+                                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                                placeholder="e.g. SPECIAL OFFER"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="ad-priority">Priority (higher shows first)</label>
+                            <input
+                                id="ad-priority"
+                                type="number"
+                                value={formData.priority}
+                                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                                placeholder="0"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="ad-cta-text">CTA Button Text</label>
+                            <input
+                                id="ad-cta-text"
+                                type="text"
+                                value={formData.ctaText}
+                                onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
+                                placeholder="e.g. Shop Now"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="ad-alt-text">Alt Text (Accessibility)</label>
+                            <input
+                                id="ad-alt-text"
+                                type="text"
+                                value={formData.altText}
+                                onChange={(e) => setFormData({ ...formData, altText: e.target.value })}
+                                placeholder="e.g. Advertisement image"
+                            />
+                        </div>
                     </div>
 
                     <div className="form-actions">
