@@ -12,8 +12,9 @@ const videoSchema = new mongoose.Schema({
             'international', 'national', 'state',
             // Interest-based Categories
             'economics', 'polity', 'technology', 'environment', 'sports',
+            'health', 'defence', 'culture', 'spirituality', 'agriculture', 'geography', 'religion', 'ai',
             // Legacy categories (for backward compatibility)
-            'business', 'innovation', 'tech', 'ai', 'gadgets', 'software',
+            'business', 'innovation', 'tech', 'gadgets', 'software',
             'startups', 'markets', 'crypto', 'general'
         ]
     },
@@ -32,6 +33,9 @@ const videoSchema = new mongoose.Schema({
     tags: [String],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isTicker: { type: Boolean, default: false },
+    tickerCategory: { type: String, enum: ['commodity', 'financial', 'civic', 'general', 'none'], default: 'none' },
+    calendarDate: { type: Date },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

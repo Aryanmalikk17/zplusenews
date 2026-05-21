@@ -34,7 +34,15 @@ export default function AdminPanel() {
             { value: 'polity', label: 'Polity', icon: '🏛️' },
             { value: 'technology', label: 'Technology', icon: '💻' },
             { value: 'environment', label: 'Environment', icon: '🌱' },
-            { value: 'sports', label: 'Sports', icon: '⚽' }
+            { value: 'sports', label: 'Sports', icon: '⚽' },
+            { value: 'health', label: 'Health', icon: '🏥' },
+            { value: 'defence', label: 'Defence', icon: '🛡️' },
+            { value: 'culture', label: 'Culture', icon: '🎨' },
+            { value: 'spirituality', label: 'Spirituality', icon: '🧘' },
+            { value: 'agriculture', label: 'Agriculture', icon: '🌾' },
+            { value: 'geography', label: 'Geography', icon: '🗺️' },
+            { value: 'religion', label: 'Religion', icon: '📿' },
+            { value: 'ai', label: 'AI', icon: '🤖' }
         ]
     };
 
@@ -843,6 +851,11 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         publishedAt: editingItem?.publishedAt
             ? new Date(editingItem.publishedAt).toISOString().slice(0, 16)
             : new Date().toISOString().slice(0, 16),
+        isTicker: editingItem?.isTicker || false,
+        tickerCategory: editingItem?.tickerCategory || 'none',
+        calendarDate: editingItem?.calendarDate
+            ? new Date(editingItem.calendarDate).toISOString().slice(0, 10)
+            : '',
     });
 
     const [loading, setLoading] = useState(false);
@@ -1104,6 +1117,48 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                             </div>
                         </>
                     )}
+
+                    {/* Ticker & Calendar Options */}
+                    <div className="form-section-title" style={{ marginTop: '20px', fontWeight: 'bold', fontSize: '15px', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '5px', marginBottom: '15px', color: 'var(--text-primary)' }}>
+                        📋 Ticker & Calendar Options
+                    </div>
+                    <div className="form-row">
+                        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '100%', marginTop: 'auto', marginBottom: '20px' }}>
+                            <input
+                                type="checkbox"
+                                id="isTicker"
+                                checked={formData.isTicker}
+                                onChange={(e) => setFormData({ ...formData, isTicker: e.target.checked })}
+                                style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer', margin: 0, padding: 0 }}
+                            />
+                            <label htmlFor="isTicker" style={{ cursor: 'pointer', marginBottom: 0, fontWeight: 600 }}>Show in Live Ticker</label>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="tickerCategory">Ticker Category</label>
+                            <select
+                                id="tickerCategory"
+                                value={formData.tickerCategory}
+                                onChange={(e) => setFormData({ ...formData, tickerCategory: e.target.value })}
+                            >
+                                <option value="none">None</option>
+                                <option value="commodity">Commodity</option>
+                                <option value="financial">Financial</option>
+                                <option value="civic">Civic</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="calendarDate">Calendar Event Link Date</label>
+                        <input
+                            type="date"
+                            id="calendarDate"
+                            value={formData.calendarDate}
+                            onChange={(e) => setFormData({ ...formData, calendarDate: e.target.value })}
+                        />
+                        <span className="form-hint" style={{ color: '#666', fontWeight: 'normal' }}>💡 Select a date if you want this content to display as a historical event or news archive for that day on the homepage calendar.</span>
+                    </div>
 
                     <div className="form-actions">
                         <button type="button" onClick={onClose} className="btn-secondary">

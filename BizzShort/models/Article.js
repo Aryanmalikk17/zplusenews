@@ -13,8 +13,9 @@ const ArticleSchema = new mongoose.Schema({
             'international', 'national', 'state',
             // Interest-based Categories
             'economics', 'polity', 'technology', 'environment', 'sports',
+            'health', 'defence', 'culture', 'spirituality', 'agriculture', 'geography', 'religion', 'ai',
             // Legacy categories (for backward compatibility with existing DB records)
-            'positive', 'business', 'innovation', 'tech', 'ai', 'gadgets', 'software', 
+            'positive', 'business', 'innovation', 'tech', 'gadgets', 'software', 
             'startups', 'markets', 'crypto', 'general'
         ]
     },
@@ -32,7 +33,10 @@ const ArticleSchema = new mongoose.Schema({
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     readTime: { type: Number, default: 3 },
-    publishedAt: { type: Date, default: Date.now }
+    publishedAt: { type: Date, default: Date.now },
+    isTicker: { type: Boolean, default: false },
+    tickerCategory: { type: String, enum: ['commodity', 'financial', 'civic', 'general', 'none'], default: 'none' },
+    calendarDate: { type: Date }
 }, {
     timestamps: true
 });

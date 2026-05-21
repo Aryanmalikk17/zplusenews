@@ -24,6 +24,14 @@ const Environment = lazy(() => import('./pages/Environment'));
 const Sports = lazy(() => import('./pages/Sports'));
 const Contests = lazy(() => import('./pages/Contests'));
 const LatestNews = lazy(() => import('./pages/LatestNews'));
+const Health = lazy(() => import('./pages/Health'));
+const Defence = lazy(() => import('./pages/Defence'));
+const Culture = lazy(() => import('./pages/Culture'));
+const Spirituality = lazy(() => import('./pages/Spirituality'));
+const Agriculture = lazy(() => import('./pages/Agriculture'));
+const Geography = lazy(() => import('./pages/Geography'));
+const Religion = lazy(() => import('./pages/Religion'));
+const AI = lazy(() => import('./pages/AI'));
 
 // Admin Pages (separate chunk — heavy, admin-only)
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -64,6 +72,14 @@ export default function App() {
             <Route path="technology" element={<Technology />} />
             <Route path="environment" element={<Environment />} />
             <Route path="sports" element={<Sports />} />
+            <Route path="health" element={<Health />} />
+            <Route path="defence" element={<Defence />} />
+            <Route path="culture" element={<Culture />} />
+            <Route path="spirituality" element={<Spirituality />} />
+            <Route path="agriculture" element={<Agriculture />} />
+            <Route path="geography" element={<Geography />} />
+            <Route path="religion" element={<Religion />} />
+            <Route path="ai" element={<AI />} />
 
             {/* Other Pages */}
             <Route path="contests" element={<Contests />} />

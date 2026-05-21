@@ -114,6 +114,16 @@ export const healthAPI = {
   check: () => api.get('/health'),
 };
 
+// Live Ticker & Calendar APIs
+export const tickerAPI = {
+  getLive: () => api.get('/ticker/live'),
+};
+
+export const calendarAPI = {
+  getContent: (date) => api.get('/calendar/content', { params: { date } }),
+  getHighlights: (year, month) => api.get('/calendar/highlights', { params: { year, month } }),
+};
+
 // Admin
 export const adminAPI = {
   login: (credentials) => api.post('/admin/login', credentials),

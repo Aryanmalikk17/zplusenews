@@ -179,6 +179,53 @@ export default function Article() {
     setMeta('og:type', 'article');
   }, [article]);
 
+  // JSON-LD Schema Injection
+  useEffect(() => {
+    if (!article) return;
+    
+    // Create script element
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'article-json-ld';
+    
+    // Build JSON-LD structured data
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": article.title,
+      "image": [
+        article.image || article.thumbnail || article.poster || ""
+      ],
+      "datePublished": article.date || article.createdAt || new Date().toISOString(),
+      "dateModified": article.updatedAt || article.date || article.createdAt || new Date().toISOString(),
+      "author": [{
+        "@type": "Person",
+        "name": typeof article.author === 'object' ? article.author?.name || 'Editorial Team' : article.author || 'Editorial Team',
+        "url": window.location.origin
+      }],
+      "publisher": {
+        "@type": "Organization",
+        "name": "ZPluse News",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${window.location.origin}/assets/images/logo.png`
+        }
+      },
+      "description": article.excerpt || article.content?.replace(/<[^>]*>/g, '').substring(0, 160) || article.title
+    };
+    
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+    
+    return () => {
+      // Remove script element on unmount or when article changes
+      const existingScript = document.getElementById('article-json-ld');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, [article]);
+
   if (loading) {
     return (
       <div className="article-page">

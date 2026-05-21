@@ -80,6 +80,10 @@ const User = require('./models/User');
 const Advertisement = require('./models/Advertisement');
 const Video = require('./models/Video');
 
+// Services
+const { getLiveTickerPayload } = require('./services/tickerService');
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1110,7 +1114,7 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
     }
 
     try {
-        const { title, slug, category, excerpt, content, author, tags, videoUrl, image } = req.body;
+        const { title, slug, category, excerpt, content, author, tags, videoUrl, image, isTicker, tickerCategory, calendarDate } = req.body;
 
         let parsedAuthor = author;
         if (typeof author === 'string') {
@@ -1130,7 +1134,10 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
             content,
             author: parsedAuthor,
             tags: parsedTags,
-            videoUrl
+            videoUrl,
+            isTicker: isTicker === 'true' || isTicker === true,
+            tickerCategory: tickerCategory || 'none',
+            calendarDate: calendarDate ? new Date(calendarDate) : undefined
         };
 
         // Handle image: File upload takes precedence, otherwise use URL from body
@@ -1154,6 +1161,14 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
 app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) => {
     try {
         const updateData = { ...req.body };
+        
+        // Normalize booleans and date
+        if (updateData.isTicker !== undefined) {
+            updateData.isTicker = updateData.isTicker === 'true' || updateData.isTicker === true;
+        }
+        if (updateData.calendarDate !== undefined) {
+            updateData.calendarDate = updateData.calendarDate ? new Date(updateData.calendarDate) : null;
+        }
         
         // Handle image: File upload takes precedence
         if (req.file) {
@@ -1613,6 +1628,12 @@ app.post('/api/videos', protect, async (req, res) => {
     try {
         const videoData = { ...req.body, createdBy: req.user._id };
         
+        // Normalize booleans and date
+        videoData.isTicker = videoData.isTicker === 'true' || videoData.isTicker === true;
+        if (videoData.calendarDate) {
+            videoData.calendarDate = new Date(videoData.calendarDate);
+        }
+
         // Map frontend 'image' to 'thumbnail'
         if (videoData.image && !videoData.thumbnail) {
             videoData.thumbnail = videoData.image;
@@ -1653,6 +1674,15 @@ app.post('/api/videos', protect, async (req, res) => {
 app.put('/api/videos/:id', protect, async (req, res) => {
     try {
         const updateData = { ...req.body };
+        
+        // Normalize booleans and date
+        if (updateData.isTicker !== undefined) {
+            updateData.isTicker = updateData.isTicker === 'true' || updateData.isTicker === true;
+        }
+        if (updateData.calendarDate !== undefined) {
+            updateData.calendarDate = updateData.calendarDate ? new Date(updateData.calendarDate) : null;
+        }
+
         // Map frontend 'image' to 'thumbnail'
         if (updateData.image && !updateData.thumbnail) {
             updateData.thumbnail = updateData.image;
@@ -1688,6 +1718,86 @@ app.delete('/api/videos/:id', protect, async (req, res) => {
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
+// ============ Live Ticker & Calendar Routes ============
+app.get('/api/ticker/live', async (req, res) => {
+    try {
+        const payload = await getLiveTickerPayload();
+        res.json(payload);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get('/api/calendar/content', async (req, res) => {
+    try {
+        const { date } = req.query; // Format: YYYY-MM-DD
+        if (!date) {
+            return res.status(400).json({ success: false, error: 'Date query parameter (YYYY-MM-DD) is required' });
+        }
+        
+        const start = new Date(`${date}T00:00:00.000Z`);
+        const end = new Date(`${date}T23:59:59.999Z`);
+
+        if (isNaN(start.getTime())) {
+            return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD.' });
+        }
+
+        const [articles, videos, events] = await Promise.all([
+            Article.find({
+                calendarDate: { $gte: start, $lte: end },
+                status: 'PUBLISHED'
+            }).lean(),
+            Video.find({
+                calendarDate: { $gte: start, $lte: end }
+            }).lean(),
+            Event.find({
+                date: { $gte: start, $lte: end }
+            }).lean()
+        ]);
+
+        res.json({
+            success: true,
+            data: {
+                articles: articles.map(a => ({ ...a, id: a._id })),
+                videos: videos.map(v => ({ ...v, id: v._id })),
+                events: events.map(e => ({ ...e, id: e._id }))
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get('/api/calendar/highlights', async (req, res) => {
+    try {
+        const { year, month } = req.query;
+        if (!year || !month) {
+            return res.status(400).json({ success: false, error: 'Year and month are required' });
+        }
+        
+        const start = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1, 0, 0, 0));
+        const end = new Date(Date.UTC(parseInt(year), parseInt(month), 0, 23, 59, 59, 999));
+
+        const [articles, videos, events] = await Promise.all([
+            Article.find({ calendarDate: { $gte: start, $lte: end }, status: 'PUBLISHED' }, 'calendarDate').lean(),
+            Video.find({ calendarDate: { $gte: start, $lte: end } }, 'calendarDate').lean(),
+            Event.find({ date: { $gte: start, $lte: end } }, 'date').lean()
+        ]);
+
+        const dates = new Set();
+        articles.forEach(a => { if (a.calendarDate) dates.add(a.calendarDate.toISOString().split('T')[0]); });
+        videos.forEach(v => { if (v.calendarDate) dates.add(v.calendarDate.toISOString().split('T')[0]); });
+        events.forEach(e => { if (e.date) dates.add(e.date.toISOString().split('T')[0]); });
+
+        res.json({
+            success: true,
+            data: Array.from(dates)
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // --- Dynamic Sitemap ---
 app.get('/sitemap.xml', async (req, res) => {
     try {
@@ -1703,6 +1813,14 @@ app.get('/sitemap.xml', async (req, res) => {
             { loc: `${baseUrl}/videos`, changefreq: 'daily', priority: '0.8' },
             { loc: `${baseUrl}/events`, changefreq: 'weekly', priority: '0.7' },
             { loc: `${baseUrl}/about`, changefreq: 'monthly', priority: '0.5' },
+            { loc: `${baseUrl}/health`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/defence`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/culture`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/spirituality`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/agriculture`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/geography`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/religion`, changefreq: 'daily', priority: '0.6' },
+            { loc: `${baseUrl}/ai`, changefreq: 'daily', priority: '0.6' },
         ];
 
         const articleUrls = articles.map(a => ({

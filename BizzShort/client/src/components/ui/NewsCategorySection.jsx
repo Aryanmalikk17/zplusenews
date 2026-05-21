@@ -47,7 +47,16 @@ export default function NewsCategorySection({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                 >
-                    <h2>{icon && `${icon} `}{title}</h2>
+                    <h2>
+                        {icon ? (
+                            icon.includes('fa-') ? (
+                                <i className={icon} style={{ marginRight: '10px', color: 'var(--primary)' }}></i>
+                            ) : (
+                                `${icon} `
+                            )
+                        ) : null}
+                        {title}
+                    </h2>
                     {showViewAll && (
                         <Link to={viewAllLink} className="view-all">
                             View All →
