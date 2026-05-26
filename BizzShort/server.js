@@ -2135,6 +2135,7 @@ app.get('*', async (req, res) => {
                 console.error('Error serving dynamic article page:', dbErr.message);
             }
         }
+        }
 
         // 1b. Handle Video Route
         if (req.path.startsWith('/video/')) {
@@ -2240,7 +2241,6 @@ app.get('*', async (req, res) => {
                 }
             }
         }
-    }
 
     // 2. Handle Canonical URL for static / category pages (break canonical trap)
         if (html.includes('<link rel="canonical" href="https://zplusenews.com/" />')) {
