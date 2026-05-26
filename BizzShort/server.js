@@ -2044,18 +2044,18 @@ app.get('*', async (req, res) => {
                     // Replace Metadata dynamically
                     html = html
                         .replace(/<title>.*?<\/title>/i, `<title>${articleTitle}</title>`)
-                        .replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${currentUrl}" />`)
-                        .replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${cleanExcerpt}" />`)
+                        .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                        .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${cleanExcerpt}" />`)
                         // Open Graph
-                        .replace(/<meta property="og:title" content=".*?" \/>/i, `<meta property="og:title" content="${article.title}" />`)
-                        .replace(/<meta property="og:description" content=".*?" \/>/i, `<meta property="og:description" content="${cleanExcerpt}" />`)
-                        .replace(/<meta property="og:image" content=".*?" \/>/i, `<meta property="og:image" content="${articleImage}" />`)
-                        .replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${currentUrl}" />`)
-                        .replace(/<meta property="og:type" content=".*?" \/>/i, `<meta property="og:type" content="article" />`)
+                        .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${article.title}" />`)
+                        .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${cleanExcerpt}" />`)
+                        .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/?>/is, `<meta property="og:image" content="${articleImage}" />`)
+                        .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                        .replace(/<meta\s+property="og:type"\s+content=".*?"\s*\/?>/is, `<meta property="og:type" content="article" />`)
                         // Twitter
-                        .replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${article.title}" />`)
-                        .replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
-                        .replace(/<meta name="twitter:image" content=".*?" \/>/i, `<meta name="twitter:image" content="${articleImage}" />`);
+                        .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${article.title}" />`)
+                        .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
+                        .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:image" content="${articleImage}" />`);
                         
                     // Inject schema script before </head>
                     html = html.replace('</head>', `${schemaScript}\n</head>`);
@@ -2123,7 +2123,7 @@ app.get('*', async (req, res) => {
         } else {
             // fallback generic replace
             html = html.replace(
-                /<link rel="canonical" href=".*?" \/>/i,
+                /<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is,
                 `<link rel="canonical" href="${currentUrl}" />`
             );
         }
