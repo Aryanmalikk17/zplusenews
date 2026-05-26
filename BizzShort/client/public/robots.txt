@@ -26,4 +26,4 @@ Disallow: /node_modules/
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://zplusenews.com/sitemap.xml
+Sitemap: https://www.zplusenews.com/sitemap.xml

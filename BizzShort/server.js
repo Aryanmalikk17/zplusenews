@@ -250,7 +250,7 @@ async function downloadAndLocalizeImage(imageUrl) {
     }
 
     try {
-        const siteUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const siteUrl = process.env.SITE_URL || 'https://www.zplusenews.com';
         const parsedUrl = new URL(imageUrl);
         
         // If it's already on our domain, skip
@@ -2004,6 +2004,67 @@ function getHtmlShell() {
     return '<!DOCTYPE html><html><head><title>ZPluse News</title></head><body><div id="root"></div></body></html>';
 }
 
+// GET /rss.xml - RSS Feed for Google News and search crawlers
+app.get('/rss.xml', async (req, res) => {
+    try {
+        const siteUrl = process.env.SITE_URL || 'https://www.zplusenews.com';
+        
+        // Fetch 20 latest published articles
+        const articles = await Article.find({ status: 'PUBLISHED' })
+            .sort({ publishedAt: -1, createdAt: -1 })
+            .limit(20);
+            
+        let rssItems = '';
+        articles.forEach(article => {
+            const articleUrl = `${siteUrl}/article/${article.slug}`;
+            const pubDate = new Date(article.publishedAt || article.createdAt).toUTCString();
+            const cleanDescription = (article.excerpt || article.content || '')
+                .replace(/<[^>]*>/g, '') // strip HTML tags
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .trim()
+                .substring(0, 250);
+                
+            const articleTitle = article.title
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            rssItems += `
+        <item>
+            <title>${articleTitle}</title>
+            <link>${articleUrl}</link>
+            <guid isPermaLink="true">${articleUrl}</guid>
+            <pubDate>${pubDate}</pubDate>
+            <description>${cleanDescription}...</description>
+            <author>${article.author?.name || 'Editorial Team'}</author>
+            <category>${article.category || 'General'}</category>
+        </item>`;
+        });
+
+        const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+    <title>ZPluse News</title>
+    <link>${siteUrl}</link>
+    <description>ZPluse News delivers breaking news, latest national updates, politics, business trends, defense, technology and state news from India.</description>
+    <language>en-in</language>
+    <copyright>Copyright ${new Date().getFullYear()} ZPluse News</copyright>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml" />
+    ${rssItems}
+</channel>
+</rss>`;
+
+        res.header('Content-Type', 'application/xml');
+        return res.status(200).send(rssFeed);
+    } catch (err) {
+        console.error('Error generating RSS feed:', err.message);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Catch-all route to serve the SPA app with dynamic pre-rendering
 app.get('*', async (req, res) => {
     // Don't serve index.html for API routes, uploads, or static asset requests with extensions
@@ -2013,11 +2074,89 @@ app.get('*', async (req, res) => {
 
     try {
         console.log('DEBUG: Catch-all route hit for path:', req.path);
-        const siteUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const siteUrl = process.env.SITE_URL || 'https://www.zplusenews.com';
         const reqPath = req.path.replace(/\/$/, ''); // Remove trailing slash
         const currentUrl = `${siteUrl}${reqPath}`;
         
         let html = getHtmlShell();
+        
+        // 0. Handle Homepage Route Dynamic Pre-rendering
+        if (req.path === '/' || req.path === '') {
+            try {
+                // Fetch latest published articles
+                const articles = await Article.find({ status: 'PUBLISHED' })
+                    .sort({ publishedAt: -1, createdAt: -1 })
+                    .limit(10);
+                
+                if (articles && articles.length > 0) {
+                    // Generate ItemList Schema Markup
+                    const itemListElement = articles.map((article, idx) => {
+                        const articleImage = article.image 
+                            ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
+                            : `${siteUrl}/assets/images/logo.png`;
+                        
+                        return {
+                            "@type": "ListItem",
+                            "position": idx + 1,
+                            "url": `${siteUrl}/article/${article.slug}`,
+                            "name": article.title,
+                            "image": articleImage
+                        };
+                    });
+
+                    const schema = {
+                        "@context": "https://schema.org",
+                        "@type": "ItemList",
+                        "itemListElement": itemListElement
+                    };
+
+                    const schemaScript = `<script type="application/ld+json" id="homepage-item-list">${JSON.stringify(schema)}</script>`;
+                    
+                    // Pre-render content inside <div id="root"></div> for SEO bots
+                    let articlesHtml = articles.map(article => {
+                        const articleImage = article.image 
+                            ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
+                            : `${siteUrl}/assets/images/logo.png`;
+                        const cleanExcerpt = (article.excerpt || article.content || '')
+                            .replace(/<[^>]*>/g, '') // strip html
+                            .replace(/\s+/g, ' ')
+                            .trim()
+                            .substring(0, 150);
+                        
+                        return `
+                        <div style="margin-bottom: 30px; padding: 20px; border-bottom: 1px solid #eee;">
+                            <span style="background: #aa2123; color: #fff; padding: 2px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${article.category}</span>
+                            <h2 style="font-size: 24px; margin: 10px 0;"><a href="/article/${article.slug}" style="color: #111; text-decoration: none;">${article.title}</a></h2>
+                            <p style="color: #666; font-size: 14px;">By ${article.author?.name || 'Editorial Team'} • ${article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Recent'}</p>
+                            ${article.image ? `<div style="margin: 15px 0;"><img src="${articleImage}" alt="${article.title}" style="max-width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px;" /></div>` : ''}
+                            <p style="font-size: 16px; line-height: 1.6;">${cleanExcerpt}...</p>
+                            <a href="/article/${article.slug}" style="color: #aa2123; font-weight: bold; text-decoration: none;">Read Full Article →</a>
+                        </div>`;
+                    }).join('');
+
+                    const bodyPreRender = `
+                    <div id="root">
+                        <div style="max-width: 900px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            <header style="text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #aa2123;">
+                                <h1 style="font-size: 42px; font-family: 'Playfair Display', Georgia, serif; margin: 10px 0;">ZPluse News</h1>
+                                <p style="font-size: 18px; color: #555;">Breaking News, Latest India News, National & International Updates</p>
+                            </header>
+                            <main>
+                                <section>
+                                    <h2 style="font-size: 28px; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;">Top Stories</h2>
+                                    ${articlesHtml}
+                                </section>
+                            </main>
+                        </div>
+                    </div>`;
+
+                    html = html.replace('<div id="root"></div>', bodyPreRender);
+                    html = html.replace('</head>', `${schemaScript}\n</head>`);
+                }
+            } catch (dbErr) {
+                console.error('Error serving dynamic homepage pre-render:', dbErr.message);
+            }
+        }
         
         // 1. Handle Article Route
         if (req.path.startsWith('/article/')) {
@@ -2087,7 +2226,7 @@ app.get('*', async (req, res) => {
                     const formattedDate = article.publishedAt
                         ? new Date(article.publishedAt).toLocaleDateString('en-US', {
                             weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-                          })
+                           })
                         : 'Today';
                         
                     const bodyPreRender = `
@@ -2243,9 +2382,9 @@ app.get('*', async (req, res) => {
         }
 
     // 2. Handle Canonical URL for static / category pages (break canonical trap)
-        if (html.includes('<link rel="canonical" href="https://zplusenews.com/" />')) {
+        if (html.includes('<link rel="canonical" href="https://www.zplusenews.com/" />')) {
             html = html.replace(
-                '<link rel="canonical" href="https://zplusenews.com/" />',
+                '<link rel="canonical" href="https://www.zplusenews.com/" />',
                 `<link rel="canonical" href="${currentUrl}" />`
             );
         } else {

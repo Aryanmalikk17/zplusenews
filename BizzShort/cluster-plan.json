@@ -1,0 +1,176 @@
+{
+  "pillar": {
+    "title": "Breaking News India | Latest National, Politics & Business Updates",
+    "keyword": "breaking news India",
+    "volume": 201000,
+    "template": "ultimate-guide",
+    "wordCount": 3500,
+    "url": "https://www.zplusenews.com"
+  },
+  "clusters": [
+    {
+      "name": "Politics & National Governance",
+      "color": "#e056fd",
+      "posts": [
+        {
+          "title": "Latest Politics News India: Elections, Policies & Government Updates",
+          "keyword": "latest politics news India",
+          "volume": 49500,
+          "template": "ultimate-guide",
+          "wordCount": 1800,
+          "url": "https://www.zplusenews.com/category/polity",
+          "status": "planned"
+        },
+        {
+          "title": "Indian Polity & Governance: Key Bills, Laws & Parliament News",
+          "keyword": "Indian polity news",
+          "volume": 9900,
+          "template": "explainer",
+          "wordCount": 1500,
+          "url": "https://www.zplusenews.com/category/national",
+          "status": "planned"
+        },
+        {
+          "title": "Elections in India: Live Voting Updates, Schedules & Results",
+          "keyword": "elections in India live updates",
+          "volume": 33100,
+          "template": "listicle",
+          "wordCount": 1600,
+          "url": "https://www.zplusenews.com/category/state",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "name": "Business & Economics India",
+      "color": "#ffbe76",
+      "posts": [
+        {
+          "title": "Latest Business News India: Stock Market, Startups & Inflation Trends",
+          "keyword": "latest business news India",
+          "volume": 22200,
+          "template": "ultimate-guide",
+          "wordCount": 1800,
+          "url": "https://www.zplusenews.com/category/economics",
+          "status": "planned"
+        },
+        {
+          "title": "Indian Startup Ecosystem: Funding, Unicorns & Growth Stories",
+          "keyword": "Indian startup news",
+          "volume": 12100,
+          "template": "explainer",
+          "wordCount": 1400,
+          "url": "https://www.zplusenews.com/category/economics",
+          "status": "planned"
+        },
+        {
+          "title": "Union Budget of India: Key Highlights & Economic Impacts Explained",
+          "keyword": "Union Budget of India news",
+          "volume": 18100,
+          "template": "explainer",
+          "wordCount": 1500,
+          "url": "https://www.zplusenews.com/category/economics",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "name": "Defense & International Relations",
+      "color": "#22a6b3",
+      "posts": [
+        {
+          "title": "Indian Defense Updates: Military Modernization & Strategic Security",
+          "keyword": "Indian defence news updates",
+          "volume": 14800,
+          "template": "explainer",
+          "wordCount": 1500,
+          "url": "https://www.zplusenews.com/category/defence",
+          "status": "planned"
+        },
+        {
+          "title": "India International Relations: Bilateral Talks & Global Diplomacy",
+          "keyword": "India international relations news",
+          "volume": 8100,
+          "template": "ultimate-guide",
+          "wordCount": 1600,
+          "url": "https://www.zplusenews.com/category/international",
+          "status": "planned"
+        },
+        {
+          "title": "Indo-Pacific Security & QUAD Summit: Geopolitical Strategy Guide",
+          "keyword": "Indo-Pacific security updates",
+          "volume": 5400,
+          "template": "explainer",
+          "wordCount": 1400,
+          "url": "https://www.zplusenews.com/category/international",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "name": "Technology & Space Innovation",
+      "color": "#6ab04c",
+      "posts": [
+        {
+          "title": "Technology News India: Digital India Initiatives, AI & Tech Growth",
+          "keyword": "technology news India updates",
+          "volume": 18100,
+          "template": "ultimate-guide",
+          "wordCount": 1600,
+          "url": "https://www.zplusenews.com/category/technology",
+          "status": "planned"
+        },
+        {
+          "title": "ISRO Space Research News: Chandrayaan, Gaganyaan & Launch Updates",
+          "keyword": "Indian space research news ISRO",
+          "volume": 27100,
+          "template": "explainer",
+          "wordCount": 1500,
+          "url": "https://www.zplusenews.com/category/technology",
+          "status": "planned"
+        },
+        {
+          "title": "5G Technology India: Rollout, Speed Trials & Future Roadmap",
+          "keyword": "5G technology updates India",
+          "volume": 14800,
+          "template": "explainer",
+          "wordCount": 1400,
+          "url": "https://www.zplusenews.com/category/technology",
+          "status": "planned"
+        }
+      ]
+    }
+  ],
+  "links": [
+    { "from": "pillar", "to": "latest politics news India", "type": "mandatory" },
+    { "from": "latest politics news India", "to": "pillar", "type": "mandatory" },
+    { "from": "latest politics news India", "to": "Indian polity news", "type": "spoke-to-spoke" },
+    { "from": "Indian polity news", "to": "latest politics news India", "type": "spoke-to-spoke" },
+    { "from": "latest politics news India", "to": "elections in India live updates", "type": "spoke-to-spoke" },
+    { "from": "elections in India live updates", "to": "latest politics news India", "type": "spoke-to-spoke" },
+    { "from": "pillar", "to": "latest business news India", "type": "mandatory" },
+    { "from": "latest business news India", "to": "pillar", "type": "mandatory" },
+    { "from": "latest business news India", "to": "Indian startup news", "type": "spoke-to-spoke" },
+    { "from": "Indian startup news", "to": "latest business news India", "type": "spoke-to-spoke" },
+    { "from": "latest business news India", "to": "Union Budget of India news", "type": "spoke-to-spoke" },
+    { "from": "Union Budget of India news", "to": "latest business news India", "type": "spoke-to-spoke" },
+    { "from": "pillar", "to": "Indian defence news updates", "type": "mandatory" },
+    { "from": "Indian defence news updates", "to": "pillar", "type": "mandatory" },
+    { "from": "Indian defence news updates", "to": "India international relations news", "type": "spoke-to-spoke" },
+    { "from": "India international relations news", "to": "Indian defence news updates", "type": "spoke-to-spoke" },
+    { "from": "India international relations news", "to": "Indo-Pacific security updates", "type": "spoke-to-spoke" },
+    { "from": "Indo-Pacific security updates", "to": "India international relations news", "type": "spoke-to-spoke" },
+    { "from": "pillar", "to": "technology news India updates", "type": "mandatory" },
+    { "from": "technology news India updates", "to": "pillar", "type": "mandatory" },
+    { "from": "technology news India updates", "to": "Indian space research news ISRO", "type": "spoke-to-spoke" },
+    { "from": "Indian space research news ISRO", "to": "technology news India updates", "type": "spoke-to-spoke" },
+    { "from": "technology news India updates", "to": "5G technology updates India", "type": "spoke-to-spoke" },
+    { "from": "5G technology updates India", "to": "technology news India updates", "type": "spoke-to-spoke" }
+  ],
+  "meta": {
+    "totalPosts": 13,
+    "totalClusters": 4,
+    "totalLinks": 24,
+    "estimatedWords": 22100
+  }
+}

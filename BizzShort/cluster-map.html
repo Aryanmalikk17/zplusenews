@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZPluse News | Interactive SEO Topic Cluster Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --accent: #e056fd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at center, #1e293b 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .metrics-header {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .metric-badge {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+
+    #viz-container {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    #sidebar {
+      width: 420px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-color);
+      padding: 2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+      z-index: 5;
+    }
+
+    .sidebar-section {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-section:hover {
+      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(30, 41, 59, 0.55);
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    h3 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 0.8rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+    }
+
+    .detail-val {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .tag {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .node {
+      cursor: pointer;
+      stroke: var(--bg-dark);
+      stroke-width: 2px;
+      transition: r 0.3s ease, filter 0.3s ease;
+    }
+
+    .node:hover {
+      filter: brightness(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.5));
+    }
+
+    .link {
+      fill: none;
+      stroke-opacity: 0.35;
+      stroke-width: 1.5px;
+      transition: stroke-opacity 0.3s, stroke-width 0.3s;
+    }
+
+    .link.highlighted {
+      stroke-opacity: 0.9;
+      stroke-width: 3px;
+    }
+
+    .node-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      fill: #e2e8f0;
+      pointer-events: none;
+      text-anchor: middle;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .instructions {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      font-size: 0.85rem;
+      pointer-events: none;
+      color: var(--text-muted);
+    }
+
+    /* Scrollbar Styling */
+    #sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    #sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+    #sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>ZPluse News SEO Topic Cluster Map</h1>
+      <div class="brand-subtitle">Visual Content Architecture & Internal Link Strategy</div>
+    </div>
+    <div class="metrics-header">
+      <div class="metric-badge">
+        <div class="metric-val" id="val-posts">13</div>
+        <div class="metric-label">Total Articles</div>
+      </div>
+      <div class="metric-badge">
+        <div class="metric-val" id="val-clusters">4</div>
+        <div class="metric-label">Clusters</div>
+      </div>
+      <div class="metric-badge">
+        <div class="metric-val" id="val-links">24</div>
+        <div class="metric-label">Links</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="viz-container">
+      <div class="instructions">💡 Click on any node to view keyword data, intent classification, and link mappings.</div>
+    </div>
+
+    <div id="sidebar">
+      <div id="welcome-message">
+        <h2>Cluster Map Guide</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+          This visual represents the semantic relationships between search terms. The central node is the primary **Pillar Page** (homepage). The surrounding colored nodes represent **Spoke Articles** grouped into keyword-relevant sub-clusters.
+        </p>
+      </div>
+
+      <div id="detail-card" style="display: none;">
+        <div class="sidebar-section">
+          <h3 id="node-cluster-name">Cluster Name</h3>
+          <h2 id="node-title" style="margin-bottom: 1rem;">Keyword Target Title</h2>
+          
+          <div class="detail-row">
+            <span class="detail-label">Target Keyword:</span>
+            <span class="detail-val" id="node-keyword">keyword</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Monthly Volume:</span>
+            <span class="detail-val" id="node-volume">200K+</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Intent:</span>
+            <span class="tag" id="node-intent">Informational</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Template:</span>
+            <span class="detail-val" id="node-template">Ultimate Guide</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Word Count:</span>
+            <span class="detail-val" id="node-words">3,500 words</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Target Path:</span>
+            <span class="detail-val"><a href="#" id="node-url" style="color: var(--primary); text-decoration: none;" target="_blank">View Route</a></span>
+          </div>
+        </div>
+
+        <div class="sidebar-section" style="margin-top: 1rem;">
+          <h3>🔗 Inbound & Outbound Connections</h3>
+          <div id="node-links" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.4;">
+            Links details here.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Embedded JSON cluster data
+    const CLUSTER_DATA = {
+      "pillar": {
+        "title": "Breaking News India | Latest National, Politics & Business Updates",
+        "keyword": "breaking news India",
+        "volume": 201000,
+        "template": "ultimate-guide",
+        "wordCount": 3500,
+        "url": "https://www.zplusenews.com",
+        "id": "pillar"
+      },
+      "clusters": [
+        {
+          "name": "Politics & National Governance",
+          "color": "#e056fd",
+          "posts": [
+            {
+              "title": "Latest Politics News India: Elections, Policies & Government Updates",
+              "keyword": "latest politics news India",
+              "volume": 49500,
+              "template": "ultimate-guide",
+              "wordCount": 1800,
+              "url": "https://www.zplusenews.com/category/polity",
+              "status": "planned"
+            },
+            {
+              "title": "Indian Polity & Governance: Key Bills, Laws & Parliament News",
+              "keyword": "Indian polity news",
+              "volume": 9900,
+              "template": "explainer",
+              "wordCount": 1500,
+              "url": "https://www.zplusenews.com/category/national",
+              "status": "planned"
+            },
+            {
+              "title": "Elections in India: Live Voting Updates, Schedules & Results",
+              "keyword": "elections in India live updates",
+              "volume": 33100,
+              "template": "listicle",
+              "wordCount": 1600,
+              "url": "https://www.zplusenews.com/category/state",
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "name": "Business & Economics India",
+          "color": "#ffbe76",
+          "posts": [
+            {
+              "title": "Latest Business News India: Stock Market, Startups & Inflation Trends",
+              "keyword": "latest business news India",
+              "volume": 22200,
+              "template": "ultimate-guide",
+              "wordCount": 1800,
+              "url": "https://www.zplusenews.com/category/economics",
+              "status": "planned"
+            },
+            {
+              "title": "Indian Startup Ecosystem: Funding, Unicorns & Growth Stories",
+              "keyword": "Indian startup news",
+              "volume": 12100,
+              "template": "explainer",
+              "wordCount": 1400,
+              "url": "https://www.zplusenews.com/category/economics",
+              "status": "planned"
+            },
+            {
+              "title": "Union Budget of India: Key Highlights & Economic Impacts Explained",
+              "keyword": "Union Budget of India news",
+              "volume": 18100,
+              "template": "explainer",
+              "wordCount": 1500,
+              "url": "https://www.zplusenews.com/category/economics",
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "name": "Defense & International Relations",
+          "color": "#22a6b3",
+          "posts": [
+            {
+              "title": "Indian Defense Updates: Military Modernization & Strategic Security",
+              "keyword": "Indian defence news updates",
+              "volume": 14800,
+              "template": "explainer",
+              "wordCount": 1500,
+              "url": "https://www.zplusenews.com/category/defence",
+              "status": "planned"
+            },
+            {
+              "title": "India International Relations: Bilateral Talks & Global Diplomacy",
+              "keyword": "India international relations news",
+              "volume": 8100,
+              "template": "ultimate-guide",
+              "wordCount": 1600,
+              "url": "https://www.zplusenews.com/category/international",
+              "status": "planned"
+            },
+            {
+              "title": "Indo-Pacific Security & QUAD Summit: Geopolitical Strategy Guide",
+              "keyword": "Indo-Pacific security updates",
+              "volume": 5400,
+              "template": "explainer",
+              "wordCount": 1400,
+              "url": "https://www.zplusenews.com/category/international",
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "name": "Technology & Space Innovation",
+          "color": "#6ab04c",
+          "posts": [
+            {
+              "title": "Technology News India: Digital India Initiatives, AI & Tech Growth",
+              "keyword": "technology news India updates",
+              "volume": 18100,
+              "template": "ultimate-guide",
+              "wordCount": 1600,
+              "url": "https://www.zplusenews.com/category/technology",
+              "status": "planned"
+            },
+            {
+              "title": "ISRO Space Research News: Chandrayaan, Gaganyaan & Launch Updates",
+              "keyword": "Indian space research news ISRO",
+              "volume": 27100,
+              "template": "explainer",
+              "wordCount": 1500,
+              "url": "https://www.zplusenews.com/category/technology",
+              "status": "planned"
+            },
+            {
+              "title": "5G Technology India: Rollout, Speed Trials & Future Roadmap",
+              "keyword": "5G technology updates India",
+              "volume": 14800,
+              "template": "explainer",
+              "wordCount": 1400,
+              "url": "https://www.zplusenews.com/category/technology",
+              "status": "planned"
+            }
+          ]
+        }
+      ],
+      "links": [
+        { "from": "pillar", "to": "latest politics news India", "type": "mandatory" },
+        { "from": "latest politics news India", "to": "pillar", "type": "mandatory" },
+        { "from": "latest politics news India", "to": "Indian polity news", "type": "spoke-to-spoke" },
+        { "from": "Indian polity news", "to": "latest politics news India", "type": "spoke-to-spoke" },
+        { "from": "latest politics news India", "to": "elections in India live updates", "type": "spoke-to-spoke" },
+        { "from": "elections in India live updates", "to": "latest politics news India", "type": "spoke-to-spoke" },
+        { "from": "pillar", "to": "latest business news India", "type": "mandatory" },
+        { "from": "latest business news India", "to": "pillar", "type": "mandatory" },
+        { "from": "latest business news India", "to": "Indian startup news", "type": "spoke-to-spoke" },
+        { "from": "Indian startup news", "to": "latest business news India", "type": "spoke-to-spoke" },
+        { "from": "latest business news India", "to": "Union Budget of India news", "type": "spoke-to-spoke" },
+        { "from": "Union Budget of India news", "to": "latest business news India", "type": "spoke-to-spoke" },
+        { "from": "pillar", "to": "Indian defence news updates", "type": "mandatory" },
+        { "from": "Indian defence news updates", "to": "pillar", "type": "mandatory" },
+        { "from": "Indian defence news updates", "to": "India international relations news", "type": "spoke-to-spoke" },
+        { "from": "India international relations news", "to": "Indian defence news updates", "type": "spoke-to-spoke" },
+        { "from": "India international relations news", "to": "Indo-Pacific security updates", "type": "spoke-to-spoke" },
+        { "from": "Indo-Pacific security updates", "to": "India international relations news", "type": "spoke-to-spoke" },
+        { "from": "pillar", "to": "technology news India updates", "type": "mandatory" },
+        { "from": "technology news India updates", "to": "pillar", "type": "mandatory" },
+        { "from": "technology news India updates", "to": "Indian space research news ISRO", "type": "spoke-to-spoke" },
+        { "from": "Indian space research news ISRO", "to": "technology news India updates", "type": "spoke-to-spoke" },
+        { "from": "technology news India updates", "to": "5G technology updates India", "type": "spoke-to-spoke" },
+        { "from": "5G technology updates India", "to": "technology news India updates", "type": "spoke-to-spoke" }
+      ]
+    };
+
+    // Flatten data for D3 node list
+    const nodes = [];
+    const links = [];
+
+    // Add pillar
+    nodes.push({
+      id: CLUSTER_DATA.pillar.id,
+      label: CLUSTER_DATA.pillar.keyword,
+      title: CLUSTER_DATA.pillar.title,
+      keyword: CLUSTER_DATA.pillar.keyword,
+      volume: CLUSTER_DATA.pillar.volume,
+      template: CLUSTER_DATA.pillar.template,
+      wordCount: CLUSTER_DATA.pillar.wordCount,
+      url: CLUSTER_DATA.pillar.url,
+      cluster: "Pillar",
+      color: "#38bdf8",
+      radius: 28
+    });
+
+    // Add spokes
+    CLUSTER_DATA.clusters.forEach(c => {
+      c.posts.forEach(post => {
+        nodes.push({
+          id: post.keyword,
+          label: post.keyword,
+          title: post.title,
+          keyword: post.keyword,
+          volume: post.volume,
+          template: post.template,
+          wordCount: post.wordCount,
+          url: post.url,
+          cluster: c.name,
+          color: c.color,
+          radius: 16
+        });
+      });
+    });
+
+    // Match link targets
+    CLUSTER_DATA.links.forEach(l => {
+      links.push({
+        source: l.from,
+        target: l.to,
+        type: l.type
+      });
+    });
+
+    // D3 Force Layout Setup
+    const container = document.getElementById("viz-container");
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const svg = d3.select("#viz-container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Filter/Glow setup
+    const defs = svg.append("defs");
+    CLUSTER_DATA.clusters.forEach((c, idx) => {
+      const glow = defs.append("filter")
+        .attr("id", `glow-${idx}`)
+        .attr("x", "-50%")
+        .attr("y", "-50%")
+        .attr("width", "200%")
+        .attr("height", "200%");
+      glow.append("feGaussianBlur")
+        .attr("stdDeviation", "6")
+        .attr("result", "blur");
+      glow.append("feMerge")
+        .selectAll("feMergeNode")
+        .data(["blur", "SourceGraphic"])
+        .enter().append("feMergeNode")
+        .attr("in", d => d);
+    });
+
+    // Force simulation
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.type === 'mandatory' ? 140 : 80))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collision", d3.forceCollide().radius(d => d.radius + 30));
+
+    // Render links
+    const link = svg.append("g")
+      .selectAll("path")
+      .data(links)
+      .enter().append("path")
+      .attr("class", "link")
+      .attr("stroke", d => d.type === 'mandatory' ? '#38bdf8' : '#64748b')
+      .attr("stroke-dasharray", d => d.type === 'spoke-to-spoke' ? '4,4' : 'none');
+
+    // Render nodes
+    const node = svg.append("g")
+      .selectAll("g")
+      .data(nodes)
+      .enter().append("g")
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended))
+      .on("click", handleNodeClick);
+
+    node.append("circle")
+      .attr("class", "node")
+      .attr("r", d => d.radius)
+      .attr("fill", d => d.color)
+      .style("filter", (d, idx) => d.id === 'pillar' ? 'url(#glow-0)' : 'none');
+
+    node.append("text")
+      .attr("class", "node-label")
+      .attr("dy", d => d.radius + 15)
+      .text(d => d.label);
+
+    simulation.on("tick", () => {
+      link.attr("d", d => {
+        return `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`;
+      });
+
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    // Handle Node click / details display
+    function handleNodeClick(event, d) {
+      // Highlight links
+      link.classed("highlighted", l => l.source.id === d.id || l.target.id === d.id);
+
+      // Display Details
+      document.getElementById("welcome-message").style.display = "none";
+      const card = document.getElementById("detail-card");
+      card.style.display = "flex";
+      
+      document.getElementById("node-cluster-name").textContent = d.cluster;
+      document.getElementById("node-cluster-name").style.color = d.color;
+      document.getElementById("node-title").textContent = d.title;
+      document.getElementById("node-keyword").textContent = d.keyword;
+      document.getElementById("node-volume").textContent = d.volume.toLocaleString() + " searches/mo";
+      document.getElementById("node-template").textContent = d.template;
+      document.getElementById("node-words").textContent = d.wordCount + " words";
+      document.getElementById("node-url").setAttribute("href", d.url);
+      
+      // Determine search intent
+      let intent = "Informational";
+      if (d.keyword.includes("best") || d.keyword.includes("vs") || d.keyword.includes("politics news") || d.keyword.includes("business news")) {
+        intent = "Commercial / Informational";
+      }
+      document.getElementById("node-intent").textContent = intent;
+
+      // Render link partners in sidebar
+      const partnerLinks = links.filter(l => l.source.id === d.id || l.target.id === d.id);
+      let linksHTML = "<ul style='padding-left: 1.2rem; margin-top: 0.5rem;'>";
+      partnerLinks.forEach(l => {
+        const partner = l.source.id === d.id ? l.target : l.source;
+        const direction = l.source.id === d.id ? "➡️ Outbound to" : "⬅️ Inbound from";
+        const relation = l.type === 'mandatory' ? "Pillar Link" : "Spoke Link";
+        linksHTML += `<li style='margin-bottom: 0.4rem;'><strong>${direction}</strong> <span style='color:${partner.color}'>${partner.keyword}</span> (${relation})</li>`;
+      });
+      linksHTML += "</ul>";
+      document.getElementById("node-links").innerHTML = linksHTML;
+    }
+
+    // Drag behavior
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    // Resize handler
+    window.addEventListener("resize", () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      svg.attr("width", w).attr("height", h);
+      simulation.force("center", d3.forceCenter(w / 2, h / 2)).alpha(0.3).restart();
+    });
+  </script>
+</body>
+</html>

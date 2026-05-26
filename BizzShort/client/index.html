@@ -5,24 +5,33 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/images/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZPluse News - Tech News & Business Insights | Next-Gen Digital Magazine</title>
+  <title>ZPluse News | Breaking News, Latest India News, National & International Updates</title>
 
   <!-- SEO Meta Tags -->
   <meta name="description"
-    content="ZPluse News delivers cutting-edge tech news, startup insights, AI developments, and business analysis. Your next-gen digital magazine for the tech-savvy reader." />
+    content="ZPluse News is India's leading digital platform for breaking news, latest national updates, politics, business trends, defense, technology and state news." />
   <meta name="keywords"
-    content="tech news, AI, startups, business news, technology trends, digital magazine, innovation, economics, polity, sports, environment" />
+    content="breaking news India, latest news today, national news, Hindi news, ताजा खबर, today news, live news, India news, politics news India, business news India, sports news India, tech news, defense news" />
   <meta name="author" content="ZPluse News" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <link rel="canonical" href="https://zplusenews.com/" />
+  <link rel="canonical" href="https://www.zplusenews.com/" />
+  
+  <!-- Hreflang and Feed Discovery -->
+  <link rel="alternate" hreflang="en-IN" href="https://www.zplusenews.com/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.zplusenews.com/" />
+  <link rel="alternate" type="application/rss+xml" title="ZPluse News Feed" href="https://www.zplusenews.com/rss.xml" />
+  
+  <!-- DNS Prefetch / Preconnect -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://zplusenews.com/" />
-  <meta property="og:title" content="ZPluse News - Next-Gen Tech & Business Magazine" />
+  <meta property="og:url" content="https://www.zplusenews.com/" />
+  <meta property="og:title" content="ZPluse News | Breaking News, Latest India News & Updates" />
   <meta property="og:description"
-    content="Cutting-edge tech news, startup insights, and business analysis for the modern reader." />
-  <meta property="og:image" content="https://zplusenews.com/assets/images/og-image.png" />
+    content="Get live breaking news, latest updates from India on politics, business, technology, defense, sports and more." />
+  <meta property="og:image" content="https://www.zplusenews.com/assets/images/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content="ZPluse News" />
@@ -32,9 +41,9 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@zplusenews" />
   <meta name="twitter:creator" content="@zplusenews" />
-  <meta name="twitter:title" content="ZPluse News - Tech News & Business Insights" />
-  <meta name="twitter:description" content="Cutting-edge tech news, startup insights, and business analysis." />
-  <meta name="twitter:image" content="https://zplusenews.com/assets/images/og-image.png" />
+  <meta name="twitter:title" content="ZPluse News | Live India News & Politics" />
+  <meta name="twitter:description" content="Get live breaking news, latest updates from India on politics, business, technology and defense." />
+  <meta name="twitter:image" content="https://www.zplusenews.com/assets/images/og-image.png" />
 
   <!-- Theme Color -->
   <meta name="theme-color" content="#AA2123" />
@@ -58,34 +67,44 @@
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://www.zplusenews.com/#website",
     "name": "ZPluse News",
-    "url": "https://zplusenews.com",
-    "description": "Your next-gen digital magazine for tech news, startup insights, and business analysis.",
+    "url": "https://www.zplusenews.com",
+    "description": "Your next-gen digital magazine for breaking news, national updates, and startup insights.",
     "publisher": {
-      "@type": "Organization",
-      "name": "ZPluse News",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://zplusenews.com/assets/images/logo.png"
-      }
+      "@type": "NewsMediaOrganization",
+      "@id": "https://www.zplusenews.com/#organization"
     },
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://zplusenews.com/search?q={search_term_string}",
+      "target": "https://www.zplusenews.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }
   </script>
 
-  <!-- Structured Data - NewsMediaOrganization -->
+  <!-- Structured Data - NewsMediaOrganization (E-E-A-T and Trust Signals) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
+    "@id": "https://www.zplusenews.com/#organization",
     "name": "ZPluse News",
-    "url": "https://zplusenews.com",
-    "logo": "https://zplusenews.com/assets/images/logo.png",
+    "url": "https://www.zplusenews.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.zplusenews.com/assets/images/logo.png",
+      "width": "192",
+      "height": "192"
+    },
     "foundingDate": "2020",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "New Delhi",
+      "addressRegion": "Delhi",
+      "postalCode": "110001",
+      "addressCountry": "IN"
+    },
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+91-80-4567-8900",
@@ -98,7 +117,12 @@
       "https://instagram.com/zplusenews",
       "https://linkedin.com/company/zplusenews",
       "https://youtube.com/@zplusenews"
-    ]
+    ],
+    "ethicsPolicy": "https://www.zplusenews.com/about",
+    "masthead": "https://www.zplusenews.com/about",
+    "missionCoveragePrioritiesPolicy": "https://www.zplusenews.com/about",
+    "verificationFactCheckingPolicy": "https://www.zplusenews.com/about",
+    "correctionsPolicy": "https://www.zplusenews.com/about"
   }
   </script>
 </head>
