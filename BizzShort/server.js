@@ -1956,6 +1956,16 @@ app.get('/llms.txt', (req, res) => {
     }
 });
 
+// Google Search Console Site Verification handler
+app.get('/googled586bf8a07121b46.html', (req, res) => {
+    const filePath = path.join(__dirname, 'googled586bf8a07121b46.html');
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send('Not Found');
+    }
+});
+
 // SPA Fallback - Serve React app for any non-API routes (must be after all API routes)
 // In-memory HTML shell cache
 let htmlShellCache = null;
