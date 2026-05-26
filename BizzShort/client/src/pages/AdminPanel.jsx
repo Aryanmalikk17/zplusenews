@@ -886,6 +886,10 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         excerpt: editingItem?.excerpt || '',
         image: editingItem?.image || editingItem?.thumbnail || '',
         author: typeof editingItem?.author === 'object' ? editingItem?.author?.name || '' : editingItem?.author || '',
+        authorAvatar: typeof editingItem?.author === 'object' ? editingItem?.author?.avatar || '' : '',
+        authorBio: typeof editingItem?.author === 'object' ? editingItem?.author?.bio || '' : '',
+        authorLinkedin: typeof editingItem?.author === 'object' ? editingItem?.author?.linkedin || '' : '',
+        authorTwitter: typeof editingItem?.author === 'object' ? editingItem?.author?.twitter || '' : '',
         tags: editingItem?.tags?.join(', ') || '',
         videoUrl: editingItem?.videoUrl || (editingItem?.videoId ? `https://www.youtube.com/watch?v=${editingItem.videoId}` : ''),
         duration: editingItem?.duration || '',
@@ -932,6 +936,17 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                 image: formData.image || autoThumbnail,
                 thumbnail: formData.image || autoThumbnail,
             };
+
+            // Bundle author fields into the author object
+            if (type === 'article') {
+                data.author = {
+                    name: formData.author,
+                    avatar: formData.authorAvatar,
+                    bio: formData.authorBio,
+                    linkedin: formData.authorLinkedin,
+                    twitter: formData.authorTwitter
+                };
+            }
 
             if (type === 'article') {
                 if (editingItem) {
@@ -1052,13 +1067,55 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                             </div>
 
                             <div className="form-group">
-                                <label>Author</label>
+                                <label>Author Name</label>
                                 <input
                                     type="text"
                                     value={formData.author}
                                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                                     placeholder="Author Name"
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Author Avatar URL</label>
+                                <input
+                                    type="text"
+                                    value={formData.authorAvatar}
+                                    onChange={(e) => setFormData({ ...formData, authorAvatar: e.target.value })}
+                                    placeholder="https://example.com/avatar.jpg"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Author Bio / Credentials</label>
+                                <textarea
+                                    value={formData.authorBio}
+                                    onChange={(e) => setFormData({ ...formData, authorBio: e.target.value })}
+                                    placeholder="Enter author short bio and credentials"
+                                    rows="2"
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Author LinkedIn URL</label>
+                                    <input
+                                        type="url"
+                                        value={formData.authorLinkedin}
+                                        onChange={(e) => setFormData({ ...formData, authorLinkedin: e.target.value })}
+                                        placeholder="https://linkedin.com/in/username"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Author Twitter/X URL</label>
+                                    <input
+                                        type="url"
+                                        value={formData.authorTwitter}
+                                        onChange={(e) => setFormData({ ...formData, authorTwitter: e.target.value })}
+                                        placeholder="https://twitter.com/username"
+                                    />
+                                </div>
                             </div>
 
                             <div className="form-group">

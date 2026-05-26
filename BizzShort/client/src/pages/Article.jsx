@@ -389,6 +389,42 @@ export default function Article() {
             />
           </div>
 
+          {/* Author Profile Box */}
+          {article.author && typeof article.author === 'object' && article.author.name && (article.author.bio || article.author.avatar) && (
+            <div className="author-bio-card" style={{ display: 'flex', gap: '20px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', marginTop: '40px', marginBottom: '40px', border: '1px solid rgba(255,255,255,0.08)', alignItems: 'center', flexWrap: 'wrap' }}>
+              {article.author.avatar ? (
+                <img src={article.author.avatar} alt={article.author.name} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+              ) : (
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', color: '#fff', fontWeight: 'bold' }}>
+                  {article.author.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>{article.author.name}</h3>
+                  <span style={{ fontSize: '11px', background: 'rgba(170, 33, 35, 0.15)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Contributor</span>
+                </div>
+                {article.author.bio && (
+                  <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                    {article.author.bio}
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
+                  {article.author.linkedin && (
+                    <a href={article.author.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#0077b5', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }} className="author-social-link">
+                      <i className="fab fa-linkedin" style={{ fontSize: '16px' }}></i> LinkedIn
+                    </a>
+                  )}
+                  {article.author.twitter && (
+                    <a href={article.author.twitter} target="_blank" rel="noopener noreferrer" style={{ color: '#1da1f2', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }} className="author-social-link">
+                      <i className="fab fa-x-twitter" style={{ fontSize: '16px' }}></i> Twitter
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Share Buttons */}
           <div className="article-share">
             <span>Share this article:</span>

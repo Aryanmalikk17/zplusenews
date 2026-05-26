@@ -13,6 +13,8 @@ const validator = require('validator');
 const cookieParser = require('cookie-parser');
 const NodeCache = require('node-cache');
 const { body, validationResult } = require('express-validator');
+const fs = require('fs');
+const axios = require('axios');
 
 // Load env vars FIRST — must be before any process.env access
 dotenv.config();
@@ -240,6 +242,74 @@ const generateToken = (id) => {
     // JWT_SECRET is guaranteed by the startup guard above
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
 };
+
+// Download external image and save locally to uploads
+async function downloadAndLocalizeImage(imageUrl) {
+    if (!imageUrl || (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://'))) {
+        return imageUrl; // Already local or empty
+    }
+
+    try {
+        const siteUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const parsedUrl = new URL(imageUrl);
+        
+        // If it's already on our domain, skip
+        if (parsedUrl.host === 'zplusenews.com' || parsedUrl.host === 'www.zplusenews.com') {
+            return parsedUrl.pathname;
+        }
+
+        // Fetch image
+        const response = await axios({
+            url: imageUrl,
+            method: 'GET',
+            responseType: 'stream',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            },
+            timeout: 8000
+        });
+
+        // Get extension from Content-Type or path
+        let ext = '.jpg';
+        const contentType = response.headers['content-type'];
+        if (contentType) {
+            if (contentType.includes('image/png')) ext = '.png';
+            else if (contentType.includes('image/webp')) ext = '.webp';
+            else if (contentType.includes('image/gif')) ext = '.gif';
+            else if (contentType.includes('image/svg+xml')) ext = '.svg';
+            else if (contentType.includes('image/avif')) ext = '.avif';
+        } else {
+            const pathname = parsedUrl.pathname;
+            const matchedExt = pathname.match(/\.(png|jpg|jpeg|webp|gif|svg|avif)$/i);
+            if (matchedExt) ext = matchedExt[0];
+        }
+
+        // Generate clean unique filename
+        const filename = `uploaded-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+        const uploadsDir = path.join(__dirname, 'uploads');
+        const destPath = path.join(uploadsDir, filename);
+
+        // Ensure uploads directory exists
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        // Write file
+        const writer = fs.createWriteStream(destPath);
+        response.data.pipe(writer);
+
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+
+        console.log(`Localized external image: ${imageUrl} -> /uploads/${filename}`);
+        return `/uploads/${filename}`;
+    } catch (err) {
+        console.error(`Failed to localize image: ${imageUrl}. Error: ${err.message}`);
+        return imageUrl; // Fallback to original URL on failure
+    }
+}
 
 // Cookie options for the auth session
 const AUTH_COOKIE_OPTIONS = {
@@ -1144,7 +1214,7 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
         if (req.file) {
             articleData.image = `/uploads/${req.file.filename}`;
         } else if (image) {
-            articleData.image = image;
+            articleData.image = await downloadAndLocalizeImage(image);
         }
 
         const article = await Article.create(articleData);
@@ -1173,6 +1243,8 @@ app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) =
         // Handle image: File upload takes precedence
         if (req.file) {
             updateData.image = `/uploads/${req.file.filename}`;
+        } else if (updateData.image) {
+            updateData.image = await downloadAndLocalizeImage(updateData.image);
         }
         // If no file but image URL is provided in body, it stays in updateData
         
@@ -1849,16 +1921,220 @@ ${allUrls.map(u => `  <url>
     }
 });
 
-// SPA Fallback - Serve React app for any non-API routes (must be after all API routes)
-if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-        // Don't serve index.html for API routes or file requests
-        if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
-            return res.status(404).json({ success: false, error: 'Not found' });
+// Robots.txt fallback handler (before static/catch-all files to bypass SPA catch-all)
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    const isProd = process.env.NODE_ENV === 'production';
+    const filePath = isProd
+        ? path.join(__dirname, 'client', 'dist', 'robots.txt')
+        : path.join(__dirname, 'client', 'public', 'robots.txt');
+        
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        const rootPath = path.join(__dirname, 'robots.txt');
+        if (fs.existsSync(rootPath)) {
+            res.sendFile(rootPath);
+        } else {
+            res.status(404).send('Not Found');
         }
-        res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-    });
+    }
+});
+
+// LLMs.txt fallback handler
+app.get('/llms.txt', (req, res) => {
+    res.type('text/plain');
+    const isProd = process.env.NODE_ENV === 'production';
+    const filePath = isProd
+        ? path.join(__dirname, 'client', 'dist', 'llms.txt')
+        : path.join(__dirname, 'client', 'public', 'llms.txt');
+        
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send('Not Found');
+    }
+});
+
+// SPA Fallback - Serve React app for any non-API routes (must be after all API routes)
+// In-memory HTML shell cache
+let htmlShellCache = null;
+
+function getHtmlShell() {
+    if (htmlShellCache && process.env.NODE_ENV === 'production') {
+        return htmlShellCache;
+    }
+    
+    try {
+        const isProd = process.env.NODE_ENV === 'production';
+        const htmlPath = isProd 
+            ? path.join(__dirname, 'client', 'dist', 'index.html')
+            : path.join(__dirname, 'client', 'index.html');
+            
+        if (fs.existsSync(htmlPath)) {
+            htmlShellCache = fs.readFileSync(htmlPath, 'utf8');
+            return htmlShellCache;
+        }
+    } catch (err) {
+        console.error('Error reading index.html shell:', err.message);
+    }
+    
+    return '<!DOCTYPE html><html><head><title>ZPluse News</title></head><body><div id="root"></div></body></html>';
 }
+
+// Catch-all route to serve the SPA app with dynamic pre-rendering
+app.get('*', async (req, res) => {
+    // Don't serve index.html for API routes, uploads, or static asset requests with extensions
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|wasm|txt|xml|json)$/)) {
+        return res.status(404).json({ success: false, error: 'Not found' });
+    }
+
+    try {
+        const siteUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const reqPath = req.path.replace(/\/$/, ''); // Remove trailing slash
+        const currentUrl = `${siteUrl}${reqPath}`;
+        
+        let html = getHtmlShell();
+        
+        // 1. Handle Article Route
+        if (req.path.startsWith('/article/')) {
+            const slug = req.path.split('/article/')[1];
+            if (slug) {
+                try {
+                    const article = await Article.findOne({ slug });
+                    if (article) {
+                    // Extract a clean excerpt for description
+                    const cleanExcerpt = (article.excerpt || article.content || '')
+                        .replace(/<[^>]*>/g, '') // strip html
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .substring(0, 160);
+                        
+                    const articleTitle = `${article.title} | ZPluse News`;
+                    const articleImage = article.image 
+                        ? (article.image.startsWith('http') ? article.image : `${siteUrl}${article.image}`)
+                        : `${siteUrl}/assets/images/logo.png`;
+                        
+                    // Generate Schema Markup
+                    const schema = {
+                        "@context": "https://schema.org",
+                        "@type": "NewsArticle",
+                        "headline": article.title,
+                        "image": [articleImage],
+                        "datePublished": article.publishedAt || article.createdAt || new Date().toISOString(),
+                        "dateModified": article.updatedAt || article.publishedAt || article.createdAt || new Date().toISOString(),
+                        "author": [{
+                            "@type": "Person",
+                            "name": article.author?.name || 'Editorial Team',
+                            "url": siteUrl
+                        }],
+                        "publisher": {
+                            "@type": "NewsMediaOrganization",
+                            "name": "ZPluse News",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": `${siteUrl}/assets/images/logo.png`
+                            }
+                        },
+                        "description": cleanExcerpt
+                    };
+                    
+                    const schemaScript = `<script type="application/ld+json" id="article-json-ld">${JSON.stringify(schema)}</script>`;
+                    
+                    // Replace Metadata dynamically
+                    html = html
+                        .replace(/<title>.*?<\/title>/i, `<title>${articleTitle}</title>`)
+                        .replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${currentUrl}" />`)
+                        .replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${cleanExcerpt}" />`)
+                        // Open Graph
+                        .replace(/<meta property="og:title" content=".*?" \/>/i, `<meta property="og:title" content="${article.title}" />`)
+                        .replace(/<meta property="og:description" content=".*?" \/>/i, `<meta property="og:description" content="${cleanExcerpt}" />`)
+                        .replace(/<meta property="og:image" content=".*?" \/>/i, `<meta property="og:image" content="${articleImage}" />`)
+                        .replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${currentUrl}" />`)
+                        .replace(/<meta property="og:type" content=".*?" \/>/i, `<meta property="og:type" content="article" />`)
+                        // Twitter
+                        .replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${article.title}" />`)
+                        .replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
+                        .replace(/<meta name="twitter:image" content=".*?" \/>/i, `<meta name="twitter:image" content="${articleImage}" />`);
+                        
+                    // Inject schema script before </head>
+                    html = html.replace('</head>', `${schemaScript}\n</head>`);
+                    
+                    // Pre-render content inside <div id="root"></div> for AI crawlers
+                    const formattedDate = article.publishedAt
+                        ? new Date(article.publishedAt).toLocaleDateString('en-US', {
+                            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+                          })
+                        : 'Today';
+                        
+                    const bodyPreRender = `
+<div id="root">
+    <article style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.8;">
+        <header style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+            <span style="background: #aa2123; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">${article.category}</span>
+            <h1 style="font-size: 36px; margin: 15px 0 10px 0; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3; font-weight: 800;">${article.title}</h1>
+            <div style="font-size: 14px; color: #666;">
+                <span>By <strong>${article.author?.name || 'Editorial Team'}</strong></span>
+                <span style="margin: 0 8px;">•</span>
+                <span>${formattedDate}</span>
+            </div>
+        </header>
+        ${article.image ? `<div style="margin-bottom: 30px;"><img src="${articleImage}" alt="${article.title}" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px;" /></div>` : ''}
+        <div class="content" style="font-size: 18px;">
+            ${article.content || '<p>Article content is loading...</p>'}
+        </div>
+        ${article.author && article.author.name && (article.author.bio || article.author.avatar) ? `
+        <footer style="margin-top: 50px; padding: 30px; background: #f9f9f9; border-radius: 12px; display: flex; gap: 20px; align-items: center; border: 1px solid #eee;">
+            ${article.author.avatar ? `<img src="${article.author.avatar}" alt="${article.author.name}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;" />` : ''}
+            <div>
+                <h3 style="margin: 0 0 5px 0; font-size: 18px;">${article.author.name}</h3>
+                <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.5;">${article.author.bio}</p>
+                <div style="margin-top: 10px; font-size: 14px;">
+                    ${article.author.linkedin ? `<a href="${article.author.linkedin}" target="_blank" style="color: #0077b5; text-decoration: none; margin-right: 15px;">LinkedIn</a>` : ''}
+                    ${article.author.twitter ? `<a href="${article.author.twitter}" target="_blank" style="color: #1da1f2; text-decoration: none;">Twitter</a>` : ''}
+                </div>
+            </div>
+        </footer>
+        ` : ''}
+    </article>
+</div>`;
+                    
+                    html = html.replace('<div id="root"></div>', bodyPreRender);
+                    
+                    res.header('Content-Type', 'text/html');
+                    return res.status(200).send(html);
+                } else {
+                    // Article not found - send index shell with 404
+                    res.header('Content-Type', 'text/html');
+                    return res.status(404).send(html.replace('<div id="root"></div>', '<div id="root" style="text-align:center;padding:100px 0;"><h1>404 Article Not Found</h1><p>The requested article does not exist.</p><a href="/">Go to Homepage</a></div>'));
+                }
+            } catch (dbErr) {
+                console.error('Error serving dynamic article page:', dbErr.message);
+            }
+        }
+    }
+
+    // 2. Handle Canonical URL for static / category pages (break canonical trap)
+        if (html.includes('<link rel="canonical" href="https://zplusenews.com/" />')) {
+            html = html.replace(
+                '<link rel="canonical" href="https://zplusenews.com/" />',
+                `<link rel="canonical" href="${currentUrl}" />`
+            );
+        } else {
+            // fallback generic replace
+            html = html.replace(
+                /<link rel="canonical" href=".*?" \/>/i,
+                `<link rel="canonical" href="${currentUrl}" />`
+            );
+        }
+        
+        res.header('Content-Type', 'text/html');
+        res.status(200).send(html);
+    } catch (err) {
+        console.error('Catch-all handler error:', err.message);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Start Server
 app.listen(PORT, () => {

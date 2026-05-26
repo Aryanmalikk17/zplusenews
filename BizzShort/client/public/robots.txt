@@ -1,0 +1,29 @@
+# robots.txt for ZPluse News
+# https://zplusenews.com
+
+User-agent: *
+Allow: /
+
+# Allow crawling of assets
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.svg
+
+# Disallow admin and API endpoints
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /api/*
+
+# Disallow temporary and development files
+Disallow: /*.json
+Disallow: /node_modules/
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://zplusenews.com/sitemap.xml

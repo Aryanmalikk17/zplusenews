@@ -1,0 +1,31 @@
+# ZPluse News
+
+> ZPluse News is a next-generation digital magazine delivering cutting-edge tech news, startup insights, AI developments, and business analysis.
+
+## Core Sections
+
+- [Home](https://www.zplusenews.com/) - Main page with featured stories.
+- [Latest News](https://www.zplusenews.com/latest) - Hourly updates on breaking news.
+- [Videos](https://www.zplusenews.com/videos) - Video news and features.
+- [Events](https://www.zplusenews.com/events) - Industry events and coverage.
+- [About Us](https://www.zplusenews.com/about) - Information about ZPluse News.
+
+## News Categories
+
+- [AI](https://www.zplusenews.com/ai) - Artificial Intelligence, ML, and automation.
+- [Technology](https://www.zplusenews.com/technology) - Tech trends, gadgets, and software.
+- [Economics](https://www.zplusenews.com/economics) - Economy, trade, and finance.
+- [Polity](https://www.zplusenews.com/polity) - Politics, governance, and policy.
+- [Defence](https://www.zplusenews.com/defence) - National security and defense tech.
+- [Health](https://www.zplusenews.com/health) - Health tech, science, and wellness.
+- [Agriculture](https://www.zplusenews.com/agriculture) - Agritech, farming, and trade.
+- [Environment](https://www.zplusenews.com/environment) - Climate change, energy, and sustainability.
+- [Sports](https://www.zplusenews.com/sports) - Sports business and news.
+- [Culture](https://www.zplusenews.com/culture) - Society, arts, and media.
+- [Spirituality](https://www.zplusenews.com/spirituality) - Philosophy and culture.
+- [Geography](https://www.zplusenews.com/geography) - Geopolitics and mapping.
+- [Religion](https://www.zplusenews.com/religion) - Social and cultural updates.
+
+## XML Sitemap
+
+- [Sitemap](https://www.zplusenews.com/sitemap.xml) - Full dynamic index of all articles.

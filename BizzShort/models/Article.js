@@ -26,7 +26,9 @@ const ArticleSchema = new mongoose.Schema({
     author: {
         name: String,
         avatar: String,
-        bio: String
+        bio: String,
+        linkedin: String,
+        twitter: String
     },
     tags: [String],
     status: { type: String, default: 'PUBLISHED', enum: ['PUBLISHED', 'DRAFT', 'ARCHIVED'] },
