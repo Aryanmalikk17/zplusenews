@@ -2012,7 +2012,7 @@ app.get('*', async (req, res) => {
                         
                     const articleTitle = `${article.title} | ZPluse News`;
                     const articleImage = article.image 
-                        ? (article.image.startsWith('http') ? article.image : `${siteUrl}${article.image}`)
+                        ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
                         : `${siteUrl}/assets/images/logo.png`;
                         
                     // Generate Schema Markup
