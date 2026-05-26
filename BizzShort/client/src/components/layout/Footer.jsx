@@ -117,7 +117,7 @@ export default function Footer() {
 
                 {/* Footer Bottom */}
                 <div className="footer-bottom">
-                    <p>© {currentYear} ZPluse News. All rights reserved.</p>
+                    <p>© {currentYear} ZPluse News. All rights reserved by <a href="https://zpluse.com">Zpluse</a>.</p>
                 </div>
             </div>
         </footer>
