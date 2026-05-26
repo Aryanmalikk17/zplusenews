@@ -1881,7 +1881,7 @@ app.get('/sitemap.xml', async (req, res) => {
 
         const videos = await Video.find(
             { videoId: { $exists: true, $ne: '' } },
-            'videoId createdAt'
+            'videoId slug createdAt'
         ).lean();
 
         const staticUrls = [
@@ -1908,7 +1908,7 @@ app.get('/sitemap.xml', async (req, res) => {
         }));
 
         const videoUrls = videos.map(v => ({
-            loc: `${baseUrl}/video/${v.videoId}`,
+            loc: `${baseUrl}/video/${v.slug || v.videoId}`,
             lastmod: v.createdAt ? new Date(v.createdAt).toISOString().split('T')[0] : undefined,
             changefreq: 'weekly',
             priority: '0.7'
@@ -2012,6 +2012,7 @@ app.get('*', async (req, res) => {
     }
 
     try {
+        console.log('DEBUG: Catch-all route hit for path:', req.path);
         const siteUrl = process.env.SITE_URL || 'https://zplusenews.com';
         const reqPath = req.path.replace(/\/$/, ''); // Remove trailing slash
         const currentUrl = `${siteUrl}${reqPath}`;
@@ -2137,10 +2138,15 @@ app.get('*', async (req, res) => {
 
         // 1b. Handle Video Route
         if (req.path.startsWith('/video/')) {
-            const videoId = req.path.split('/video/')[1];
-            if (videoId) {
+            const videoIdentifier = req.path.split('/video/')[1];
+            if (videoIdentifier) {
                 try {
-                    const video = await Video.findOne({ videoId });
+                    const video = await Video.findOne({
+                        $or: [
+                            { videoId: videoIdentifier },
+                            { slug: videoIdentifier }
+                        ]
+                    });
                     if (video) {
                         const cleanExcerpt = (video.articleContent || video.description || '')
                             .replace(/<[^>]*>/g, '')

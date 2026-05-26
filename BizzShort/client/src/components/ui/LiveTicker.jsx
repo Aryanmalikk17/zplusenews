@@ -71,7 +71,7 @@ export default function LiveTicker() {
                     type: 'db-commodity',
                     label: 'Commodity News',
                     title: item.title,
-                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.videoId}`,
+                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.slug || item.videoId}`,
                     icon: 'fa-solid fa-gem'
                 });
             });
@@ -98,7 +98,7 @@ export default function LiveTicker() {
                     type: 'civic',
                     label: 'Civic Update',
                     title: item.title,
-                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.videoId}`,
+                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.slug || item.videoId}`,
                     icon: 'fa-solid fa-bullhorn'
                 });
             });
@@ -111,7 +111,7 @@ export default function LiveTicker() {
                     type: 'general',
                     label: 'Breaking',
                     title: item.title,
-                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.videoId}`,
+                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.slug || item.videoId}`,
                     icon: 'fa-solid fa-bolt'
                 });
             });
@@ -124,7 +124,7 @@ export default function LiveTicker() {
                     type: 'db-financial',
                     label: 'Financial Update',
                     title: item.title,
-                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.videoId}`,
+                    link: item.type === 'article' ? `/article/${item.slug}` : `/video/${item.slug || item.videoId}`,
                     icon: 'fa-solid fa-scale-balanced'
                 });
             });

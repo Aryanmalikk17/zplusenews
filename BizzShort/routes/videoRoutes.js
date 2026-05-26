@@ -147,7 +147,12 @@ function extractVideoId(input) {
  */
 router.get('/by-video-id/:videoId', async (req, res) => {
     try {
-        const video = await Video.findOne({ videoId: req.params.videoId });
+        const video = await Video.findOne({
+            $or: [
+                { videoId: req.params.videoId },
+                { slug: req.params.videoId }
+            ]
+        });
         if (!video) {
             return res.status(404).json({ success: false, error: 'Video not found' });
         }

@@ -239,7 +239,7 @@ export default function InteractiveCalendar() {
                                                 </h5>
                                                 <div className="archive-articles-list">
                                                     {dayContent.videos.map((vid) => (
-                                                        <Link key={vid._id} to={`/video/${vid.videoId}`} className="archive-item-link">
+                                                        <Link key={vid._id} to={`/video/${vid.slug || vid.videoId}`} className="archive-item-link">
                                                             <div className="archive-item-title">
                                                                 <i className="fa-brands fa-youtube play-btn-mini"></i>
                                                                 {vid.title}

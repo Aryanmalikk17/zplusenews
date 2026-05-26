@@ -137,7 +137,7 @@ export default function VideoCard({ video, featured = false }) {
                 )}
             </div>
             <div className="video-card-content">
-                <Link to={`/video/${video.videoId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to={`/video/${video.slug || video.videoId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h3 className="video-title" style={{ cursor: 'pointer' }}>{video.title}</h3>
                 </Link>
                 {video.description && !featured && (
