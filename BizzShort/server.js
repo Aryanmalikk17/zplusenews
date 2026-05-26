@@ -1873,10 +1873,15 @@ app.get('/api/calendar/highlights', async (req, res) => {
 // --- Dynamic Sitemap ---
 app.get('/sitemap.xml', async (req, res) => {
     try {
-        const baseUrl = process.env.SITE_URL || 'https://zplusenews.com';
+        const baseUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
         const articles = await Article.find(
             { status: 'PUBLISHED', slug: { $exists: true, $ne: '' } },
             'slug publishedAt'
+        ).lean();
+
+        const videos = await Video.find(
+            { videoId: { $exists: true, $ne: '' } },
+            'videoId createdAt'
         ).lean();
 
         const staticUrls = [
@@ -1902,7 +1907,14 @@ app.get('/sitemap.xml', async (req, res) => {
             priority: '0.8'
         }));
 
-        const allUrls = [...staticUrls, ...articleUrls];
+        const videoUrls = videos.map(v => ({
+            loc: `${baseUrl}/video/${v.videoId}`,
+            lastmod: v.createdAt ? new Date(v.createdAt).toISOString().split('T')[0] : undefined,
+            changefreq: 'weekly',
+            priority: '0.7'
+        }));
+
+        const allUrls = [...staticUrls, ...articleUrls, ...videoUrls];
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -2120,6 +2132,106 @@ app.get('*', async (req, res) => {
                 }
             } catch (dbErr) {
                 console.error('Error serving dynamic article page:', dbErr.message);
+            }
+        }
+
+        // 1b. Handle Video Route
+        if (req.path.startsWith('/video/')) {
+            const videoId = req.path.split('/video/')[1];
+            if (videoId) {
+                try {
+                    const video = await Video.findOne({ videoId });
+                    if (video) {
+                        const cleanExcerpt = (video.articleContent || video.description || '')
+                            .replace(/<[^>]*>/g, '')
+                            .replace(/\s+/g, ' ')
+                            .trim()
+                            .substring(0, 160) || 'Watch video news on ZPluse News.';
+                        
+                        const videoTitle = `${video.title} | ZPluse News`;
+                        const videoImage = video.thumbnail || `${siteUrl}/assets/images/logo.png`;
+                        
+                        // Generate VideoObject Schema Markup
+                        const schema = {
+                            "@context": "https://schema.org",
+                            "@type": "VideoObject",
+                            "name": video.title,
+                            "description": cleanExcerpt,
+                            "thumbnailUrl": [videoImage],
+                            "uploadDate": video.createdAt || new Date().toISOString(),
+                            "contentUrl": `https://www.youtube.com/watch?v=${video.videoId}`,
+                            "embedUrl": `https://www.youtube.com/embed/${video.videoId}`,
+                            "publisher": {
+                                "@type": "NewsMediaOrganization",
+                                "name": "ZPluse News",
+                                "logo": {
+                                    "@type": "ImageObject",
+                                    "url": `${siteUrl}/assets/images/logo.png`
+                                }
+                            }
+                        };
+                        
+                        const schemaScript = `<script type="application/ld+json" id="video-json-ld">${JSON.stringify(schema)}</script>`;
+                        
+                        // Replace Metadata dynamically
+                        html = html
+                            .replace(/<title>.*?<\/title>/i, `<title>${videoTitle}</title>`)
+                            .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                            .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${cleanExcerpt}" />`)
+                            // Open Graph
+                            .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${video.title}" />`)
+                            .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${cleanExcerpt}" />`)
+                            .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/?>/is, `<meta property="og:image" content="${videoImage}" />`)
+                            .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                            .replace(/<meta\s+property="og:type"\s+content=".*?"\s*\/?>/is, `<meta property="og:type" content="video" />`)
+                            // Twitter
+                            .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${video.title}" />`)
+                            .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
+                            .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:image" content="${videoImage}" />`);
+                            
+                        // Inject schema script before </head>
+                        html = html.replace('</head>', `${schemaScript}\n</head>`);
+                        
+                        // Pre-render content inside <div id="root"></div> for AI crawlers
+                        const formattedDate = video.createdAt
+                            ? new Date(video.createdAt).toLocaleDateString('en-US', {
+                                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+                              })
+                            : 'Today';
+                            
+                        const bodyPreRender = `
+<div id="root">
+    <article style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.8;">
+        <header style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+            <span style="background: #aa2123; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">${video.category}</span>
+            <h1 style="font-size: 36px; margin: 15px 0 10px 0; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3; font-weight: 800;">${video.title}</h1>
+            <div style="font-size: 14px; color: #666;">
+                <span>By <strong>${video.youtubeChannelTitle || 'ZPluse News'}</strong></span>
+                <span style="margin: 0 8px;">•</span>
+                <span>${formattedDate}</span>
+            </div>
+        </header>
+        <div style="margin-bottom: 30px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px;">
+            <iframe src="https://www.youtube.com/embed/${video.videoId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+        </div>
+        <div class="content" style="font-size: 18px;">
+            ${video.articleContent || video.description || '<p>Video details loading...</p>'}
+        </div>
+    </article>
+</div>`;
+                        
+                        html = html.replace('<div id="root"></div>', bodyPreRender);
+                        
+                        res.header('Content-Type', 'text/html');
+                        return res.status(200).send(html);
+                    } else {
+                        // Video not found - send index shell with 404
+                        res.header('Content-Type', 'text/html');
+                        return res.status(404).send(html.replace('<div id="root"></div>', '<div id="root" style="text-align:center;padding:100px 0;"><h1>404 Video Not Found</h1><p>The requested video does not exist.</p><a href="/">Go to Homepage</a></div>'));
+                    }
+                } catch (dbErr) {
+                    console.error('Error serving dynamic video page:', dbErr.message);
+                }
             }
         }
     }
