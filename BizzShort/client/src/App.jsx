@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // === Lazily-loaded routes (code-split from the main bundle) ===
 
@@ -11,8 +13,6 @@ const Events = lazy(() => import('./pages/Events'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Videos = lazy(() => import('./pages/Videos'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
-const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 
 // Category Pages
 const FakeNews = lazy(() => import('./pages/FakeNews'));
