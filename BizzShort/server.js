@@ -1890,6 +1890,8 @@ app.get('/sitemap.xml', async (req, res) => {
             { loc: `${baseUrl}/videos`, changefreq: 'daily', priority: '0.8' },
             { loc: `${baseUrl}/events`, changefreq: 'weekly', priority: '0.7' },
             { loc: `${baseUrl}/about`, changefreq: 'monthly', priority: '0.5' },
+            { loc: `${baseUrl}/privacy`, changefreq: 'monthly', priority: '0.3' },
+            { loc: `${baseUrl}/terms`, changefreq: 'monthly', priority: '0.3' },
             { loc: `${baseUrl}/health`, changefreq: 'daily', priority: '0.6' },
             { loc: `${baseUrl}/defence`, changefreq: 'daily', priority: '0.6' },
             { loc: `${baseUrl}/culture`, changefreq: 'daily', priority: '0.6' },
@@ -2157,7 +2159,87 @@ app.get('*', async (req, res) => {
                 console.error('Error serving dynamic homepage pre-render:', dbErr.message);
             }
         }
-        
+
+        // 0.2 Handle Privacy Policy Route Pre-rendering
+        if (reqPath === '/privacy') {
+            const pageTitle = `Privacy Policy | ZPluse News`;
+            const pageDesc = `Read the Privacy Policy of ZPluse News. Understand how we collect, process, and safeguard your personal data in accordance with GDPR, CCPA, and DPDP laws.`;
+            
+            html = html
+                .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+            const bodyPreRender = `
+            <div id="root">
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.8;">
+                    <h1 style="font-size: 36px; border-bottom: 2px solid #aa2123; padding-bottom: 10px; margin-bottom: 30px;">Privacy Policy</h1>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Last Updated: May 27, 2026</p>
+                    
+                    <h2>1. Introduction</h2>
+                    <p>Welcome to ZPluse News. We are committed to protecting your personal data and respecting your privacy. This policy outlines how we handle data collected via https://www.zplusenews.com.</p>
+                    
+                    <h2>2. Information We Collect</h2>
+                    <p>We collect log/usage data automatically, cookies, and any personal information you provide when subscribing to newsletters or commenting (e.g. name, email).</p>
+                    
+                    <h2>3. How We Use Your Information</h2>
+                    <p>We process information to operate our news services, analyze usage activity, prevent fraud, and send editorial newsletters in compliance with GDPR, CCPA, and India's DPDP Act.</p>
+                    
+                    <h2>4. Your Rights</h2>
+                    <p>Depending on your location, you have rights to access, rectify, delete, or restrict the processing of your data. Contact us at privacy@zplusenews.com to exercise these rights.</p>
+                </div>
+            </div>`;
+
+            html = html.replace('<div id="root"></div>', bodyPreRender);
+            res.header('Content-Type', 'text/html');
+            return res.status(200).send(html);
+        }
+
+        // 0.3 Handle Terms of Service Route Pre-rendering
+        if (reqPath === '/terms') {
+            const pageTitle = `Terms of Service | ZPluse News`;
+            const pageDesc = `Read the Terms of Service of ZPluse News. Review user conduct guidelines, intellectual property rights, and terms governing our news publication platforms.`;
+            
+            html = html
+                .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+            const bodyPreRender = `
+            <div id="root">
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.8;">
+                    <h1 style="font-size: 36px; border-bottom: 2px solid #aa2123; padding-bottom: 10px; margin-bottom: 30px;">Terms of Service</h1>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Last Updated: May 27, 2026</p>
+                    
+                    <h2>1. Agreement to Terms</h2>
+                    <p>By accessing or using ZPluse News (https://www.zplusenews.com), you agree to comply with and be bound by these Terms of Service.</p>
+                    
+                    <h2>2. Intellectual Property</h2>
+                    <p>All content published on ZPluse News (including articles, audio, video, layout) is protected by copyright laws and intellectual property rights in India and internationally.</p>
+                    
+                    <h2>3. User Conduct</h2>
+                    <p>Users must not engage in data extraction/scraping, spamming, harassment in comments, or posting defamatory content.</p>
+                    
+                    <h2>4. Governing Law</h2>
+                    <p>These terms are governed by the laws of India, with exclusive jurisdiction in the courts of New Delhi, Delhi, India.</p>
+                </div>
+            </div>`;
+
+            html = html.replace('<div id="root"></div>', bodyPreRender);
+            res.header('Content-Type', 'text/html');
+            return res.status(200).send(html);
+        }
+
         // 1. Handle Article Route
         if (req.path.startsWith('/article/')) {
             const slug = req.path.split('/article/')[1];

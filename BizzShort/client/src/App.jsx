@@ -11,6 +11,8 @@ const Events = lazy(() => import('./pages/Events'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Videos = lazy(() => import('./pages/Videos'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 
 // Category Pages
 const FakeNews = lazy(() => import('./pages/FakeNews'));
@@ -87,6 +89,8 @@ export default function App() {
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             <Route path="videos" element={<Videos />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsOfService />} />
           </Route>
 
           {/* Admin Routes (No Layout) */}
