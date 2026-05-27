@@ -10,7 +10,7 @@ export default function TermsOfService() {
             animate={{ opacity: 1 }}
         >
             {/* Hero */}
-            <div className="page-hero terms-hero">
+            <div className="page-hero policy-hero">
                 <div className="container">
                     <h1>Terms of Service</h1>
                     <p>Last Updated: {lastUpdated}</p>
@@ -133,8 +133,9 @@ export default function TermsOfService() {
             </section>
 
             <style>{`
-                .terms-hero {
-                    background: linear-gradient(135deg, #aa2123 0%, var(--bg-dark) 100%);
+                .policy-hero {
+                    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                    margin-bottom: 40px;
                 }
                 .page-hero {
                     padding: 80px 0;
@@ -144,23 +145,33 @@ export default function TermsOfService() {
                 .page-hero h1 {
                     font-size: clamp(2rem, 4vw, 3rem);
                     margin-bottom: 16px;
-                    color: white;
+                    color: white !important;
                 }
                 .page-hero p {
                     font-size: 18px;
                     opacity: 0.9;
-                    color: white;
+                    color: white !important;
                 }
                 .policy-container {
-                    max-width: 800px;
+                    max-width: 900px;
                     margin: 0 auto;
+                    background: var(--white);
+                    padding: 40px 30px;
+                    border-radius: var(--radius-xl);
+                    box-shadow: var(--shadow-md);
+                    border: 1px solid var(--light-gray);
                 }
                 .policy-container h2 {
                     font-size: 1.8rem;
                     margin: 2rem 0 1rem 0;
-                    color: #fff;
-                    border-bottom: 1px solid var(--border-color);
+                    color: var(--text-primary);
+                    border-bottom: 1px solid var(--light-gray);
                     padding-bottom: 8px;
+                }
+                .policy-container h3 {
+                    font-size: 1.3rem;
+                    margin: 1.5rem 0 0.8rem 0;
+                    color: var(--primary);
                 }
                 .policy-container p {
                     font-size: 16px;
@@ -177,6 +188,12 @@ export default function TermsOfService() {
                     line-height: 1.8;
                     color: var(--text-secondary);
                     margin-bottom: 0.6rem;
+                }
+                
+                @media (max-width: 768px) {
+                    .policy-container {
+                        padding: 24px 16px;
+                    }
                 }
             `}</style>
         </motion.div>
