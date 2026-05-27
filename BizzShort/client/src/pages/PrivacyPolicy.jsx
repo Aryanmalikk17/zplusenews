@@ -116,7 +116,7 @@ export default function PrivacyPolicy() {
                         <p>
                             If you have questions or comments about this Privacy Policy, please contact us at:
                         </p>
-                        <p style="margin-left: 20px;">
+                        <p style={{ marginLeft: '20px' }}>
                             <strong>ZPluse News Team</strong><br />
                             Email: contact@zplusenews.com<br />
                             Address: New Delhi, Delhi, India - 110001

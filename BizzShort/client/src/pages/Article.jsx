@@ -174,7 +174,7 @@ export default function Article() {
     };
     setMeta('og:title', article.title);
     setMeta('og:description', article.excerpt || article.content?.substring(0, 160) || '');
-    setMeta('og:image', article.image || '');
+    setMeta('og:image', article.image || `${window.location.origin}/assets/images/og-image.png`);
     setMeta('og:url', window.location.href);
     setMeta('og:type', 'article');
   }, [article]);

@@ -123,7 +123,7 @@ export default function TermsOfService() {
                             In order to resolve a complaint regarding the Services or to receive further information regarding 
                             use of the Services, please contact us at:
                         </p>
-                        <p style="margin-left: 20px;">
+                        <p style={{ marginLeft: '20px' }}>
                             <strong>ZPluse News Team</strong><br />
                             Email: contact@zplusenews.com<br />
                             Address: New Delhi, Delhi, India - 110001

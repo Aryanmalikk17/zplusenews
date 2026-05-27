@@ -2095,7 +2095,7 @@ app.get('*', async (req, res) => {
                     const itemListElement = articles.map((article, idx) => {
                         const articleImage = article.image 
                             ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
-                            : `${siteUrl}/assets/images/logo.png`;
+                            : `${siteUrl}/assets/images/og-image.png`;
                         
                         return {
                             "@type": "ListItem",
@@ -2118,7 +2118,7 @@ app.get('*', async (req, res) => {
                     let articlesHtml = articles.map(article => {
                         const articleImage = article.image 
                             ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
-                            : `${siteUrl}/assets/images/logo.png`;
+                            : `${siteUrl}/assets/images/og-image.png`;
                         const cleanExcerpt = (article.excerpt || article.content || '')
                             .replace(/<[^>]*>/g, '') // strip html
                             .replace(/\s+/g, ' ')
@@ -2257,7 +2257,7 @@ app.get('*', async (req, res) => {
                     const articleTitle = `${article.title} | ZPluse News`;
                     const articleImage = article.image 
                         ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
-                        : `${siteUrl}/assets/images/logo.png`;
+                        : `${siteUrl}/assets/images/og-image.png`;
                         
                     // Generate Schema Markup
                     const schema = {
@@ -2377,7 +2377,7 @@ app.get('*', async (req, res) => {
                             .substring(0, 160) || 'Watch video news on ZPluse News.';
                         
                         const videoTitle = `${video.title} | ZPluse News`;
-                        const videoImage = video.thumbnail || `${siteUrl}/assets/images/logo.png`;
+                        const videoImage = video.thumbnail || `${siteUrl}/assets/images/og-image.png`;
                         
                         // Generate VideoObject Schema Markup
                         const schema = {
