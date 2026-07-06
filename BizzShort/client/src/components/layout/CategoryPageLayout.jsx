@@ -27,10 +27,11 @@ export default function CategoryPageLayout({
             try {
                 // If category is 'latest', fetch without category param to get all filtered by date (assumed default backend behavior)
                 const params = category === 'latest' ? { limit: 50, sort: '-createdAt' } : { category: category, limit: 30 };
+                const videoParams = category === 'latest' ? { limit: 30 } : { category: category, limit: 30 };
 
                 const [articlesRes, videosRes] = await Promise.all([
                     articlesAPI.getAll(params).catch(() => ({ data: [] })),
-                    videosAPI.getAll().catch(() => ({ data: [] }))
+                    videosAPI.getAll(videoParams).catch(() => ({ data: [] }))
                 ]);
 
                 const articlesData = articlesRes?.data || articlesRes || [];
@@ -38,7 +39,7 @@ export default function CategoryPageLayout({
 
                 setArticles(Array.isArray(articlesData) ? articlesData : []);
 
-                // For videos, if 'latest', show all Recent videos, else filter by category
+                // Set videos state with backend-filtered data (keeping client-side fallback/filter for absolute safety)
                 setVideos(Array.isArray(videosData) ? (category === 'latest' ? videosData : videosData.filter(v =>
                     v.category?.toLowerCase().includes(category.toLowerCase())
                 )) : []);
@@ -235,19 +236,27 @@ export default function CategoryPageLayout({
                                 )}
 
                                 {/* Videos Section */}
-                                {showVideos && videos.length > 0 && (
+                                {showVideos && (
                                     <>
                                         <h3 className="section-title-small" style={{ marginTop: '2rem' }}>
                                             <i className="fa-solid fa-play-circle" style={{ color: accentColor }}></i> Video News
                                         </h3>
-                                        <div className="content-grid videos-grid">
-                                            {videos.map((video, index) => (
-                                                <VideoCard
-                                                    key={video._id || index}
-                                                    video={video}
-                                                />
-                                            ))}
-                                        </div>
+                                        {videos.length > 0 ? (
+                                            <div className="content-grid videos-grid">
+                                                {videos.map((video, index) => (
+                                                    <VideoCard
+                                                        key={video._id || index}
+                                                        video={video}
+                                                    />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="empty-state" style={{ padding: '24px', textAlign: 'center', background: 'rgba(0, 0, 0, 0.02)', borderRadius: 'var(--radius-lg)', border: '1px dashed rgba(0, 0, 0, 0.1)' }}>
+                                                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '14px' }}>
+                                                    📹 No videos available in this category yet.
+                                                </p>
+                                            </div>
+                                        )}
                                     </>
                                 )}
                             </div>

@@ -41,6 +41,7 @@ const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 
 // Import global styles
 import './styles/index.css';
+import './styles/mobile-fixes.css';
 
 const PageLoader = () => (
   <div className="page-loading" aria-label="Loading page">
