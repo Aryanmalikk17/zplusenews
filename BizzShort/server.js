@@ -19,8 +19,8 @@ const axios = require('axios');
 // Load env vars FIRST — must be before any process.env access
 dotenv.config();
 
-// In-memory cache: 5-minute TTL for public API responses
-const apiCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+// In-memory cache: 5-minute TTL for public API responses (shared across modules)
+const apiCache = require('./utils/cache');
 
 // ============ Startup guard: crash fast on missing critical env vars ============
 if (!process.env.JWT_SECRET) {
@@ -1739,6 +1739,7 @@ app.post('/api/videos', protect, async (req, res) => {
         }
         
         const video = await Video.create(videoData);
+        apiCache.flushAll(); // Flush cache on video creation
         res.status(201).json({ success: true, data: { ...video._doc, id: video._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -1779,6 +1780,7 @@ app.put('/api/videos/:id', protect, async (req, res) => {
 
         const video = await Video.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!video) return res.status(404).json({ success: false, error: 'Video not found' });
+        apiCache.flushAll(); // Flush cache on video update
         res.json({ success: true, data: { ...video._doc, id: video._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -1786,6 +1788,7 @@ app.put('/api/videos/:id', protect, async (req, res) => {
 app.delete('/api/videos/:id', protect, async (req, res) => {
     try {
         await Video.findByIdAndDelete(req.params.id);
+        apiCache.flushAll(); // Flush cache on video deletion
         res.json({ success: true, message: 'Video deleted' });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });

@@ -16,7 +16,7 @@ export default function Videos() {
     const fetchVideos = async () => {
         try {
             setLoading(true);
-            const response = await videosAPI.getAll();
+            const response = await videosAPI.getAll({ limit: 100 });
             const videoData = response.data || response;
             setVideos(Array.isArray(videoData) ? videoData : []);
         } catch (err) {

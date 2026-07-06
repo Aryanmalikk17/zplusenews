@@ -5,6 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const Video = require('../models/Video');
+const apiCache = require('../utils/cache');
 const { fetchVideoDetails } = require('../services/youtubeService');
 const { fetchTranscript, formatAsArticle } = require('../services/transcriptionService');
 
@@ -59,6 +60,7 @@ router.post('/add-by-id', async (req, res) => {
             youtubeChannelTitle: details.channelTitle,
         });
 
+        apiCache.flushAll(); // Flush cache on new video addition
         res.status(201).json({ success: true, video });
     } catch (error) {
         console.error('[VideoRoutes] add-by-id error:', error.message);
@@ -239,6 +241,7 @@ router.post('/sync-channel', async (req, res) => {
 
         console.log(`[Sync] Complete! Imported ${savedVideos.length} new videos`);
 
+        apiCache.flushAll(); // Flush cache on channel video sync
         res.json({
             success: true,
             message: `Imported ${savedVideos.length} new videos from channel`,
