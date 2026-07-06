@@ -2003,7 +2003,7 @@ function getHtmlShell() {
         console.error('Error reading index.html shell:', err.message);
     }
     
-    return '<!DOCTYPE html><html><head><title>ZPluse News</title></head><body><div id="root"></div></body></html>';
+    return '<!DOCTYPE html><html><head><!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-6FC6CNDT51"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag(\'js\', new Date());gtag(\'config\', \'G-6FC6CNDT51\');</script><title>ZPluse News</title></head><body><div id="root"></div></body></html>';
 }
 
 // GET /rss.xml - RSS Feed for Google News and search crawlers
