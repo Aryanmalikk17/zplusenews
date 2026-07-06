@@ -8,6 +8,7 @@
 export const CATEGORIES = [
   // Special
   { id: 'fake-news', label: 'Fake News', path: '/fake-news', icon: 'fa-solid fa-magnifying-glass', group: 'special' },
+  { id: 'positive', label: 'Positive News', path: '/positive-news', icon: 'fa-solid fa-face-smile', group: 'special' },
   
   // Levels
   { id: 'international', label: 'International', path: '/international-news', icon: 'fa-solid fa-globe', group: 'levels' },

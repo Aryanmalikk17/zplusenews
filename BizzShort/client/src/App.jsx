@@ -34,6 +34,8 @@ const Agriculture = lazy(() => import('./pages/Agriculture'));
 const Geography = lazy(() => import('./pages/Geography'));
 const Religion = lazy(() => import('./pages/Religion'));
 const AI = lazy(() => import('./pages/AI'));
+const PositiveNews = lazy(() => import('./pages/PositiveNews'));
+const Astrology = lazy(() => import('./pages/Astrology'));
 
 // Admin Pages (separate chunk — heavy, admin-only)
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -63,6 +65,8 @@ export default function App() {
 
             {/* Special Categories */}
             <Route path="fake-news" element={<FakeNews />} />
+            <Route path="positive-news" element={<PositiveNews />} />
+            <Route path="astrology" element={<Astrology />} />
 
             {/* Level-based News */}
             <Route path="international-news" element={<InternationalNews />} />
