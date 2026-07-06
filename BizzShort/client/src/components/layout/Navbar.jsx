@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES, GET_CATEGORIES_BY_GROUP } from '../../config/categories';
@@ -31,6 +31,49 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
+    const scrollContainerRef = useRef(null);
+
+    // Specific order: 1-economy, 2-polity, 3-technology, 4-AI, 5-defence, 6-culture, 7-religious, 8-sprituality, 9-astrology, 10-agriculture, 11-enviroment, 12-health and medicine, 13-sports, 14-science, 15-tourism, 16-others
+    const subNavOrder = [
+        'economics',
+        'polity',
+        'technology',
+        'ai',
+        'defence',
+        'culture',
+        'religion',
+        'spirituality',
+        'astrology',
+        'agriculture',
+        'environment',
+        'health',
+        'sports',
+        'science',
+        'tourism',
+        'others'
+    ];
+
+    const allCategories = GET_CATEGORIES_BY_GROUP('interests');
+    
+    // Sort based on the index in subNavOrder, any category not listed goes to the end
+    const orderedInterests = [...allCategories].sort((a, b) => {
+        const indexA = subNavOrder.indexOf(a.id);
+        const indexB = subNavOrder.indexOf(b.id);
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    });
+
+    const scrollSubNav = (direction) => {
+        if (scrollContainerRef.current) {
+            const scrollAmount = 240;
+            scrollContainerRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
     const location = useLocation();
 
     // Detect scroll for navbar shadow effect
@@ -148,9 +191,13 @@ export default function Navbar() {
 
                 {/* Sub-Navbar for Interested Fields */}
                 <div className="sub-navbar">
-                    <div className="container">
-                        <div className="sub-nav-links">
-                            {GET_CATEGORIES_BY_GROUP('interests').map((cat) => (
+                    <div className="container sub-navbar-container">
+                        <button className="sub-nav-arrow left-arrow" onClick={() => scrollSubNav('left')} aria-label="Scroll left">
+                            <i className="fa-solid fa-chevron-left"></i>
+                        </button>
+                        
+                        <div className="sub-nav-links" ref={scrollContainerRef}>
+                            {orderedInterests.map((cat) => (
                                 <Link
                                     key={cat.path}
                                     to={cat.path}
@@ -161,6 +208,10 @@ export default function Navbar() {
                                 </Link>
                             ))}
                         </div>
+
+                        <button className="sub-nav-arrow right-arrow" onClick={() => scrollSubNav('right')} aria-label="Scroll right">
+                            <i className="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -231,7 +282,7 @@ export default function Navbar() {
                                 <div className="mobile-menu-section">
                                     <div className="mobile-submenu-title">Topics</div>
                                     <div className="mobile-submenu">
-                                        {GET_CATEGORIES_BY_GROUP('interests').map((subitem) => (
+                                        {orderedInterests.map((subitem) => (
                                             <Link
                                                 key={subitem.path}
                                                 to={subitem.path}

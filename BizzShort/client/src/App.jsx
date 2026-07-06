@@ -36,6 +36,9 @@ const Religion = lazy(() => import('./pages/Religion'));
 const AI = lazy(() => import('./pages/AI'));
 const PositiveNews = lazy(() => import('./pages/PositiveNews'));
 const Astrology = lazy(() => import('./pages/Astrology'));
+const Science = lazy(() => import('./pages/Science'));
+const Tourism = lazy(() => import('./pages/Tourism'));
+const Others = lazy(() => import('./pages/Others'));
 
 // Admin Pages (separate chunk — heavy, admin-only)
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -87,6 +90,9 @@ export default function App() {
             <Route path="geography" element={<Geography />} />
             <Route path="religion" element={<Religion />} />
             <Route path="ai" element={<AI />} />
+            <Route path="science" element={<Science />} />
+            <Route path="tourism" element={<Tourism />} />
+            <Route path="others" element={<Others />} />
 
             {/* Other Pages */}
             <Route path="contests" element={<Contests />} />

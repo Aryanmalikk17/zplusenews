@@ -23,14 +23,18 @@ export const CATEGORIES = [
   { id: 'sports', label: 'Sports', path: '/sports', icon: 'fa-solid fa-volleyball', group: 'interests' },
   
   // New Categories
-  { id: 'health', label: 'Health', path: '/health', icon: 'fa-solid fa-heart-pulse', group: 'interests' },
+  { id: 'health', label: 'Health & Medicine', path: '/health', icon: 'fa-solid fa-heart-pulse', group: 'interests' },
   { id: 'defence', label: 'Defence', path: '/defence', icon: 'fa-solid fa-shield-halved', group: 'interests' },
   { id: 'culture', label: 'Culture', path: '/culture', icon: 'fa-solid fa-masks-theater', group: 'interests' },
   { id: 'spirituality', label: 'Spirituality', path: '/spirituality', icon: 'fa-solid fa-om', group: 'interests' },
   { id: 'agriculture', label: 'Agriculture', path: '/agriculture', icon: 'fa-solid fa-wheat-awn', group: 'interests' },
   { id: 'geography', label: 'Geography', path: '/geography', icon: 'fa-solid fa-map-location-dot', group: 'interests' },
   { id: 'religion', label: 'Religion', path: '/religion', icon: 'fa-solid fa-place-of-worship', group: 'interests' },
-  { id: 'ai', label: 'Artificial Intelligence (AI)', path: '/ai', icon: 'fa-solid fa-brain', group: 'interests' }
+  { id: 'ai', label: 'Artificial Intelligence (AI)', path: '/ai', icon: 'fa-solid fa-brain', group: 'interests' },
+  { id: 'astrology', label: 'Astrology', path: '/astrology', icon: 'fa-solid fa-wand-magic-sparkles', group: 'interests' },
+  { id: 'science', label: 'Science', path: '/science', icon: 'fa-solid fa-flask', group: 'interests' },
+  { id: 'tourism', label: 'Tourism', path: '/tourism', icon: 'fa-solid fa-plane-departure', group: 'interests' },
+  { id: 'others', label: 'Others', path: '/others', icon: 'fa-solid fa-ellipsis', group: 'interests' }
 ];
 
 export const GET_CATEGORY_BY_ID = (id) => CATEGORIES.find(cat => cat.id === id);
