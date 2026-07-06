@@ -138,6 +138,7 @@ app.use(helmet({
             mediaSrc: ["'self'", "https:", "blob:"],
         }
     },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: false
 }));

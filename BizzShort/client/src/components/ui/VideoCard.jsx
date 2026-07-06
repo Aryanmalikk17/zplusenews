@@ -101,6 +101,7 @@ export default function VideoCard({ video, featured = false }) {
                         frameBorder="0"
                         allowFullScreen
                         allow="autoplay; encrypted-media; picture-in-picture"
+                        referrerPolicy="strict-origin-when-cross-origin"
                         title={video.title}
                     />
                 ) : (

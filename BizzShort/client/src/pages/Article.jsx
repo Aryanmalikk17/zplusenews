@@ -308,6 +308,7 @@ export default function Article() {
                 title={article.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
                 className="video-iframe"
               ></iframe>
             </div>
