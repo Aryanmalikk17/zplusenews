@@ -14,6 +14,7 @@ const videoSchema = new mongoose.Schema({
             // Interest-based Categories
             'economics', 'polity', 'technology', 'environment', 'sports',
             'health', 'defence', 'culture', 'spirituality', 'agriculture', 'geography', 'religion', 'ai',
+            'astrology', 'science', 'tourism', 'others', // New category enums
             // Legacy categories (for backward compatibility)
             'business', 'innovation', 'tech', 'gadgets', 'software',
             'startups', 'markets', 'crypto', 'general'

@@ -639,3 +639,68 @@
     color: var(--primary);
     opacity: 0.8;
 }
+
+.sub-navbar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 40px !important;
+}
+
+.sub-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.sub-nav-arrow:hover {
+    color: var(--primary);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(170, 33, 35, 0.15);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.sub-nav-arrow.left-arrow {
+    left: 12px;
+}
+
+.sub-nav-arrow.right-arrow {
+    right: 12px;
+}
+
+/* Gradient fades to indicate more fields */
+.sub-navbar-container::before,
+.sub-navbar-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    z-index: 4;
+    transition: opacity 0.3s ease;
+}
+
+.sub-navbar-container::before {
+    left: 40px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.sub-navbar-container::after {
+    right: 40px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 100%);
+}
