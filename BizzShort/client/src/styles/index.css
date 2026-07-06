@@ -73,7 +73,9 @@
     --font-heading: 'Playfair Display', Georgia, serif;
 
     /* Layout */
-    --navbar-height: 72px;
+    --navbar-height: 116px; /* Total height: Main (72px) + Sub (44px) */
+    --main-nav-height: 72px;
+    --sub-nav-height: 44px;
     --container-max: 1400px;
     --container-padding: 24px;
 }
@@ -552,6 +554,11 @@ p {
 }
 
 @media (max-width: 1024px) {
+    :root {
+        --navbar-height: 104px; /* 64px main + 40px sub */
+        --main-nav-height: 64px;
+        --sub-nav-height: 40px;
+    }
     .sidebar-area {
         width: 100%;
     }
@@ -579,7 +586,9 @@ p {
 @media (max-width: 480px) {
     :root {
         --container-padding: 16px;
-        --navbar-height: 64px;
+        --navbar-height: 104px; /* 64px main + 40px sub */
+        --main-nav-height: 64px;
+        --sub-nav-height: 40px;
     }
 
     body {
