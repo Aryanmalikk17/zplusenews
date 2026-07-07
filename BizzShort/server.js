@@ -1874,69 +1874,149 @@ app.get('/api/calendar/highlights', async (req, res) => {
     }
 });
 
-// --- Dynamic Sitemap ---
-app.get('/sitemap.xml', async (req, res) => {
+// --- Sitemap Index (root entry point for all sitemaps) ---
+app.get('/sitemap-index.xml', async (req, res) => {
+    try {
+        const baseUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
+        const today = new Date().toISOString().split('T')[0];
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${baseUrl}/sitemap-pages.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-articles.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-videos.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap index error:', err.message);
+        res.status(500).send('');
+    }
+});
+
+// --- Sitemap: Static & Category Pages ---
+app.get('/sitemap-pages.xml', (req, res) => {
+    try {
+        const baseUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
+        const today = new Date().toISOString().split('T')[0];
+        // ALL valid routes from App.jsx — these were missing from the old sitemap
+        const pages = [
+            { path: '/',                    changefreq: 'daily',   priority: '1.0' },
+            { path: '/latest',              changefreq: 'hourly',  priority: '0.9' },
+            { path: '/national-news',       changefreq: 'hourly',  priority: '0.9' },
+            { path: '/international-news',  changefreq: 'hourly',  priority: '0.9' },
+            { path: '/state-news',          changefreq: 'hourly',  priority: '0.9' },
+            { path: '/polity',              changefreq: 'daily',   priority: '0.8' },
+            { path: '/economics',           changefreq: 'daily',   priority: '0.8' },
+            { path: '/technology',          changefreq: 'daily',   priority: '0.8' },
+            { path: '/sports',              changefreq: 'daily',   priority: '0.8' },
+            { path: '/health',              changefreq: 'daily',   priority: '0.8' },
+            { path: '/defence',             changefreq: 'daily',   priority: '0.8' },
+            { path: '/environment',         changefreq: 'daily',   priority: '0.7' },
+            { path: '/culture',             changefreq: 'daily',   priority: '0.7' },
+            { path: '/spirituality',        changefreq: 'daily',   priority: '0.7' },
+            { path: '/agriculture',         changefreq: 'daily',   priority: '0.7' },
+            { path: '/geography',           changefreq: 'weekly',  priority: '0.7' },
+            { path: '/religion',            changefreq: 'daily',   priority: '0.7' },
+            { path: '/ai',                  changefreq: 'daily',   priority: '0.7' },
+            { path: '/science',             changefreq: 'daily',   priority: '0.7' },
+            { path: '/tourism',             changefreq: 'weekly',  priority: '0.6' },
+            { path: '/others',              changefreq: 'daily',   priority: '0.6' },
+            { path: '/fake-news',           changefreq: 'daily',   priority: '0.6' },
+            { path: '/positive-news',       changefreq: 'daily',   priority: '0.6' },
+            { path: '/astrology',           changefreq: 'daily',   priority: '0.6' },
+            { path: '/videos',              changefreq: 'daily',   priority: '0.8' },
+            { path: '/events',              changefreq: 'weekly',  priority: '0.7' },
+            { path: '/contests',            changefreq: 'weekly',  priority: '0.6' },
+            { path: '/about',               changefreq: 'monthly', priority: '0.5' },
+            { path: '/contact',             changefreq: 'monthly', priority: '0.5' },
+            { path: '/privacy',             changefreq: 'monthly', priority: '0.3' },
+            { path: '/terms',               changefreq: 'monthly', priority: '0.3' },
+        ];
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(p => `  <url>
+    <loc>${baseUrl}${p.path}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap pages error:', err.message);
+        res.status(500).send('');
+    }
+});
+
+// --- Sitemap: Articles ---
+app.get('/sitemap-articles.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
         const articles = await Article.find(
             { status: 'PUBLISHED', slug: { $exists: true, $ne: '' } },
-            'slug publishedAt'
+            'slug publishedAt updatedAt'
         ).lean();
-
-        const videos = await Video.find(
-            { videoId: { $exists: true, $ne: '' } },
-            'videoId slug createdAt'
-        ).lean();
-
-        const staticUrls = [
-            { loc: baseUrl, changefreq: 'daily', priority: '1.0' },
-            { loc: `${baseUrl}/latest`, changefreq: 'hourly', priority: '0.9' },
-            { loc: `${baseUrl}/videos`, changefreq: 'daily', priority: '0.8' },
-            { loc: `${baseUrl}/events`, changefreq: 'weekly', priority: '0.7' },
-            { loc: `${baseUrl}/about`, changefreq: 'monthly', priority: '0.5' },
-            { loc: `${baseUrl}/privacy`, changefreq: 'monthly', priority: '0.3' },
-            { loc: `${baseUrl}/terms`, changefreq: 'monthly', priority: '0.3' },
-            { loc: `${baseUrl}/health`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/defence`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/culture`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/spirituality`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/agriculture`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/geography`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/religion`, changefreq: 'daily', priority: '0.6' },
-            { loc: `${baseUrl}/ai`, changefreq: 'daily', priority: '0.6' },
-        ];
-
         const articleUrls = articles.map(a => ({
             loc: `${baseUrl}/article/${a.slug}`,
-            lastmod: a.publishedAt ? new Date(a.publishedAt).toISOString().split('T')[0] : undefined,
-            changefreq: 'weekly',
-            priority: '0.8'
+            lastmod: (a.updatedAt || a.publishedAt) ? new Date(a.updatedAt || a.publishedAt).toISOString().split('T')[0] : undefined,
         }));
-
-        const videoUrls = videos.map(v => ({
-            loc: `${baseUrl}/video/${v.slug || v.videoId}`,
-            lastmod: v.createdAt ? new Date(v.createdAt).toISOString().split('T')[0] : undefined,
-            changefreq: 'weekly',
-            priority: '0.7'
-        }));
-
-        const allUrls = [...staticUrls, ...articleUrls, ...videoUrls];
-
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls.map(u => `  <url>
+${articleUrls.map(u => `  <url>
     <loc>${u.loc}</loc>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}
-    <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>`).join('\n')}
 </urlset>`;
-
         res.header('Content-Type', 'application/xml');
         res.send(xml);
     } catch (err) {
-        console.error('Sitemap generation error:', err.message);
+        console.error('Sitemap articles error:', err.message);
         res.status(500).send('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
     }
+});
+
+// --- Sitemap: Videos ---
+app.get('/sitemap-videos.xml', async (req, res) => {
+    try {
+        const baseUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
+        const videos = await Video.find(
+            { videoId: { $exists: true, $ne: '' } },
+            'videoId slug createdAt updatedAt'
+        ).lean();
+        const videoUrls = videos.map(v => ({
+            loc: `${baseUrl}/video/${v.slug || v.videoId}`,
+            lastmod: (v.updatedAt || v.createdAt) ? new Date(v.updatedAt || v.createdAt).toISOString().split('T')[0] : undefined,
+        }));
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${videoUrls.map(u => `  <url>
+    <loc>${u.loc}</loc>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+</urlset>`;
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap videos error:', err.message);
+        res.status(500).send('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+    }
+});
+
+// --- Legacy /sitemap.xml: redirect to sitemap-index for backward compatibility ---
+app.get('/sitemap.xml', (req, res) => {
+    res.redirect(301, '/sitemap-index.xml');
 });
 
 // Robots.txt fallback handler (before static/catch-all files to bypass SPA catch-all)
@@ -2071,11 +2151,42 @@ app.get('/rss.xml', async (req, res) => {
     }
 });
 
+// All valid SPA routes — must match App.jsx Routes exactly.
+// Any path NOT in this list returns a real 404 (fixes "Soft 404" in GSC).
+const VALID_SPA_PATHS = new Set([
+    '/', '/latest',
+    '/national-news', '/international-news', '/state-news',
+    '/polity', '/economics', '/technology', '/sports', '/health',
+    '/defence', '/environment', '/culture', '/spirituality',
+    '/agriculture', '/geography', '/religion', '/ai',
+    '/science', '/tourism', '/others',
+    '/fake-news', '/positive-news', '/astrology',
+    '/videos', '/events', '/contests',
+    '/about', '/contact', '/privacy', '/terms',
+]);
+
 // Catch-all route to serve the SPA app with dynamic pre-rendering
 app.get('*', async (req, res) => {
     // Don't serve index.html for API routes, uploads, or static asset requests with extensions
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|wasm|txt|xml|json)$/)) {
         return res.status(404).json({ success: false, error: 'Not found' });
+    }
+
+    // Dynamic routes with prefixes are always valid
+    const isDynamicRoute = req.path.startsWith('/article/') || req.path.startsWith('/video/') || req.path.startsWith('/admin');
+    // Static routes must be in the valid set
+    if (!isDynamicRoute && !VALID_SPA_PATHS.has(req.path) && !VALID_SPA_PATHS.has(req.path.replace(/\/$/, ''))) {
+        // Unknown path — return true 404 (fixes Soft 404 in Google Search Console)
+        let html = getHtmlShell();
+        const notFoundHtml = html.replace(
+            /(<title>).*?(<\/title>)/i,
+            '$1404 - Page Not Found | ZPluse News$2'
+        ).replace(
+            '<div id="root"></div>',
+            '<div id="root" style="text-align:center;padding:100px 20px;font-family:sans-serif;"><h1 style="font-size:72px;margin:0;color:#aa2123;">404</h1><h2>Page Not Found</h2><p>The page you are looking for does not exist.</p><a href="/" style="color:#aa2123;font-weight:bold;">← Back to Homepage</a></div>'
+        );
+        res.header('Content-Type', 'text/html');
+        return res.status(404).send(notFoundHtml);
     }
 
     try {
@@ -2242,6 +2353,105 @@ app.get('*', async (req, res) => {
             html = html.replace('<div id="root"></div>', bodyPreRender);
             res.header('Content-Type', 'text/html');
             return res.status(200).send(html);
+        }
+
+        // 0.4 Handle Category Pages Pre-rendering
+        // Map URL paths to DB category/field values
+        const CATEGORY_META = {
+            '/national-news':      { cat: 'National News',      title: 'National News',       desc: 'Latest national news from India. Breaking stories, government policies, politics and more.' },
+            '/international-news': { cat: 'International News', title: 'International News',  desc: 'Top international news from around the world. Global politics, conflicts, diplomacy and more.' },
+            '/state-news':         { cat: 'State News',         title: 'State News',          desc: 'Latest news from Indian states. Regional updates, state politics, governance and local stories.' },
+            '/polity':             { cat: 'Polity',             title: 'Polity News',          desc: 'Indian polity and political science news. Parliament, elections, democracy and governance updates.' },
+            '/economics':          { cat: 'Economics',          title: 'Economics News',       desc: 'Business and economics news from India. Market updates, economy trends, finance and trade news.' },
+            '/technology':         { cat: 'Technology',         title: 'Technology News',      desc: 'Latest technology news. AI, gadgets, startups, digital India and tech innovation updates.' },
+            '/sports':             { cat: 'Sports',             title: 'Sports News',          desc: 'Latest sports news from India. Cricket, football, Olympics, and all sports updates.' },
+            '/health':             { cat: 'Health',             title: 'Health News',          desc: 'Health news and wellness tips. Medical research, diseases, fitness and healthcare updates from India.' },
+            '/defence':            { cat: 'Defence',            title: 'Defence News',         desc: 'Indian defence and military news. Army, Navy, Air Force, weapons and border security updates.' },
+            '/environment':        { cat: 'Environment',        title: 'Environment News',     desc: 'Environment and climate change news from India. Nature, pollution, sustainability and green energy.' },
+            '/culture':            { cat: 'Culture',            title: 'Culture News',         desc: 'Indian culture and heritage news. Art, music, cinema, literature and cultural events.' },
+            '/spirituality':       { cat: 'Spirituality',       title: 'Spirituality News',    desc: 'Spirituality and religion news from India. Yoga, meditation, temples and spiritual events.' },
+            '/agriculture':        { cat: 'Agriculture',        title: 'Agriculture News',     desc: 'Agriculture news from India. Farming, crops, MSP, rural economy and agri-technology updates.' },
+            '/geography':          { cat: 'Geography',          title: 'Geography News',       desc: 'Geography and geopolitics news. Indian regions, borders, natural resources and geographic events.' },
+            '/religion':           { cat: 'Religion',           title: 'Religion News',        desc: 'Religion news from India. Hindu, Muslim, Sikh, Christian, Buddhist news and religious events.' },
+            '/ai':                 { cat: 'AI',                 title: 'AI & Technology News', desc: 'Artificial intelligence news from India. AI research, machine learning, ChatGPT and AI policy.' },
+            '/science':            { cat: 'Science',            title: 'Science News',         desc: 'Science news from India. ISRO, research, discoveries, space exploration and scientific innovations.' },
+            '/tourism':            { cat: 'Tourism',            title: 'Tourism News',         desc: 'Tourism news from India. Travel destinations, heritage sites, tourism policies and travel tips.' },
+            '/others':             { cat: 'Others',             title: 'Other News',           desc: 'Latest news and updates from ZPluse News covering various topics and categories.' },
+            '/fake-news':          { cat: 'Fake News',          title: 'Fact Check & Fake News', desc: 'Fact-check and fake news busting. Verify viral news, misinformation and rumours from India.' },
+            '/positive-news':      { cat: 'Positive News',      title: 'Positive News',        desc: 'Positive and inspiring news from India. Good news stories, achievements, and uplifting updates.' },
+            '/astrology':          { cat: 'Astrology',          title: 'Astrology News',       desc: 'Daily horoscope, astrology predictions and spiritual news. Kundali, rashifal and jyotish updates.' },
+            '/latest':             { cat: null,                 title: 'Latest News',          desc: 'Latest breaking news from India. Most recent news updates, top stories and current affairs.' },
+        };
+
+        const catMeta = CATEGORY_META[reqPath];
+        if (catMeta) {
+            try {
+                const query = catMeta.cat
+                    ? { status: 'PUBLISHED', category: catMeta.cat }
+                    : { status: 'PUBLISHED' };
+                const catArticles = await Article.find(query, 'slug title excerpt category publishedAt image author')
+                    .sort({ publishedAt: -1, createdAt: -1 })
+                    .limit(15)
+                    .lean();
+
+                const pageTitle = `${catMeta.title} | ZPluse News`;
+                const pageDesc = catMeta.desc;
+
+                html = html
+                    .replace(/(<title>).*?(<\/title>)/i, `$1${pageTitle}$2`)
+                    .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                    .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                    .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                    .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                    .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                    .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                    .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+                let articlesHtml = '';
+                if (catArticles && catArticles.length > 0) {
+                    articlesHtml = catArticles.map(article => {
+                        const articleImage = article.image
+                            ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
+                            : `${siteUrl}/assets/images/og-image.png`;
+                        const cleanExcerpt = (article.excerpt || '')
+                            .replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().substring(0, 140);
+                        return `
+                        <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #eee;">
+                            <span style="background:#aa2123;color:#fff;padding:2px 8px;font-size:11px;font-weight:700;border-radius:4px;text-transform:uppercase;">${article.category || catMeta.title}</span>
+                            <h2 style="font-size:22px;margin:10px 0 6px;font-family:'Playfair Display',Georgia,serif;line-height:1.35;">
+                                <a href="/article/${article.slug}" style="color:#111;text-decoration:none;">${article.title}</a>
+                            </h2>
+                            <p style="color:#555;font-size:14px;margin:0 0 8px;">By ${article.author?.name || 'Editorial Team'} &bull; ${article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-IN') : ''}</p>
+                            ${article.image ? `<img src="${articleImage}" alt="${article.title}" style="max-width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:8px;" loading="lazy"/>` : ''}
+                            <p style="font-size:15px;line-height:1.6;color:#333;">${cleanExcerpt}${cleanExcerpt ? '...' : ''}</p>
+                            <a href="/article/${article.slug}" style="color:#aa2123;font-weight:600;font-size:14px;text-decoration:none;">Read Full Story &rarr;</a>
+                        </div>`;
+                    }).join('');
+                } else {
+                    articlesHtml = '<p style="color:#666;">No articles found in this category yet. Check back soon!</p>';
+                }
+
+                const bodyPreRender = `
+                <div id="root">
+                    <div style="max-width:900px;margin:0 auto;padding:30px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                        <header style="margin-bottom:30px;padding-bottom:15px;border-bottom:3px solid #aa2123;">
+                            <h1 style="font-size:36px;font-family:'Playfair Display',Georgia,serif;margin:0;">${catMeta.title}</h1>
+                            <p style="color:#555;font-size:16px;margin:8px 0 0;">${pageDesc}</p>
+                        </header>
+                        <main>${articlesHtml}</main>
+                        <footer style="margin-top:40px;text-align:center;">
+                            <a href="/" style="color:#aa2123;font-weight:600;">&larr; Back to ZPluse News Home</a>
+                        </footer>
+                    </div>
+                </div>`;
+
+                html = html.replace('<div id="root"></div>', bodyPreRender);
+                res.header('Content-Type', 'text/html');
+                return res.status(200).send(html);
+            } catch (catErr) {
+                console.error('Error pre-rendering category page:', catErr.message);
+                // Fall through to serve plain shell
+            }
         }
 
         // 1. Handle Article Route
