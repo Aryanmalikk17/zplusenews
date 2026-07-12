@@ -469,3 +469,381 @@
     padding: 2px 6px;
     border-radius: 4px;
 }
+
+/* ============================================
+   ROLE SIMULATOR SWITCHER BAR
+   ============================================ */
+.role-simulator-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: var(--radius-md);
+    padding: 4px 8px;
+    align-self: flex-start;
+}
+
+[data-theme="dark"] .role-simulator-bar {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.role-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.role-btn {
+    background: none;
+    border: none;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.role-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    box-shadow: 0 2px 4px rgba(170, 33, 35, 0.2);
+}
+
+/* ============================================
+   HEADER LOADERS & WARNING ALERTS
+   ============================================ */
+.header-loading-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 8px;
+    border: 2px solid rgba(170, 33, 35, 0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+.calendar-warning-alert {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    color: #b45309;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .calendar-warning-alert {
+    background: rgba(245, 158, 11, 0.05);
+    color: #f59e0b;
+}
+
+/* ============================================
+   CELL MARKERS & BORDERS
+   ============================================ */
+.markers-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.marker-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.news-dot { background-color: var(--primary); }
+.festival-dot { background-color: #f97316; }
+.holiday-dot { background-color: #10b981; }
+.moon-dot { background-color: #8b5cf6; }
+
+/* Highlight ring borders for specific categories */
+.calendar-day-cell.day-holiday:not(.selected) {
+    box-shadow: inset 0 0 0 1.5px rgba(16, 185, 129, 0.35);
+}
+.calendar-day-cell.day-festival:not(.selected) {
+    box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.35);
+}
+.calendar-day-cell.day-moon:not(.selected) {
+    box-shadow: inset 0 0 0 1.5px rgba(139, 92, 246, 0.35);
+}
+
+.calendar-day-cell.day-holiday.day-festival:not(.selected) {
+    box-shadow: inset 0 0 0 1.5px #f97316, inset 0 0 0 3px #10b981;
+}
+
+/* ============================================
+   CALENDAR LEGEND BAR
+   ============================================ */
+.calendar-legend-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px 0 4px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+[data-theme="dark"] .calendar-legend-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.legend-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-marker.news { background-color: var(--primary); }
+.legend-marker.festival { background-color: #f97316; }
+.legend-marker.holiday { background-color: #10b981; }
+.legend-marker.moon { background-color: #8b5cf6; }
+
+/* ============================================
+   EXTERNAL EVENT CARDS & PREMIUM GATING
+   ============================================ */
+.external-events-section {
+    margin-bottom: 24px;
+}
+
+.external-events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ext-event-card {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .ext-event-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.ext-event-card.type-holiday { border-left: 4px solid #10b981; }
+.ext-event-card.type-festival { border-left: 4px solid #f97316; }
+.ext-event-card.type-moon { border-left: 4px solid #8b5cf6; }
+
+.ext-event-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.ext-event-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.type-holiday .ext-event-badge { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.type-festival .ext-event-badge { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+.type-moon .ext-event-badge { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.ext-event-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .ext-event-title {
+    color: var(--white);
+}
+
+.ext-event-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+}
+
+/* Premium Muhurta Panel */
+.premium-muhurta-wrapper {
+    margin-top: 10px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    padding-top: 10px;
+    position: relative;
+    min-height: 50px;
+}
+
+[data-theme="dark"] .premium-muhurta-wrapper {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Muhurta Locked Screen */
+.muhurta-lock-overlay {
+    display: flex;
+    gap: 12px;
+    background: rgba(139, 92, 246, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: 8px;
+    padding: 10px;
+    align-items: flex-start;
+}
+
+.lock-icon-container {
+    background: rgba(139, 92, 246, 0.12);
+    color: #8b5cf6;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.lock-content h6 {
+    margin: 0 0 3px 0;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #6d28d9;
+}
+
+[data-theme="dark"] .lock-content h6 {
+    color: #a78bfa;
+}
+
+.lock-content p {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.unlock-btn-cta {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    border: none;
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 4px rgba(109, 40, 217, 0.2);
+}
+
+.unlock-btn-cta:hover {
+    box-shadow: 0 2px 8px rgba(109, 40, 217, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Muhurta Details Panel (Unlocked) */
+.muhurta-details-panel {
+    background: rgba(16, 185, 129, 0.04);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+[data-theme="dark"] .muhurta-details-panel {
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.muhurta-details-panel .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #047857;
+    margin-bottom: 8px;
+}
+
+[data-theme="dark"] .muhurta-details-panel .panel-header {
+    color: #34d399;
+}
+
+.muhurta-details-panel .panel-header i {
+    font-size: 12px;
+}
+
+.muhurta-details-panel .panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.muhurta-details-panel .panel-grid .grid-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.muhurta-details-panel .panel-grid .grid-item .label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.muhurta-details-panel .panel-grid .grid-item .value {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.muhurta-details-panel .panel-ritual {
+    font-size: 11px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 6px;
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .muhurta-details-panel .panel-ritual {
+    border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.muhurta-details-panel .panel-ritual strong {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .muhurta-details-panel .panel-ritual strong {
+    color: var(--white);
+}
