@@ -1804,6 +1804,87 @@ app.get('/api/ticker/live', async (req, res) => {
     }
 });
 
+// =========================================================================
+// Prokerala ASTROLOGY API OAUTH HANDSHAKE & PROXY
+// =========================================================================
+let prokeralaToken = null;
+let prokeralaTokenExpiry = 0;
+
+async function getProkeralaToken() {
+    const clientId = process.env.PROKERALA_CLIENT_ID;
+    const clientSecret = process.env.PROKERALA_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+        throw new Error("Prokerala API credentials not set in environment variables (PROKERALA_CLIENT_ID, PROKERALA_CLIENT_SECRET).");
+    }
+
+    // Return cached token if valid (with 1-minute buffer)
+    if (prokeralaToken && Date.now() < prokeralaTokenExpiry - 60000) {
+        return prokeralaToken;
+    }
+
+    try {
+        const response = await axios.post('https://api.prokerala.com/v2/oauth/token', 
+            new URLSearchParams({
+                grant_type: 'client_credentials',
+                client_id: clientId,
+                client_secret: clientSecret
+            }), {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }
+        );
+
+        if (response.data && response.data.access_token) {
+            prokeralaToken = response.data.access_token;
+            const expiresIn = response.data.expires_in || 3600;
+            prokeralaTokenExpiry = Date.now() + (expiresIn * 1000);
+            return prokeralaToken;
+        }
+        throw new Error("Invalid OAuth response from Prokerala token endpoint.");
+    } catch (err) {
+        console.error("Error securing Prokerala OAuth token:", err.response?.data || err.message);
+        throw new Error("Failed to authenticate with Prokerala API server.");
+    }
+}
+
+app.get('/api/prokerala', async (req, res) => {
+    try {
+        const { year, month, region } = req.query;
+        if (!year || !month) {
+            return res.status(400).json({ success: false, error: 'Year and month query parameters are required' });
+        }
+
+        // Try to secure access token (will throw if credentials aren't set)
+        const token = await getProkeralaToken();
+
+        // proxy panchang & holidays requests from the developer portal
+        const targetUrl = 'https://api.prokerala.com/v2/astrology/panchang/advanced';
+        const response = await axios.get(targetUrl, {
+            params: {
+                datetime: `${year}-${String(month).padStart(2, '0')}-01T06:00:00+05:30`,
+                location: '12.9716,77.5946' // default to Bengaluru/India coordinates
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        res.json({
+            success: true,
+            events: response.data
+        });
+    } catch (err) {
+        const isCredError = err.message.includes("credentials not set");
+        console.warn(`[Prokerala Proxy] Shifting to local fallback cache. Reason: ${err.message}`);
+        
+        res.status(isCredError ? 501 : 502).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 app.get('/api/calendar/content', async (req, res) => {
     try {
         const { date } = req.query; // Format: YYYY-MM-DD
