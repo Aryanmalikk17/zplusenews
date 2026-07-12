@@ -7,6 +7,7 @@
     .top-navbar {
         position: sticky !important;
         top: 0 !important;
+        height: auto !important;
         z-index: 1000 !important;
         background: rgba(255, 255, 255, 0.96) !important;
         backdrop-filter: blur(20px) saturate(180%) !important;
@@ -132,18 +133,33 @@
     }
 
     .top-navbar-actions {
-        gap: 6px !important;
+        gap: 4px !important;
     }
 
-    .top-navbar-actions .search-btn, .mobile-toggle {
-        width: 44px !important;
-        height: 44px !important;
+    .top-navbar-actions .search-btn,
+    .top-navbar-actions .calendar-action-btn,
+    .top-navbar-actions .contests-btn,
+    .mobile-toggle {
+        width: 36px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        border: none !important;
+        color: var(--text-secondary) !important;
     }
 
-    .contests-btn {
-        padding: 8px 12px !important;
-        font-size: 13px !important;
-        min-height: 44px !important;
+    .top-navbar-actions .contests-btn span {
+        display: none !important;
+    }
+
+    .top-navbar-actions .contests-btn i {
+        margin: 0 !important;
+        font-size: 14px !important;
     }
 
     /* --- 2. News Grid cards stacking --- */

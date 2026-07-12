@@ -10,6 +10,7 @@ const Icons = {
     ChevronDown: () => <i className="fa-solid fa-chevron-down dropdown-arrow-icon"></i>,
     Search: () => <i className="fa-solid fa-magnifying-glass action-icon"></i>,
     Trophy: () => <i className="fa-solid fa-trophy trophy-icon"></i>,
+    Calendar: () => <i className="fa-solid fa-calendar-days action-icon"></i>,
 };
 
 const menuItems = [
@@ -168,6 +169,9 @@ export default function Navbar() {
 
                         {/* Actions */}
                         <div className="top-navbar-actions">
+                            <Link to="/calendar" className="calendar-action-btn" aria-label="Calendar">
+                                <Icons.Calendar />
+                            </Link>
                             <Link to="/contests" className="contests-btn">
                                 <Icons.Trophy />
                                 <span>Contests</span>

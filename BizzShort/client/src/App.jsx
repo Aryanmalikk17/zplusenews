@@ -39,6 +39,7 @@ const Astrology = lazy(() => import('./pages/Astrology'));
 const Science = lazy(() => import('./pages/Science'));
 const Tourism = lazy(() => import('./pages/Tourism'));
 const Others = lazy(() => import('./pages/Others'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 
 // Admin Pages (separate chunk — heavy, admin-only)
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -95,6 +96,7 @@ export default function App() {
             <Route path="others" element={<Others />} />
 
             {/* Other Pages */}
+            <Route path="calendar" element={<CalendarPage />} />
             <Route path="contests" element={<Contests />} />
             <Route path="events" element={<Events />} />
             <Route path="about" element={<About />} />
