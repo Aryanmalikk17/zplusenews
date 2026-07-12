@@ -3,6 +3,11 @@
    ========================================================================== */
 
 @media (max-width: 768px) {
+    html, body {
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
     /* --- 1. Top Navbar / Header Improvements --- */
     .top-navbar {
         position: sticky !important;
@@ -182,5 +187,25 @@
 
     .article-card-meta {
         font-size: 11px !important;
+    }
+
+    /* Constrain horizontal scroll content wrappers to prevent page body expansion */
+    .category-row-content, 
+    .video-row-content {
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Enforce block layout and maximum width limits on featured article cards */
+    .article-card-featured {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .article-card-featured > a {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
     }
 }
