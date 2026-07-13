@@ -1617,16 +1617,40 @@ app.get('/api/advertisements/inject', async (req, res) => {
         const { pageType, category, device } = req.query;
         const now = new Date();
         
-        // Find all active ads
+        // Auto-detect device context from User-Agent if not explicitly supplied
+        let detectedDevice = device;
+        if (!detectedDevice && req.headers['user-agent']) {
+            const ua = req.headers['user-agent'].toLowerCase();
+            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+                detectedDevice = 'tablet';
+            } else if (/mobile|iphone|ipod|android|blackberry|iemobile|kindle|silk-accelerated|(hpw|web)os|opera m(obi|ini)/i.test(ua)) {
+                detectedDevice = 'mobile';
+            } else {
+                detectedDevice = 'desktop';
+            }
+        }
+        
+        // Safely normalize params
+        const searchCategory = category ? String(category).toLowerCase().trim() : '';
+        const searchDevice = detectedDevice ? String(detectedDevice).toLowerCase().trim() : '';
+        const searchPageType = pageType ? String(pageType).toLowerCase().trim() : '';
+        
+        // Find all active ads matching date constraints using $and to prevent duplicate keys overwriting
         const query = {
             status: 'active',
-            $or: [
-                { startDate: { $exists: false } },
-                { startDate: { $lte: now } }
-            ],
-            $or: [
-                { endDate: { $exists: false } },
-                { endDate: { $gte: now } }
+            $and: [
+                {
+                    $or: [
+                        { startDate: { $exists: false } },
+                        { startDate: { $lte: now } }
+                    ]
+                },
+                {
+                    $or: [
+                        { endDate: { $exists: false } },
+                        { endDate: { $gte: now } }
+                    ]
+                }
             ]
         };
         
@@ -1642,23 +1666,23 @@ app.get('/api/advertisements/inject', async (req, res) => {
             
             // Apply targeting criteria (pageType, category, device)
             candidates = candidates.filter(ad => {
-                // 1. PageType Targeting
+                // 1. PageType Targeting: if ad targets pageTypes, request must match
                 if (ad.targeting && ad.targeting.pageTypes && ad.targeting.pageTypes.length > 0) {
-                    if (pageType && !ad.targeting.pageTypes.includes(pageType)) {
+                    if (searchPageType && !ad.targeting.pageTypes.includes(searchPageType)) {
                         return false;
                     }
                 }
                 
-                // 2. Category Targeting
+                // 2. Category Targeting: if ad targets categories, request must match
                 if (ad.targeting && ad.targeting.categories && ad.targeting.categories.length > 0) {
-                    if (category && !ad.targeting.categories.includes(category)) {
+                    if (searchCategory && !ad.targeting.categories.includes(searchCategory)) {
                         return false;
                     }
                 }
                 
-                // 3. Device Targeting
+                // 3. Device Targeting: if ad targets deviceTypes, request must match
                 if (ad.targeting && ad.targeting.deviceTypes && ad.targeting.deviceTypes.length > 0) {
-                    if (device && !ad.targeting.deviceTypes.includes(device)) {
+                    if (searchDevice && !ad.targeting.deviceTypes.includes(searchDevice)) {
                         return false;
                     }
                 }
@@ -1667,8 +1691,46 @@ app.get('/api/advertisements/inject', async (req, res) => {
             });
             
             if (candidates.length > 0) {
-                // Sort candidates by priority descending, then createdAt descending
-                candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0) || b.createdAt - a.createdAt);
+                // Specificity-Based Selection:
+                // Category specificity: +100
+                // PageType specificity: +10
+                // Device specificity: +5
+                const getSpecificityScore = (ad) => {
+                    let score = 0;
+                    
+                    if (ad.targeting && ad.targeting.categories && ad.targeting.categories.length > 0) {
+                        if (searchCategory && ad.targeting.categories.includes(searchCategory)) {
+                            score += 100;
+                        }
+                    }
+                    if (ad.targeting && ad.targeting.pageTypes && ad.targeting.pageTypes.length > 0) {
+                        if (searchPageType && ad.targeting.pageTypes.includes(searchPageType)) {
+                            score += 10;
+                        }
+                    }
+                    if (ad.targeting && ad.targeting.deviceTypes && ad.targeting.deviceTypes.length > 0) {
+                        if (searchDevice && ad.targeting.deviceTypes.includes(searchDevice)) {
+                            score += 5;
+                        }
+                    }
+                    
+                    return score;
+                };
+
+                // Sort candidates by match specificity score, then priority, then date
+                candidates.sort((a, b) => {
+                    const scoreA = getSpecificityScore(a);
+                    const scoreB = getSpecificityScore(b);
+                    
+                    if (scoreA !== scoreB) {
+                        return scoreB - scoreA; // Highest specificity score wins
+                    }
+                    if (a.priority !== b.priority) {
+                        return (b.priority || 0) - (a.priority || 0); // Tie-breaker 1: Priority
+                    }
+                    return b.createdAt - a.createdAt; // Tie-breaker 2: Age
+                });
+                
                 resolvedAds[slot] = { ...candidates[0]._doc, id: candidates[0]._id };
             } else {
                 resolvedAds[slot] = null;
