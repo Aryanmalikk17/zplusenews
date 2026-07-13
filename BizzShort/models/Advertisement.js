@@ -13,30 +13,37 @@ const AdvertisementSchema = new mongoose.Schema({
     // Legacy positions kept for backward compatibility
     position: { 
         type: String, 
-        required: true, 
+        default: 'inline',
         enum: [
             'horizontal-banner', 
             'vertical-sidebar', 
             'sidebar-rectangle', 
             'inline',
-            'header',      // legacy
-            'sidebar',     // legacy
-            'footer'       // legacy
+            'header',
+            'sidebar',
+            'footer'
         ] 
     },
-    // Recommended size for the position
+    slotId: { 
+        type: String, 
+        required: true, 
+        enum: ['H1', 'H2', 'C1', 'C2', 'V1', 'V2', 'legacy-banner', 'legacy-sidebar'] 
+    },
+    targeting: {
+        categories: [{ type: String }],
+        deviceTypes: [{ type: String, enum: ['desktop', 'tablet', 'mobile'] }],
+        pageTypes: [{ type: String, enum: ['home', 'category', 'article', 'video'] }]
+    },
     size: {
         width: { type: Number },
         height: { type: Number }
     },
-    // Ad label text (e.g., "WEEKEND DISCOUNT", "SPECIAL OFFER")
     label: { type: String, default: '' },
-    // Call-to-action button text
     ctaText: { type: String, default: 'Shop Now' },
     status: { type: String, default: 'active', enum: ['active', 'paused', 'expired'] },
     startDate: { type: Date, default: Date.now },
     endDate: Date,
-    priority: { type: Number, default: 0 }, // Higher priority ads show first
+    priority: { type: Number, default: 0 },
     metrics: {
         impressions: { type: Number, default: 0 },
         clicks: { type: Number, default: 0 }

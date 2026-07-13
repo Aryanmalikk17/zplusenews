@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { articlesAPI, videosAPI } from '../../services/api';
+import { articlesAPI, videosAPI, adsAPI } from '../../services/api';
 import ArticleCard from '../ui/ArticleCard';
 import VideoCard from '../ui/VideoCard';
+import SponsorAd from '../ui/SponsorAd';
 import '../../styles/category-page.css';
 
 export default function CategoryPageLayout({
@@ -17,9 +18,22 @@ export default function CategoryPageLayout({
 }) {
     const [articles, setArticles] = useState([]);
     const [videos, setVideos] = useState([]);
+    const [adsMap, setAdsMap] = useState({});
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [viewMode, setViewMode] = useState('grid');
+
+    useEffect(() => {
+        const fetchAds = async () => {
+            try {
+                const res = await adsAPI.inject({ pageType: 'category', category: category });
+                setAdsMap(res?.data || res || {});
+            } catch (err) {
+                console.error('Error fetching category ads:', err);
+            }
+        };
+        fetchAds();
+    }, [category]);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -89,7 +103,21 @@ export default function CategoryPageLayout({
     }
 
     return (
-        <div className="category-page">
+        <div className="category-page" style={{ position: 'relative' }}>
+            {/* Left Skyscraper Slot C1 */}
+            {adsMap['C1'] && (
+                <div className="category-margin-ad category-margin-ad-left">
+                    <SponsorAd ad={adsMap['C1']} />
+                </div>
+            )}
+            
+            {/* Right Skyscraper Slot C2 */}
+            {adsMap['C2'] && (
+                <div className="category-margin-ad category-margin-ad-right">
+                    <SponsorAd ad={adsMap['C2']} />
+                </div>
+            )}
+
             {/* Breadcrumb Navigation */}
             <nav className="category-breadcrumb" aria-label="Breadcrumb">
                 <div className="container">

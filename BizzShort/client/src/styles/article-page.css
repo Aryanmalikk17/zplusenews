@@ -338,3 +338,27 @@
 .article-card-hover:hover {
   transform: translateY(-5px);
 }
+
+/* ===== CATEGORY PAGE LEFT & RIGHT MARGIN SKYSCRAPER ADS ===== */
+.category-margin-ad {
+  position: fixed;
+  top: 150px;
+  width: 160px;
+  height: 600px;
+  z-index: 99;
+}
+.category-margin-ad-left {
+  left: calc((100vw - 1200px) / 2 - 180px);
+}
+.category-margin-ad-right {
+  right: calc((100vw - 1200px) / 2 - 180px);
+}
+@media (max-width: 1560px) {
+  .category-margin-ad-left { left: 10px; }
+  .category-margin-ad-right { right: 10px; }
+}
+@media (max-width: 1200px) {
+  .category-margin-ad {
+    display: none !important;
+  }
+}

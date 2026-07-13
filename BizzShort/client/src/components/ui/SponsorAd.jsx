@@ -1,18 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { adsAPI } from '../../services/api';
 
 /**
  * SponsorAd Component
- * Renders a clickable sponsor ad poster and handles dynamic impression and click tracking.
+ * Renders a clickable sponsor ad poster and handles dynamic impression (scrolled into viewport) and click tracking.
  */
 export default function SponsorAd({ ad, fallback, className = "" }) {
+  const containerRef = useRef(null);
+
   useEffect(() => {
-    if (ad && ad._id) {
-      // Track impression on mount
-      adsAPI.trackImpression(ad._id).catch(err => 
-        console.error('Error tracking ad impression:', err)
-      );
+    if (!ad || !ad._id) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        adsAPI.trackImpression(ad._id).catch(err => 
+          console.error('Error tracking ad impression:', err)
+        );
+        // Connect only once per mount
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 }); // 50% visibility threshold
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
+
+    return () => {
+      observer.disconnect();
+    };
   }, [ad?._id]);
 
   if (!ad) return fallback || null;
@@ -27,6 +42,7 @@ export default function SponsorAd({ ad, fallback, className = "" }) {
 
   return (
     <a
+      ref={containerRef}
       href={ad.targetUrl}
       target="_blank"
       rel="noopener noreferrer"

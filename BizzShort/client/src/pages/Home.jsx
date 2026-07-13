@@ -12,7 +12,7 @@ import '../styles/components.css';
 
 export default function Home() {
     const [featuredArticles, setFeaturedArticles] = useState([]);
-    const [ads, setAds] = useState([]);
+    const [adsMap, setAdsMap] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,14 +21,14 @@ export default function Home() {
                 // Fetch 5 latest articles for the Hero section and ads
                 const [articlesRes, adsRes] = await Promise.all([
                     articlesAPI.getPublicList({ limit: 5 }),
-                    adsAPI.getAll()
+                    adsAPI.inject({ pageType: 'home' })
                 ]);
                 
                 const articlesData = articlesRes?.data || articlesRes || [];
                 setFeaturedArticles(Array.isArray(articlesData) ? articlesData : []);
                 
-                const adsData = adsRes?.data || adsRes || [];
-                setAds(Array.isArray(adsData) ? adsData : []);
+                const adsData = adsRes?.data || adsRes || {};
+                setAdsMap(adsData);
             } catch (error) {
                 console.error('Error fetching homepage data:', error);
             } finally {
@@ -50,9 +50,9 @@ export default function Home() {
         );
     }
 
-    const activeAds = ads.filter(ad => ad.status === 'active');
-    const sidebarAd = activeAds.find(ad => ad.position === 'sidebar-rectangle' || ad.position === 'sidebar');
-    const inlineAd = activeAds.find(ad => ad.position === 'inline' || ad.position === 'horizontal-banner');
+    const adH1 = adsMap['H1'] || adsMap['legacy-banner'];
+    const sidebarAd = adsMap['legacy-sidebar'];
+    const adH2 = adsMap['H2'];
 
     return (
         <div className="home-page">
@@ -106,11 +106,11 @@ export default function Home() {
                         <VideoRow />
 
                         {/* Dynamic Inline Sponsor Banner */}
-                        {inlineAd && (
+                        {adH1 && (
                             <div className="inline-ad-container glass-card" style={{ margin: '30px 0', padding: '12px', textAlign: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', background: 'rgba(255, 255, 255, 0.02)' }}>
                                 <span className="ad-label" style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', marginBottom: '8px', letterSpacing: '1px' }}>Sponsor Advertisement</span>
                                 <div className="inline-ad-wrapper" style={{ height: '90px', maxWidth: '728px', margin: '0 auto', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
-                                    <SponsorAd ad={inlineAd} />
+                                    <SponsorAd ad={adH1} />
                                 </div>
                             </div>
                         )}
@@ -130,7 +130,7 @@ export default function Home() {
                 <aside className="home-sidebar">
                     <InteractiveCalendar />
                     
-                    {/* Advertisement space */}
+                    {/* Advertisement space (Primary) */}
                     <div className="sidebar-ad-space glass-card">
                         <span className="ad-label">Advertisement</span>
                         <SponsorAd 
@@ -144,6 +144,14 @@ export default function Home() {
                             }
                         />
                     </div>
+
+                    {/* Advertisement Space 2 (Slot H2) */}
+                    {adH2 && (
+                        <div className="sidebar-ad-space glass-card" style={{ marginTop: '20px' }}>
+                            <span className="ad-label">Sponsored Partner</span>
+                            <SponsorAd ad={adH2} />
+                        </div>
+                    )}
                 </aside>
             </div>
         </div>

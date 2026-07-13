@@ -1279,7 +1279,7 @@ function AdsTab({ ads, onRefresh, setShowCreateModal, setEditingItem }) {
 
     const filteredAds = filterPosition === 'all'
         ? ads
-        : ads.filter(ad => ad.position === filterPosition);
+        : ads.filter(ad => ad.slotId === filterPosition || ad.position === filterPosition);
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this sponsor ad?')) return;
@@ -1300,13 +1300,15 @@ function AdsTab({ ads, onRefresh, setShowCreateModal, setEditingItem }) {
                         value={filterPosition}
                         onChange={(e) => setFilterPosition(e.target.value)}
                         className="filter-select"
-                        aria-label="Filter advertisements by position"
+                        aria-label="Filter advertisements by slot"
                     >
-                        <option value="all">All Positions</option>
-                        <option value="sidebar-rectangle">Sidebar Rectangle</option>
-                        <option value="horizontal-banner">Horizontal Banner</option>
-                        <option value="inline">Inline Banner</option>
-                        <option value="vertical-sidebar">Vertical Sidebar</option>
+                        <option value="all">All Placements</option>
+                        <option value="H1">Slot H1 (Home Horiz)</option>
+                        <option value="H2">Slot H2 (Home Side)</option>
+                        <option value="C1">Slot C1 (Left Rail)</option>
+                        <option value="C2">Slot C2 (Right Rail)</option>
+                        <option value="V1">Slot V1 (Video Left)</option>
+                        <option value="V2">Slot V2 (Video Right)</option>
                     </select>
                 </div>
                 <button
@@ -1326,7 +1328,8 @@ function AdsTab({ ads, onRefresh, setShowCreateModal, setEditingItem }) {
                         <tr>
                             <th>Preview</th>
                             <th>Title & Label</th>
-                            <th>Position</th>
+                            <th>Target Slot</th>
+                            <th>Targeting</th>
                             <th>Target URL</th>
                             <th>Status</th>
                             <th>Analytics (Imp / Clicks / CTR)</th>
@@ -1353,16 +1356,37 @@ function AdsTab({ ads, onRefresh, setShowCreateModal, setEditingItem }) {
                                     </td>
                                     <td className="title-cell">
                                         <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{ad.title}</div>
-                                        {ad.label && (
-                                            <span style={{ fontSize: '10px', background: 'rgba(255, 255, 255, 0.1)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-muted)', display: 'inline-block', marginTop: '4px' }}>
-                                                {ad.label}
-                                            </span>
-                                        )}
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                                            {ad.label && (
+                                                <span style={{ fontSize: '9px', background: 'rgba(255, 33, 35, 0.1)', border: '1px solid rgba(255, 33, 35, 0.2)', padding: '1px 6px', borderRadius: '4px', color: 'var(--primary)', fontWeight: '600' }}>
+                                                    {ad.label}
+                                                </span>
+                                            )}
+                                            {ad.priority > 0 && (
+                                                <span style={{ fontSize: '9px', background: 'rgba(33, 150, 243, 0.1)', border: '1px solid rgba(33, 150, 243, 0.2)', padding: '1px 6px', borderRadius: '4px', color: '#2196F3', fontWeight: '600' }}>
+                                                    ⭐ P{ad.priority}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td>
-                                        <span style={{ textTransform: 'capitalize', fontSize: '12px' }}>
-                                            {ad.position?.replace('-', ' ')}
-                                        </span>
+                                        <div style={{ fontWeight: '700', color: 'var(--primary)', fontSize: '13px' }}>{ad.slotId || 'H1'}</div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                            {ad.targeting?.pageTypes?.length > 0 && (
+                                                <div>📄 Pages: {ad.targeting.pageTypes.join(', ')}</div>
+                                            )}
+                                            {ad.targeting?.deviceTypes?.length > 0 && (
+                                                <div>📱 Devices: {ad.targeting.deviceTypes.join(', ')}</div>
+                                            )}
+                                            {ad.targeting?.categories?.length > 0 && (
+                                                <div>🎯 Category: {ad.targeting.categories.join(', ')}</div>
+                                            )}
+                                            {(!ad.targeting?.pageTypes?.length && !ad.targeting?.deviceTypes?.length && !ad.targeting?.categories?.length) && (
+                                                <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Global Fallback</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         <a href={ad.targetUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '13px' }}>
@@ -1437,13 +1461,29 @@ function AdModal({ editingItem, onClose, onSuccess }) {
         title: editingItem?.title || '',
         label: editingItem?.label || '',
         targetUrl: editingItem?.targetUrl || '',
-        position: editingItem?.position || 'sidebar-rectangle',
+        slotId: editingItem?.slotId || 'H1',
         status: editingItem?.status || 'active',
         priority: editingItem?.priority || 0,
         ctaText: editingItem?.ctaText || 'Shop Now',
         altText: editingItem?.altText || 'Advertisement',
         imageUrl: editingItem?.imageUrl || ''
     });
+
+    const [targeting, setTargeting] = useState({
+        categories: editingItem?.targeting?.categories || [],
+        deviceTypes: editingItem?.targeting?.deviceTypes || [],
+        pageTypes: editingItem?.targeting?.pageTypes || []
+    });
+
+    const toggleTargeting = (type, value) => {
+        setTargeting(prev => {
+            const list = prev[type] || [];
+            const newList = list.includes(value)
+                ? list.filter(v => v !== value)
+                : [...list, value];
+            return { ...prev, [type]: newList };
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -1452,16 +1492,16 @@ function AdModal({ editingItem, onClose, onSuccess }) {
 
         try {
             if (imageSourceType === 'file' && imageFile) {
-                // Submit as multipart/form-data
                 const data = new FormData();
                 data.append('title', formData.title);
                 data.append('label', formData.label);
                 data.append('targetUrl', formData.targetUrl);
-                data.append('position', formData.position);
+                data.append('slotId', formData.slotId);
                 data.append('status', formData.status);
                 data.append('priority', formData.priority);
                 data.append('ctaText', formData.ctaText);
                 data.append('altText', formData.altText);
+                data.append('targeting', JSON.stringify(targeting));
                 data.append('image', imageFile);
 
                 if (editingItem) {
@@ -1470,16 +1510,16 @@ function AdModal({ editingItem, onClose, onSuccess }) {
                     await adsAPI.create(data);
                 }
             } else {
-                // Submit as JSON
                 const data = {
                     title: formData.title,
                     label: formData.label,
                     targetUrl: formData.targetUrl,
-                    position: formData.position,
+                    slotId: formData.slotId,
                     status: formData.status,
                     priority: Number(formData.priority) || 0,
                     ctaText: formData.ctaText,
                     altText: formData.altText,
+                    targeting: targeting,
                     imageUrl: formData.imageUrl || editingItem?.imageUrl
                 };
 
@@ -1532,17 +1572,19 @@ function AdModal({ editingItem, onClose, onSuccess }) {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="ad-position">Placement Position *</label>
+                            <label htmlFor="ad-slotId">Placement Target Slot *</label>
                             <select
-                                id="ad-position"
-                                value={formData.position}
-                                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                                id="ad-slotId"
+                                value={formData.slotId}
+                                onChange={(e) => setFormData({ ...formData, slotId: e.target.value })}
                                 required
                             >
-                                <option value="sidebar-rectangle">Sidebar Rectangle (300x250)</option>
-                                <option value="horizontal-banner">Horizontal Banner (970x90)</option>
-                                <option value="inline">Inline Banner (728x90)</option>
-                                <option value="vertical-sidebar">Vertical Sidebar (300x600)</option>
+                                <option value="H1">Home Page H1 (Horizontal Banner - 728x90)</option>
+                                <option value="H2">Home Page H2 (Sidebar Rectangle - 300x250)</option>
+                                <option value="C1">Category/Article C1 (Left Sidebar Skyscraper - 160x600)</option>
+                                <option value="C2">Category/Article C2 (Right Sidebar Skyscraper - 160x600)</option>
+                                <option value="V1">Video Page V1 (Left Rectangle - 300x250)</option>
+                                <option value="V2">Video Page V2 (Right Rectangle - 300x250)</option>
                             </select>
                         </div>
 
@@ -1570,6 +1612,96 @@ function AdModal({ editingItem, onClose, onSuccess }) {
                             placeholder="https://sponsorwebsite.com"
                             required
                         />
+                    </div>
+
+                    {/* Advanced Targeting Section */}
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '15px' }}>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🎯 Target Page & Devices</h4>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label style={{ fontSize: '12px', fontWeight: '600' }}>Pages (Empty = All)</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+                                    {['home', 'category', 'article', 'video'].map(page => (
+                                        <button
+                                            key={page}
+                                            type="button"
+                                            onClick={() => toggleTargeting('pageTypes', page)}
+                                            style={{
+                                                padding: '4px 10px',
+                                                fontSize: '12px',
+                                                borderRadius: '12px',
+                                                border: '1px solid var(--border-color)',
+                                                background: targeting.pageTypes.includes(page) ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                                                color: '#fff',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label style={{ fontSize: '12px', fontWeight: '600' }}>Devices (Empty = All)</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+                                    {['desktop', 'tablet', 'mobile'].map(device => (
+                                        <button
+                                            key={device}
+                                            type="button"
+                                            onClick={() => toggleTargeting('deviceTypes', device)}
+                                            style={{
+                                                padding: '4px 10px',
+                                                fontSize: '12px',
+                                                borderRadius: '12px',
+                                                border: '1px solid var(--border-color)',
+                                                background: targeting.deviceTypes.includes(device) ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                                                color: '#fff',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {device}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '600' }}>Category Context (Empty = Global Fallback)</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '8px', maxHeight: '120px', overflowY: 'auto', padding: '6px', border: '1px solid var(--border-color)', borderRadius: '6px', background: 'rgba(0,0,0,0.1)' }}>
+                                {[
+                                    { value: 'fake-news', label: 'Fake News' },
+                                    { value: 'international', label: 'International' },
+                                    { value: 'national', label: 'National' },
+                                    { value: 'state', label: 'State' },
+                                    { value: 'economics', label: 'Economics' },
+                                    { value: 'polity', label: 'Polity' },
+                                    { value: 'technology', label: 'Technology' },
+                                    { value: 'environment', label: 'Environment' },
+                                    { value: 'sports', label: 'Sports' },
+                                    { value: 'health', label: 'Health' },
+                                    { value: 'defence', label: 'Defence' },
+                                    { value: 'culture', label: 'Culture' },
+                                    { value: 'spirituality', label: 'Spirituality' },
+                                    { value: 'agriculture', label: 'Agriculture' },
+                                    { value: 'geography', label: 'Geography' },
+                                    { value: 'religion', label: 'Religion' },
+                                    { value: 'ai', label: 'AI' }
+                                ].map(cat => (
+                                    <label key={cat.value} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', cursor: 'pointer', color: 'var(--text-primary)' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={targeting.categories.includes(cat.value)}
+                                            onChange={() => toggleTargeting('categories', cat.value)}
+                                            style={{ margin: 0 }}
+                                        />
+                                        {cat.label}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Image Upload Option Selector */}

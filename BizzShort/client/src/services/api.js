@@ -77,6 +77,7 @@ export const interviewsAPI = {
 export const adsAPI = {
   getAll: () => api.get('/advertisements'),
   getById: (id) => api.get(`/advertisements/${id}`),
+  inject: (params) => api.get('/advertisements/inject', { params }),
   create: (data) => api.post('/advertisements', data),
   update: (id, data) => api.put(`/advertisements/${id}`, data),
   delete: (id) => api.delete(`/advertisements/${id}`),

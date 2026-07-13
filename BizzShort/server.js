@@ -1612,6 +1612,75 @@ app.delete('/api/users/:id', protect, async (req, res) => {
 });
 
 // Advertisements
+app.get('/api/advertisements/inject', async (req, res) => {
+    try {
+        const { pageType, category, device } = req.query;
+        const now = new Date();
+        
+        // Find all active ads
+        const query = {
+            status: 'active',
+            $or: [
+                { startDate: { $exists: false } },
+                { startDate: { $lte: now } }
+            ],
+            $or: [
+                { endDate: { $exists: false } },
+                { endDate: { $gte: now } }
+            ]
+        };
+        
+        const ads = await Advertisement.find(query);
+        
+        // Group and filter by matching targeting logic
+        const resolvedAds = {};
+        const slots = ['H1', 'H2', 'C1', 'C2', 'V1', 'V2', 'legacy-banner', 'legacy-sidebar'];
+        
+        for (const slot of slots) {
+            // Filter candidate ads for this slot
+            let candidates = ads.filter(ad => ad.slotId === slot);
+            
+            // Apply targeting criteria (pageType, category, device)
+            candidates = candidates.filter(ad => {
+                // 1. PageType Targeting
+                if (ad.targeting && ad.targeting.pageTypes && ad.targeting.pageTypes.length > 0) {
+                    if (pageType && !ad.targeting.pageTypes.includes(pageType)) {
+                        return false;
+                    }
+                }
+                
+                // 2. Category Targeting
+                if (ad.targeting && ad.targeting.categories && ad.targeting.categories.length > 0) {
+                    if (category && !ad.targeting.categories.includes(category)) {
+                        return false;
+                    }
+                }
+                
+                // 3. Device Targeting
+                if (ad.targeting && ad.targeting.deviceTypes && ad.targeting.deviceTypes.length > 0) {
+                    if (device && !ad.targeting.deviceTypes.includes(device)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            if (candidates.length > 0) {
+                // Sort candidates by priority descending, then createdAt descending
+                candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0) || b.createdAt - a.createdAt);
+                resolvedAds[slot] = { ...candidates[0]._doc, id: candidates[0]._id };
+            } else {
+                resolvedAds[slot] = null;
+            }
+        }
+        
+        res.json({ success: true, data: resolvedAds });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.get('/api/advertisements', async (req, res) => {
     try {
         const { position, status } = req.query;
@@ -1673,11 +1742,47 @@ app.post('/api/advertisements/:id/click', async (req, res) => {
 app.post('/api/advertisements', protect, conditionalUpload('image'), async (req, res) => {
     try {
         const imageUrl = req.file ? await processUploadedFile(req.file) : req.body.imageUrl;
-        const adData = { 
+        let adData = { 
             ...req.body, 
             imageUrl,
             createdBy: req.user._id 
         };
+        
+        // Parse targeting and size JSON strings
+        if (typeof adData.targeting === 'string') {
+            try { adData.targeting = JSON.parse(adData.targeting); } 
+            catch (e) { adData.targeting = { categories: [], deviceTypes: [], pageTypes: [] }; }
+        }
+        if (typeof adData.size === 'string') {
+            try { adData.size = JSON.parse(adData.size); } catch (e) {}
+        }
+        
+        // Map legacy position to slotId if missing
+        if (!adData.slotId) {
+            const posToSlotMap = {
+                'horizontal-banner': 'H1',
+                'inline': 'H1',
+                'header': 'H1',
+                'sidebar-rectangle': 'H2',
+                'sidebar': 'H2',
+                'vertical-sidebar': 'C1',
+                'footer': 'H1'
+            };
+            adData.slotId = posToSlotMap[adData.position] || 'H1';
+        }
+        
+        // Sync position field for legacy components
+        if (adData.slotId && !adData.position) {
+            const slotToPosMap = {
+                'H1': 'horizontal-banner',
+                'H2': 'sidebar-rectangle',
+                'C1': 'vertical-sidebar',
+                'C2': 'vertical-sidebar',
+                'V1': 'sidebar-rectangle',
+                'V2': 'sidebar-rectangle'
+            };
+            adData.position = slotToPosMap[adData.slotId] || 'inline';
+        }
         
         // Set default size based on position
         if (!adData.size && adData.position) {
@@ -1699,8 +1804,29 @@ app.post('/api/advertisements', protect, conditionalUpload('image'), async (req,
 
 app.put('/api/advertisements/:id', protect, conditionalUpload('image'), async (req, res) => {
     try {
-        const updateData = { ...req.body, updatedAt: new Date() };
+        let updateData = { ...req.body, updatedAt: new Date() };
         if (req.file) updateData.imageUrl = await processUploadedFile(req.file);
+
+        // Parse targeting and size JSON strings
+        if (typeof updateData.targeting === 'string') {
+            try { updateData.targeting = JSON.parse(updateData.targeting); } catch (e) {}
+        }
+        if (typeof updateData.size === 'string') {
+            try { updateData.size = JSON.parse(updateData.size); } catch (e) {}
+        }
+
+        // Sync legacy fields
+        if (updateData.slotId && !updateData.position) {
+            const slotToPosMap = {
+                'H1': 'horizontal-banner',
+                'H2': 'sidebar-rectangle',
+                'C1': 'vertical-sidebar',
+                'C2': 'vertical-sidebar',
+                'V1': 'sidebar-rectangle',
+                'V2': 'sidebar-rectangle'
+            };
+            updateData.position = slotToPosMap[updateData.slotId] || 'inline';
+        }
 
         const ad = await Advertisement.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!ad) return res.status(404).json({ success: false, error: 'Advertisement not found' });

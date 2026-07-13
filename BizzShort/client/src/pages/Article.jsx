@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { articlesAPI, videosAPI } from '../services/api';
+import { articlesAPI, videosAPI, adsAPI } from '../services/api';
 import ArticleCard from '../components/ui/ArticleCard';
+import SponsorAd from '../components/ui/SponsorAd';
 import '../styles/article-page.css';
 
 /**
@@ -40,9 +41,24 @@ export default function Article() {
   const [article, setArticle] = useState(null);
   const [video, setVideo] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [adsMap, setAdsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [readingProgress, setReadingProgress] = useState(0);
   const articleRef = useRef(null);
+
+  useEffect(() => {
+    if (!article?.category) return;
+    const fetchAds = async () => {
+      try {
+        const pageType = routeVideoId || video ? 'video' : 'article';
+        const res = await adsAPI.inject({ pageType, category: article.category });
+        setAdsMap(res?.data || res || {});
+      } catch (err) {
+        console.error('Error fetching article/video ads:', err);
+      }
+    };
+    fetchAds();
+  }, [article?.category, routeVideoId, video]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -275,7 +291,22 @@ export default function Article() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      style={{ position: 'relative' }}
     >
+      {/* Left Skyscraper Slot C1 */}
+      {adsMap['C1'] && (
+        <div className="category-margin-ad category-margin-ad-left">
+          <SponsorAd ad={adsMap['C1']} />
+        </div>
+      )}
+      
+      {/* Right Skyscraper Slot C2 */}
+      {adsMap['C2'] && (
+        <div className="category-margin-ad category-margin-ad-right">
+          <SponsorAd ad={adsMap['C2']} />
+        </div>
+      )}
+
       {/* Sticky Reading Progress Bar */}
       <div
         className="reading-progress-bar"
@@ -312,6 +343,25 @@ export default function Article() {
                 className="video-iframe"
               ></iframe>
             </div>
+
+            {/* Symmetrical Vertical Banner Placements directly beneath video player container */}
+            {(adsMap['V1'] || adsMap['V2']) && (
+              <div className="video-ads-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginTop: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                {adsMap['V1'] && (
+                  <div className="video-ad-container" style={{ flex: 1, minWidth: '280px', maxWidth: '300px', margin: '0 auto' }}>
+                    <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', marginBottom: '4px', textAlign: 'center', letterSpacing: '0.5px' }}>Sponsored Partner</span>
+                    <SponsorAd ad={adsMap['V1']} />
+                  </div>
+                )}
+                {adsMap['V2'] && (
+                  <div className="video-ad-container" style={{ flex: 1, minWidth: '280px', maxWidth: '300px', margin: '0 auto' }}>
+                    <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', marginBottom: '4px', textAlign: 'center', letterSpacing: '0.5px' }}>Sponsored Partner</span>
+                    <SponsorAd ad={adsMap['V2']} />
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="video-actions">
               <a
                 href={youtubeUrl}
