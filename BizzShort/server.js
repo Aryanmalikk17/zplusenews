@@ -244,19 +244,63 @@ const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
 };
 
-// Download external image and save locally to uploads
+// Cloudinary Configuration
+const cloudinary = require('cloudinary').v2;
+let isCloudinaryConfigured = false;
+
+if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    isCloudinaryConfigured = true;
+    console.log("☁️ Cloudinary configured successfully. Images will be stored in Cloudinary.");
+} else {
+    console.warn("⚠️ Cloudinary credentials missing in .env. Falling back to local disk storage (/uploads).");
+}
+
+// Upload a local file to Cloudinary and clean up the local file
+async function uploadToCloudinary(localFilePath) {
+    if (!isCloudinaryConfigured) {
+        return `/uploads/${path.basename(localFilePath)}`;
+    }
+    try {
+        const result = await cloudinary.uploader.upload(localFilePath, {
+            folder: 'zplusenews',
+            resource_type: 'image'
+        });
+        
+        // Remove local file
+        fs.unlink(localFilePath, (err) => {
+            if (err) console.error("Error removing local temp file after Cloudinary upload:", err);
+        });
+        
+        return result.secure_url;
+    } catch (err) {
+        console.error("Cloudinary upload failed, using local fallback URL:", err.message);
+        return `/uploads/${path.basename(localFilePath)}`;
+    }
+}
+
+// Intercept Multer upload results
+async function processUploadedFile(reqFile) {
+    if (!reqFile) return null;
+    return await uploadToCloudinary(reqFile.path);
+}
+
+// Download external image and save to Cloudinary or locally
 async function downloadAndLocalizeImage(imageUrl) {
     if (!imageUrl || (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://'))) {
-        return imageUrl; // Already local or empty
+        return imageUrl; // Already local/Cloudinary or empty
     }
 
     try {
-        const siteUrl = process.env.SITE_URL || 'https://www.zplusenews.com';
         const parsedUrl = new URL(imageUrl);
         
-        // If it's already on our domain, skip
-        if (parsedUrl.host === 'zplusenews.com' || parsedUrl.host === 'www.zplusenews.com') {
-            return parsedUrl.pathname;
+        // If already on our domain or hosted on Cloudinary, skip
+        if (parsedUrl.host === 'zplusenews.com' || parsedUrl.host === 'www.zplusenews.com' || parsedUrl.host.includes('cloudinary.com')) {
+            return imageUrl;
         }
 
         // Fetch image
@@ -286,7 +330,7 @@ async function downloadAndLocalizeImage(imageUrl) {
         }
 
         // Generate clean unique filename
-        const filename = `uploaded-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+        const filename = `downloaded-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
         const uploadsDir = path.join(__dirname, 'uploads');
         const destPath = path.join(uploadsDir, filename);
 
@@ -295,20 +339,23 @@ async function downloadAndLocalizeImage(imageUrl) {
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
-        // Write file
+        // Write stream
         const writer = fs.createWriteStream(destPath);
         response.data.pipe(writer);
 
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
+        return await new Promise((resolve) => {
+            writer.on('finish', async () => {
+                const finalUrl = await uploadToCloudinary(destPath);
+                resolve(finalUrl);
+            });
+            writer.on('error', (err) => {
+                console.error("Error writing temporary download image file:", err.message);
+                resolve(imageUrl);
+            });
         });
-
-        console.log(`Localized external image: ${imageUrl} -> /uploads/${filename}`);
-        return `/uploads/${filename}`;
     } catch (err) {
-        console.error(`Failed to localize image: ${imageUrl}. Error: ${err.message}`);
-        return imageUrl; // Fallback to original URL on failure
+        console.error(`Failed to download and localize image: ${imageUrl}. Error: ${err.message}`);
+        return imageUrl;
     }
 }
 
@@ -1213,7 +1260,7 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
 
         // Handle image: File upload takes precedence, otherwise use URL from body
         if (req.file) {
-            articleData.image = `/uploads/${req.file.filename}`;
+            articleData.image = await processUploadedFile(req.file);
         } else if (image) {
             articleData.image = await downloadAndLocalizeImage(image);
         }
@@ -1243,7 +1290,7 @@ app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) =
         
         // Handle image: File upload takes precedence
         if (req.file) {
-            updateData.image = `/uploads/${req.file.filename}`;
+            updateData.image = await processUploadedFile(req.file);
         } else if (updateData.image) {
             updateData.image = await downloadAndLocalizeImage(updateData.image);
         }
@@ -1391,7 +1438,8 @@ app.get('/api/events/:id', async (req, res) => {
 
 app.post('/api/events', protect, conditionalUpload('image'), async (req, res) => {
     try {
-        const event = await Event.create({ ...req.body, image: req.file ? `/uploads/${req.file.filename}` : undefined, createdBy: req.user._id });
+        const image = req.file ? await processUploadedFile(req.file) : undefined;
+        const event = await Event.create({ ...req.body, image, createdBy: req.user._id });
         res.status(201).json({ success: true, data: { ...event._doc, id: event._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -1399,7 +1447,7 @@ app.post('/api/events', protect, conditionalUpload('image'), async (req, res) =>
 app.put('/api/events/:id', protect, conditionalUpload('image'), async (req, res) => {
     try {
         const updateData = { ...req.body };
-        if (req.file) updateData.image = `/uploads/${req.file.filename}`;
+        if (req.file) updateData.image = await processUploadedFile(req.file);
 
         const event = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!event) return res.status(404).json({ success: false, error: 'Event not found' });
@@ -1422,7 +1470,8 @@ app.get('/api/interviews', async (req, res) => {
 });
 app.post('/api/interviews', protect, conditionalUpload('image'), async (req, res) => {
     try {
-        const item = await Interview.create({ ...req.body, image: req.file ? `/uploads/${req.file.filename}` : undefined });
+        const image = req.file ? await processUploadedFile(req.file) : undefined;
+        const item = await Interview.create({ ...req.body, image });
         res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -1430,7 +1479,7 @@ app.post('/api/interviews', protect, conditionalUpload('image'), async (req, res
 app.put('/api/interviews/:id', protect, conditionalUpload('image'), async (req, res) => {
     try {
         const updateData = { ...req.body };
-        if (req.file) updateData.image = `/uploads/${req.file.filename}`;
+        if (req.file) updateData.image = await processUploadedFile(req.file);
 
         const item = await Interview.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.json({ success: true, data: { ...item._doc, id: item._id } });
@@ -1504,7 +1553,8 @@ app.get('/api/clients', async (req, res) => {
 
 app.post('/api/clients', protect, conditionalUpload('logo'), async (req, res) => {
     try {
-        const item = await Client.create({ ...req.body, logo: req.file ? `/uploads/${req.file.filename}` : undefined });
+        const logo = req.file ? await processUploadedFile(req.file) : undefined;
+        const item = await Client.create({ ...req.body, logo });
         res.status(201).json({ success: true, data: { ...item._doc, id: item._id } });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -1513,7 +1563,7 @@ app.post('/api/clients', protect, conditionalUpload('logo'), async (req, res) =>
 app.put('/api/clients/:id', protect, conditionalUpload('logo'), async (req, res) => {
     try {
         const updateData = { ...req.body };
-        if (req.file) updateData.logo = `/uploads/${req.file.filename}`;
+        if (req.file) updateData.logo = await processUploadedFile(req.file);
 
         const item = await Client.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.json({ success: true, data: { ...item._doc, id: item._id } });
@@ -1622,9 +1672,10 @@ app.post('/api/advertisements/:id/click', async (req, res) => {
 
 app.post('/api/advertisements', protect, conditionalUpload('image'), async (req, res) => {
     try {
+        const imageUrl = req.file ? await processUploadedFile(req.file) : req.body.imageUrl;
         const adData = { 
             ...req.body, 
-            imageUrl: req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl,
+            imageUrl,
             createdBy: req.user._id 
         };
         
@@ -1649,7 +1700,7 @@ app.post('/api/advertisements', protect, conditionalUpload('image'), async (req,
 app.put('/api/advertisements/:id', protect, conditionalUpload('image'), async (req, res) => {
     try {
         const updateData = { ...req.body, updatedAt: new Date() };
-        if (req.file) updateData.imageUrl = `/uploads/${req.file.filename}`;
+        if (req.file) updateData.imageUrl = await processUploadedFile(req.file);
 
         const ad = await Advertisement.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!ad) return res.status(404).json({ success: false, error: 'Advertisement not found' });
