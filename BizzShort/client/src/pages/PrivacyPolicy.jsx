@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
                     <div className="policy-container">
                         <h2>1. Introduction</h2>
                         <p>
-                            Welcome to ZPluse News (collectively referred to as "ZPluse News", "we", "us", or "our"). 
+                            Welcome to ZPlus News (collectively referred to as "ZPlus News", "we", "us", or "our"). 
                             We are committed to protecting your personal data and respecting your privacy. 
                             This Privacy Policy explains how we collect, use, disclose, and safeguard your information 
                             when you visit our website (https://www.zplusenews.com) and use our services.
@@ -117,7 +117,7 @@ export default function PrivacyPolicy() {
                             If you have questions or comments about this Privacy Policy, please contact us at:
                         </p>
                         <p style={{ marginLeft: '20px' }}>
-                            <strong>ZPluse News Team</strong><br />
+                            <strong>ZPlus News Team</strong><br />
                             Email: contact@zplusenews.com<br />
                             Address: New Delhi, Delhi, India - 110001
                         </p>

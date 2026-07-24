@@ -109,8 +109,8 @@ export default function Navbar() {
                     <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                         {/* Logo & Brand */}
                         <Link to="/" className="top-navbar-logo">
-                            <img src="/assets/images/logo.png" alt="ZPluse News" />
-                            <span className="brand-name">ZPluse News</span>
+                            <img src="/assets/images/logo.png" alt="ZPlus News" />
+                            <span className="brand-name">ZPlus News</span>
                         </Link>
 
                         {/* Menu */}
@@ -240,8 +240,8 @@ export default function Navbar() {
                         >
                             <div className="mobile-menu-header">
                                 <Link to="/" className="mobile-logo">
-                                    <img src="/assets/images/logo.png" alt="ZPluse News" />
-                                    <span>ZPluse News</span>
+                                    <img src="/assets/images/logo.png" alt="ZPlus News" />
+                                    <span>ZPlus News</span>
                                 </Link>
                                 <button
                                     className="close-btn"

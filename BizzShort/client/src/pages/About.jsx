@@ -24,7 +24,7 @@ export default function About() {
             {/* Hero */}
             <div className="page-hero about-hero">
                 <div className="container">
-                    <h1>About ZPluse News</h1>
+                    <h1>About ZPlus News</h1>
                     <p>Your trusted source for tech news and business insights since 2020</p>
                 </div>
             </div>
@@ -41,7 +41,7 @@ export default function About() {
                         >
                             <h2>Our Mission</h2>
                             <p>
-                                ZPluse News was founded with a simple mission: to deliver cutting-edge technology
+                                ZPlus News was founded with a simple mission: to deliver cutting-edge technology
                                 news and business insights to the next generation of leaders and innovators.
                             </p>
                             <p>
@@ -51,7 +51,7 @@ export default function About() {
                             </p>
                             <p>
                                 From AI breakthroughs to market analysis, from startup funding to policy changes,
-                                ZPluse News covers it all with depth, accuracy, and a forward-looking perspective.
+                                ZPlus News covers it all with depth, accuracy, and a forward-looking perspective.
                             </p>
                         </motion.div>
                         <motion.div

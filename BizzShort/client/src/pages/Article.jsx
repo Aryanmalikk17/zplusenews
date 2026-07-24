@@ -36,6 +36,16 @@ function extractYouTubeId(raw) {
   return str; // fallback
 }
 
+function slugifyAuthor(name) {
+  return (name || '')
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+}
+
 export default function Article() {
   const { slug, videoId: routeVideoId } = useParams();
   const [article, setArticle] = useState(null);
@@ -74,7 +84,7 @@ export default function Article() {
                 title: v.title,
                 content: v.articleContent || v.description || '',
                 category: v.category,
-                author: v.youtubeChannelTitle || 'ZPluse News',
+                author: v.youtubeChannelTitle || 'ZPlus News',
                 date: v.date || v.createdAt,
                 image: v.thumbnail,
                 views: parseInt(v.views, 10) || 0,
@@ -108,7 +118,7 @@ export default function Article() {
                   title: v.title,
                   content: v.articleContent || v.description || '',
                   category: v.category,
-                  author: v.youtubeChannelTitle || 'ZPluse News',
+                  author: v.youtubeChannelTitle || 'ZPlus News',
                   date: v.date || v.createdAt,
                   image: v.thumbnail,
                   views: parseInt(v.views, 10) || 0,
@@ -178,7 +188,7 @@ export default function Article() {
   // Open Graph meta tag injection
   useEffect(() => {
     if (!article) return;
-    document.title = `${article.title} | ZPluse News`;
+    document.title = `${article.title} | ZPlus News`;
     const setMeta = (property, content) => {
       let el = document.querySelector(`meta[property='${property}']`);
       if (!el) {
@@ -221,7 +231,7 @@ export default function Article() {
       }],
       "publisher": {
         "@type": "Organization",
-        "name": "ZPluse News",
+        "name": "ZPlus News",
         "logo": {
           "@type": "ImageObject",
           "url": `${window.location.origin}/assets/images/logo.png`
@@ -319,11 +329,11 @@ export default function Article() {
           <Link to="/" className="article-logo-link">
             <img
               src="/assets/images/logo.png"
-              alt="ZPluse News"
+              alt="ZPlus News"
               className="article-logo"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
-            <span className="article-logo-text">ZPluse News</span>
+            <span className="article-logo-text">ZPlus News</span>
           </Link>
           <span className="article-header-label">Watch Now</span>
         </div>
@@ -404,7 +414,16 @@ export default function Article() {
             )}
             <h1 className="article-main-title">{article.title}</h1>
             <div className="article-meta">
-              <span>By {typeof article.author === 'object' ? article.author?.name : article.author || 'Editorial Team'}</span>
+              <span>
+                By{' '}
+                <Link 
+                  to={`/author/${slugifyAuthor(typeof article.author === 'object' ? article.author?.name : article.author || 'Editorial Team')}`}
+                  className="author-link"
+                  style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  {typeof article.author === 'object' ? article.author?.name : article.author || 'Editorial Team'}
+                </Link>
+              </span>
               <span>•</span>
               <span>{formattedDate}</span>
               {article.views > 0 && (
@@ -452,7 +471,11 @@ export default function Article() {
               )}
               <div style={{ flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>{article.author.name}</h3>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    <Link to={`/author/${slugifyAuthor(article.author.name)}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                      {article.author.name}
+                    </Link>
+                  </h3>
                   <span style={{ fontSize: '11px', background: 'rgba(170, 33, 35, 0.15)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Contributor</span>
                 </div>
                 {article.author.bio && (

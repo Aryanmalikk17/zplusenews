@@ -121,7 +121,7 @@ export default function AdminPanel() {
             {/* Header */}
             <header className="admin-header">
                 <div className="admin-header-content">
-                    <img src="/assets/images/logo.png" alt="ZPluse News" className="admin-header-logo" />
+                    <img src="/assets/images/logo.png" alt="ZPlus News" className="admin-header-logo" />
                     <h1>📰 ZPlusNews Admin Panel</h1>
                     <div className="header-actions">
                         <button onClick={() => setShowPasswordModal(true)} className="btn-secondary">
@@ -578,7 +578,7 @@ function VideosTab({ videos, categories, onRefresh, setShowCreateModal, setEditi
     };
 
     const handleSyncChannel = async () => {
-        if (!window.confirm('Import ALL videos from the ZPluse News YouTube channel?')) return;
+        if (!window.confirm('Import ALL videos from the ZPlus News YouTube channel?')) return;
         setSyncing(true);
         setSyncMessage('');
         try {
@@ -905,6 +905,8 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
     });
 
     const [loading, setLoading] = useState(false);
+    const [imageSourceType, setImageSourceType] = useState(editingItem?.image ? 'url' : 'file');
+    const [imageFile, setImageFile] = useState(null);
 
     // Extract YouTube video ID from URL for preview
     const getYouTubeId = (url) => {
@@ -929,42 +931,80 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
         setLoading(true);
 
         try {
-            const data = {
-                ...formData,
-                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-                // Use auto-generated thumbnail if none provided
-                image: formData.image || autoThumbnail,
-                thumbnail: formData.image || autoThumbnail,
-            };
+            if (type === 'article' && imageSourceType === 'file' && imageFile) {
+                const submitData = new FormData();
+                submitData.append('title', formData.title);
+                submitData.append('category', formData.category);
+                submitData.append('excerpt', formData.excerpt || '');
+                submitData.append('content', formData.content);
+                submitData.append('videoUrl', formData.videoUrl || '');
+                submitData.append('isTicker', formData.isTicker);
+                submitData.append('tickerCategory', formData.tickerCategory || 'none');
+                if (formData.calendarDate) {
+                    submitData.append('calendarDate', formData.calendarDate);
+                }
+                if (formData.publishedAt) {
+                    submitData.append('publishedAt', formData.publishedAt);
+                }
 
-            // Bundle author fields into the author object
-            if (type === 'article') {
-                data.author = {
+                // Author fields
+                const authorObj = {
                     name: formData.author,
                     avatar: formData.authorAvatar,
                     bio: formData.authorBio,
                     linkedin: formData.authorLinkedin,
                     twitter: formData.authorTwitter
                 };
-            }
+                submitData.append('author', JSON.stringify(authorObj));
 
-            if (type === 'article') {
+                // Tags
+                const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
+                submitData.append('tags', JSON.stringify(tagsArray));
+
+                // File
+                submitData.append('image', imageFile);
+
                 if (editingItem) {
-                    await articlesAPI.update(editingItem._id, data);
+                    await articlesAPI.update(editingItem._id, submitData);
                 } else {
-                    await articlesAPI.create(data);
+                    await articlesAPI.create(submitData);
                 }
             } else {
-                if (editingItem) {
-                    await videosAPI.update(editingItem._id, data);
+                const data = {
+                    ...formData,
+                    tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+                    image: formData.image || autoThumbnail,
+                    thumbnail: formData.image || autoThumbnail,
+                };
+
+                if (type === 'article') {
+                    data.author = {
+                        name: formData.author,
+                        avatar: formData.authorAvatar,
+                        bio: formData.authorBio,
+                        linkedin: formData.authorLinkedin,
+                        twitter: formData.authorTwitter
+                    };
+                }
+
+                if (type === 'article') {
+                    if (editingItem) {
+                        await articlesAPI.update(editingItem._id, data);
+                    } else {
+                        await articlesAPI.create(data);
+                    }
                 } else {
-                    await videosAPI.create(data);
+                    if (editingItem) {
+                        await videosAPI.update(editingItem._id, data);
+                    } else {
+                        await videosAPI.create(data);
+                    }
                 }
             }
 
             onSuccess();
         } catch (error) {
-            alert(`Failed to ${editingItem ? 'update' : 'create'} ${type}`);
+            alert(`Failed to ${editingItem ? 'update' : 'create'} ${type}: ${error.message || error}`);
         } finally {
             setLoading(false);
         }
@@ -1056,15 +1096,86 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label>Image URL</label>
-                                <input
-                                    type="url"
-                                    value={formData.image}
-                                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                    placeholder="https://example.com/image.jpg"
-                                />
-                            </div>
+                            {/* Image Source Option Selector */}
+                            {type === 'article' && (
+                                <div className="form-group" style={{ marginBottom: '12px' }}>
+                                    <label>Image Source Option</label>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                                        <button
+                                            type="button"
+                                            className={`btn-secondary ${imageSourceType === 'file' ? 'active' : ''}`}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px',
+                                                background: imageSourceType === 'file' ? 'var(--primary)' : '#f1f5f9',
+                                                color: imageSourceType === 'file' ? 'white' : 'var(--text-primary)',
+                                                border: imageSourceType === 'file' ? '2px solid var(--primary)' : '2px solid rgba(0, 0, 0, 0.08)',
+                                                borderRadius: 'var(--radius-md)',
+                                                cursor: 'pointer',
+                                                fontWeight: '600',
+                                                transition: 'all 0.2s ease-in-out'
+                                            }}
+                                            onClick={() => setImageSourceType('file')}
+                                        >
+                                            📤 Upload Image File
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`btn-secondary ${imageSourceType === 'url' ? 'active' : ''}`}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px',
+                                                background: imageSourceType === 'url' ? 'var(--primary)' : '#f1f5f9',
+                                                color: imageSourceType === 'url' ? 'white' : 'var(--text-primary)',
+                                                border: imageSourceType === 'url' ? '2px solid var(--primary)' : '2px solid rgba(0, 0, 0, 0.08)',
+                                                borderRadius: 'var(--radius-md)',
+                                                cursor: 'pointer',
+                                                fontWeight: '600',
+                                                transition: 'all 0.2s ease-in-out'
+                                            }}
+                                            onClick={() => setImageSourceType('url')}
+                                        >
+                                            🔗 Provide Image URL
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {type === 'article' && imageSourceType === 'file' ? (
+                                <div className="form-group">
+                                    <label htmlFor="article-image-file">Upload Image File {editingItem ? '' : '*'}</label>
+                                    <input
+                                        id="article-image-file"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setImageFile(e.target.files[0])}
+                                        required={!editingItem}
+                                        style={{
+                                            padding: '8px 12px',
+                                            border: '2px dashed rgba(0, 0, 0, 0.15)',
+                                            borderRadius: 'var(--radius-md)',
+                                            background: '#f8fafc',
+                                            width: '100%',
+                                            cursor: 'pointer'
+                                        }}
+                                    />
+                                    {editingItem?.image && (
+                                        <span className="form-hint" style={{ color: 'var(--text-muted)', display: 'block', marginTop: '5px', fontSize: '12px' }}>
+                                            💡 Current image: {editingItem.image} (leave empty to keep current image)
+                                        </span>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="form-group">
+                                    <label>{type === 'article' ? 'Image URL' : 'Image URL (optional, defaults to YouTube preview)'}</label>
+                                    <input
+                                        type="url"
+                                        value={formData.image}
+                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                        placeholder="https://example.com/image.jpg"
+                                    />
+                                </div>
+                            )}
 
                             <div className="form-group">
                                 <label>Author Name</label>

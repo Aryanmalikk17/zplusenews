@@ -266,8 +266,10 @@ async function uploadToCloudinary(localFilePath) {
         return `/uploads/${path.basename(localFilePath)}`;
     }
     try {
+        const publicId = path.basename(localFilePath, path.extname(localFilePath));
         const result = await cloudinary.uploader.upload(localFilePath, {
             folder: 'zplusenews',
+            public_id: publicId,
             resource_type: 'image'
         });
         
@@ -283,10 +285,48 @@ async function uploadToCloudinary(localFilePath) {
     }
 }
 
-// Intercept Multer upload results
-async function processUploadedFile(reqFile) {
+// Intercept Multer upload results and rename for SEO if title is provided
+async function processUploadedFile(reqFile, title) {
     if (!reqFile) return null;
-    return await uploadToCloudinary(reqFile.path);
+    
+    let localFilePath = reqFile.path;
+    
+    if (title) {
+        try {
+            const ext = path.extname(reqFile.originalname) || '.jpg';
+            // Generate clean SEO slug from title
+            let baseSlug = title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+                .trim()
+                .replace(/\s+/g, '-');       // Replace spaces with hyphens
+            
+            // Remove common stop words
+            const stopWords = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with'];
+            const words = baseSlug.split('-');
+            const filteredWords = words.filter(word => !stopWords.includes(word));
+            baseSlug = (filteredWords.length > 0 ? filteredWords : words).join('-');
+
+            // Limit slug length to avoid filesystem / URL length issues
+            if (baseSlug.length > 70) {
+                const lastHyphen = baseSlug.lastIndexOf('-', 70);
+                baseSlug = lastHyphen > 30 ? baseSlug.substring(0, lastHyphen) : baseSlug.substring(0, 70);
+            }
+
+            const uniqueSuffix = Date.now();
+            const seoFilename = `${baseSlug}-${uniqueSuffix}${ext}`;
+            const targetDir = path.dirname(localFilePath);
+            const targetPath = path.join(targetDir, seoFilename);
+
+            // Rename the file locally
+            await fs.promises.rename(localFilePath, targetPath);
+            localFilePath = targetPath;
+        } catch (renameErr) {
+            console.error("Failed to rename file for SEO optimization:", renameErr);
+        }
+    }
+    
+    return await uploadToCloudinary(localFilePath);
 }
 
 // Download external image and save to Cloudinary or locally
@@ -1260,7 +1300,7 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
 
         // Handle image: File upload takes precedence, otherwise use URL from body
         if (req.file) {
-            articleData.image = await processUploadedFile(req.file);
+            articleData.image = await processUploadedFile(req.file, title);
         } else if (image) {
             articleData.image = await downloadAndLocalizeImage(image);
         }
@@ -1288,9 +1328,24 @@ app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) =
             updateData.calendarDate = updateData.calendarDate ? new Date(updateData.calendarDate) : null;
         }
         
+        // Parse author and tags if sent as JSON strings via FormData
+        if (updateData.author && typeof updateData.author === 'string') {
+            try { updateData.author = JSON.parse(updateData.author); } catch (err) { /* ignore */ }
+        }
+        if (updateData.tags && typeof updateData.tags === 'string') {
+            try { updateData.tags = JSON.parse(updateData.tags); } catch (err) { /* ignore */ }
+        }
+        
         // Handle image: File upload takes precedence
         if (req.file) {
-            updateData.image = await processUploadedFile(req.file);
+            let articleTitle = updateData.title;
+            if (!articleTitle) {
+                const existingArticle = await Article.findById(req.params.id);
+                if (existingArticle) {
+                    articleTitle = existingArticle.title;
+                }
+            }
+            updateData.image = await processUploadedFile(req.file, articleTitle);
         } else if (updateData.image) {
             updateData.image = await downloadAndLocalizeImage(updateData.image);
         }
@@ -1304,7 +1359,8 @@ app.put('/api/articles/:id', protect, upload.single('image'), async (req, res) =
 
         res.json({ success: true, data: { ...article._doc, id: article._id } });
     } catch (err) {
-        res.status(500).json({ success: false, error: 'Update failed' });
+        console.error(err);
+        res.status(500).json({ success: false, error: 'Update failed: ' + err.message });
     }
 });
 
@@ -1329,6 +1385,41 @@ app.get('/api/articles/slug/:slug', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Article not found' });
         }
         res.json({ success: true, data: { ...article._doc, id: article._id } });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Get author details and articles by author
+app.get('/api/authors/:authorSlug', async (req, res) => {
+    try {
+        const { authorSlug } = req.params;
+        
+        // Fetch all published articles to find matching slugified author name in memory
+        const articles = await Article.find({ status: 'PUBLISHED' }).select('author').lean();
+        
+        const matchingArticle = articles.find(a => slugify(a.author?.name) === authorSlug);
+        if (!matchingArticle || !matchingArticle.author?.name) {
+            return res.status(404).json({ success: false, error: 'Author not found' });
+        }
+        
+        const authorName = matchingArticle.author.name;
+        
+        // Retrieve articles written by this author
+        const authorArticles = await Article.find({ status: 'PUBLISHED', 'author.name': authorName })
+            .sort({ publishedAt: -1 })
+            .select('title slug category excerpt image author publishedAt views readTime tags')
+            .lean();
+            
+        // Get the author's details from the first matching article
+        const firstArticle = await Article.findOne({ status: 'PUBLISHED', 'author.name': authorName }).lean();
+        const authorDetails = firstArticle.author;
+        
+        res.json({
+            success: true,
+            author: authorDetails,
+            articles: authorArticles.map(a => ({ ...a, id: a._id }))
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -2334,6 +2425,56 @@ ${videoUrls.map(u => `  <url>
     }
 });
 
+// --- Sitemap: Google News (Published in the last 48 hours) ---
+app.get('/news-sitemap.xml', async (req, res) => {
+    try {
+        const baseUrl = process.env.SITE_URL || 'https://www.zplusenews.com';
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setHours(twoDaysAgo.getHours() - 48);
+
+        const articles = await Article.find({
+            status: 'PUBLISHED',
+            publishedAt: { $gte: twoDaysAgo }
+        }).sort({ publishedAt: -1 }).lean();
+
+        const xmlItems = articles.map(article => {
+            const pubDate = article.publishedAt || article.createdAt || new Date();
+            const isoPubDate = new Date(pubDate).toISOString();
+            const escapeXml = (str) => {
+                return (str || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+            };
+            return `  <url>
+    <loc>${baseUrl}/article/${article.slug}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>ZPlus News</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${isoPubDate}</news:publication_date>
+      <news:title>${escapeXml(article.title)}</news:title>
+    </news:news>
+  </url>`;
+        }).join('\n');
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+${xmlItems}
+</urlset>`;
+
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('News sitemap error:', err.message);
+        res.status(500).send('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"></urlset>');
+    }
+});
+
 // --- Legacy /sitemap.xml: redirect to sitemap-index for backward compatibility ---
 app.get('/sitemap.xml', (req, res) => {
     res.redirect(301, '/sitemap-index.xml');
@@ -2383,6 +2524,45 @@ app.get('/googled586bf8a07121b46.html', (req, res) => {
         res.status(404).send('Not Found');
     }
 });
+
+function slugify(text) {
+    return (text || '')
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-');
+}
+
+function getCategoryInfo(categoryValue) {
+    const mapping = {
+        'national': { path: '/national-news', name: 'National News' },
+        'international': { path: '/international-news', name: 'International News' },
+        'state': { path: '/state-news', name: 'State News' },
+        'positive': { path: '/positive-news', name: 'Positive News' },
+        'fake-news': { path: '/fake-news', name: 'Fake News' },
+        'polity': { path: '/polity', name: 'Polity' },
+        'economics': { path: '/economics', name: 'Economics' },
+        'technology': { path: '/technology', name: 'Technology' },
+        'sports': { path: '/sports', name: 'Sports' },
+        'health': { path: '/health', name: 'Health' },
+        'defence': { path: '/defence', name: 'Defence' },
+        'environment': { path: '/environment', name: 'Environment' },
+        'culture': { path: '/culture', name: 'Culture' },
+        'spirituality': { path: '/spirituality', name: 'Spirituality' },
+        'agriculture': { path: '/agriculture', name: 'Agriculture' },
+        'geography': { path: '/geography', name: 'Geography' },
+        'religion': { path: '/religion', name: 'Religion' },
+        'ai': { path: '/ai', name: 'AI' },
+        'science': { path: '/science', name: 'Science' },
+        'tourism': { path: '/tourism', name: 'Tourism' },
+        'astrology': { path: '/astrology', name: 'Astrology' },
+        'others': { path: '/others', name: 'Others' }
+    };
+    const key = (categoryValue || '').toLowerCase().trim();
+    return mapping[key] || { path: `/${key}`, name: categoryValue || 'News' };
+}
 
 // SPA Fallback - Serve React app for any non-API routes (must be after all API routes)
 // In-memory HTML shell cache
@@ -2483,6 +2663,8 @@ const VALID_SPA_PATHS = new Set([
     '/fake-news', '/positive-news', '/astrology',
     '/videos', '/events', '/contests',
     '/about', '/contact', '/privacy', '/terms',
+    '/about-us', '/contact-us', '/privacy-policy', '/terms-of-service',
+    '/editorial-policy',
 ]);
 
 // Catch-all route to serve the SPA app with dynamic pre-rendering
@@ -2492,8 +2674,20 @@ app.get('*', async (req, res) => {
         return res.status(404).json({ success: false, error: 'Not found' });
     }
 
+    // 301 Redirect legacy paths to standard SEO paths
+    const legacyRedirects = {
+        '/about': '/about-us',
+        '/contact': '/contact-us',
+        '/privacy': '/privacy-policy',
+        '/terms': '/terms-of-service'
+    };
+    const reqPathNormalized = req.path.replace(/\/$/, '');
+    if (legacyRedirects[reqPathNormalized]) {
+        return res.redirect(301, legacyRedirects[reqPathNormalized]);
+    }
+
     // Dynamic routes with prefixes are always valid
-    const isDynamicRoute = req.path.startsWith('/article/') || req.path.startsWith('/video/') || req.path.startsWith('/admin');
+    const isDynamicRoute = req.path.startsWith('/article/') || req.path.startsWith('/video/') || req.path.startsWith('/author/') || req.path.startsWith('/admin');
     // Static routes must be in the valid set
     if (!isDynamicRoute && !VALID_SPA_PATHS.has(req.path) && !VALID_SPA_PATHS.has(req.path.replace(/\/$/, ''))) {
         // Unknown path — return true 404 (fixes Soft 404 in Google Search Console)
@@ -2596,9 +2790,9 @@ app.get('*', async (req, res) => {
         }
 
         // 0.2 Handle Privacy Policy Route Pre-rendering
-        if (reqPath === '/privacy') {
-            const pageTitle = `Privacy Policy | ZPluse News`;
-            const pageDesc = `Read the Privacy Policy of ZPluse News. Understand how we collect, process, and safeguard your personal data in accordance with GDPR, CCPA, and DPDP laws.`;
+        if (reqPath === '/privacy-policy') {
+            const pageTitle = `Privacy Policy | ZPlus News`;
+            const pageDesc = `Read the Privacy Policy of ZPlus News. Understand how we collect, process, and safeguard your personal data in accordance with GDPR, CCPA, and DPDP laws.`;
             
             html = html
                 .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
@@ -2617,7 +2811,7 @@ app.get('*', async (req, res) => {
                     <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Last Updated: May 27, 2026</p>
                     
                     <h2>1. Introduction</h2>
-                    <p>Welcome to ZPluse News. We are committed to protecting your personal data and respecting your privacy. This policy outlines how we handle data collected via https://www.zplusenews.com.</p>
+                    <p>Welcome to ZPlus News. We are committed to protecting your personal data and respecting your privacy. This policy outlines how we handle data collected via https://www.zplusenews.com.</p>
                     
                     <h2>2. Information We Collect</h2>
                     <p>We collect log/usage data automatically, cookies, and any personal information you provide when subscribing to newsletters or commenting (e.g. name, email).</p>
@@ -2636,9 +2830,9 @@ app.get('*', async (req, res) => {
         }
 
         // 0.3 Handle Terms of Service Route Pre-rendering
-        if (reqPath === '/terms') {
-            const pageTitle = `Terms of Service | ZPluse News`;
-            const pageDesc = `Read the Terms of Service of ZPluse News. Review user conduct guidelines, intellectual property rights, and terms governing our news publication platforms.`;
+        if (reqPath === '/terms-of-service') {
+            const pageTitle = `Terms of Service | ZPlus News`;
+            const pageDesc = `Read the Terms of Service of ZPlus News. Review user conduct guidelines, intellectual property rights, and terms governing our news publication platforms.`;
             
             html = html
                 .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
@@ -2657,16 +2851,13 @@ app.get('*', async (req, res) => {
                     <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Last Updated: May 27, 2026</p>
                     
                     <h2>1. Agreement to Terms</h2>
-                    <p>By accessing or using ZPluse News (https://www.zplusenews.com), you agree to comply with and be bound by these Terms of Service.</p>
+                    <p>By accessing or using the services of ZPlus News, you agree to comply with and be bound by these terms.</p>
                     
                     <h2>2. Intellectual Property</h2>
-                    <p>All content published on ZPluse News (including articles, audio, video, layout) is protected by copyright laws and intellectual property rights in India and internationally.</p>
+                    <p>All content published by ZPlus News is protected by copyright laws. You may not reproduce or distribute our content without explicit permission.</p>
                     
                     <h2>3. User Conduct</h2>
-                    <p>Users must not engage in data extraction/scraping, spamming, harassment in comments, or posting defamatory content.</p>
-                    
-                    <h2>4. Governing Law</h2>
-                    <p>These terms are governed by the laws of India, with exclusive jurisdiction in the courts of New Delhi, Delhi, India.</p>
+                    <p>Users must not engage in harmful behavior, post spam, or violate laws while using our website or comment sections.</p>
                 </div>
             </div>`;
 
@@ -2675,31 +2866,223 @@ app.get('*', async (req, res) => {
             return res.status(200).send(html);
         }
 
+        // 0.3b Handle Editorial Policy Route Pre-rendering
+        if (reqPath === '/editorial-policy') {
+            const pageTitle = `Editorial & Corrections Policy | ZPlus News`;
+            const pageDesc = `Read the Editorial and Corrections Policy of ZPlus News. Learn about our verification standards, fact-checking processes, and correction guidelines.`;
+            
+            html = html
+                .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+            const bodyPreRender = `
+            <div id="root">
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.8;">
+                    <h1 style="font-size: 36px; border-bottom: 2px solid #aa2123; padding-bottom: 10px; margin-bottom: 30px;">Editorial & Corrections Policy</h1>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Last Updated: May 27, 2026</p>
+                    
+                    <h2>1. Editorial Integrity</h2>
+                    <p>ZPlus News is dedicated to reporting news with accuracy, fairness, independence, and integrity.</p>
+                    
+                    <h2>2. Fact-Checking</h2>
+                    <p>Every claim of fact in our articles is cross-referenced with multiple reputable sources or official statements.</p>
+                    
+                    <h2>3. Corrections</h2>
+                    <p>When errors occur, ZPlus News is committed to correcting them promptly and transparently.</p>
+                </div>
+            </div>`;
+
+            html = html.replace('<div id="root"></div>', bodyPreRender);
+            res.header('Content-Type', 'text/html');
+            return res.status(200).send(html);
+        }
+
+        // 0.3c Handle About Us Route Pre-rendering
+        if (reqPath === '/about-us') {
+            const pageTitle = `About Us | ZPlus News`;
+            const pageDesc = `Learn about ZPlus News, our mission, editorial board, and company overview. Your trusted source for tech news and business insights.`;
+            
+            html = html
+                .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+            const bodyPreRender = `
+            <div id="root">
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.8;">
+                    <h1 style="font-size: 36px; border-bottom: 2px solid #aa2123; padding-bottom: 10px; margin-bottom: 30px;">About ZPlus News</h1>
+                    <p>ZPlus News is a premium news platform delivering breaking news, national updates, and deep analysis of polity, technology, and economics from India and around the globe.</p>
+                    <p>Founded in 2020, we have grown to serve a diverse global audience of forward-thinking professionals and general readers.</p>
+                </div>
+            </div>`;
+
+            html = html.replace('<div id="root"></div>', bodyPreRender);
+            res.header('Content-Type', 'text/html');
+            return res.status(200).send(html);
+        }
+
+        // 0.3d Handle Contact Us Route Pre-rendering
+        if (reqPath === '/contact-us') {
+            const pageTitle = `Contact Us | ZPlus News`;
+            const pageDesc = `Get in touch with the editorial team, advertising, or support desks of ZPlus News. Contact phone, email, and address info.`;
+            
+            html = html
+                .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+            const bodyPreRender = `
+            <div id="root">
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.8;">
+                    <h1 style="font-size: 36px; border-bottom: 2px solid #aa2123; padding-bottom: 10px; margin-bottom: 30px;">Contact ZPlus News</h1>
+                    <p>If you have a news tip, suggestion, feedback, or business query, contact us using the details below:</p>
+                    <p><strong>Email:</strong> support@zplusenews.com or editor@zplusenews.com</p>
+                    <p><strong>Support:</strong> ZPlus News Media Desk</p>
+                </div>
+            </div>`;
+
+            html = html.replace('<div id="root"></div>', bodyPreRender);
+            res.header('Content-Type', 'text/html');
+            return res.status(200).send(html);
+        }
+
+        // 0.3e Handle Author Route Pre-rendering
+        if (reqPath.startsWith('/author/')) {
+            const authorSlug = reqPath.split('/author/')[1];
+            if (authorSlug) {
+                try {
+                    const articles = await Article.find({ status: 'PUBLISHED' }).select('author').lean();
+                    const matchingArticle = articles.find(a => slugify(a.author?.name) === authorSlug);
+                    
+                    if (matchingArticle && matchingArticle.author?.name) {
+                        const authorName = matchingArticle.author.name;
+                        // Get complete author profile details from the database
+                        const firstArticle = await Article.findOne({ status: 'PUBLISHED', 'author.name': authorName }).lean();
+                        const authorDetails = firstArticle.author;
+                        
+                        // Fetch articles by this author
+                        const authorArticles = await Article.find({ status: 'PUBLISHED', 'author.name': authorName })
+                            .sort({ publishedAt: -1 })
+                            .limit(10)
+                            .lean();
+                            
+                        const pageTitle = `${authorDetails.name} Profile and Articles | ZPlus News`;
+                        const pageDesc = authorDetails.bio || `Read articles published by ${authorDetails.name} on ZPlus News.`;
+                        const authorAvatar = authorDetails.avatar || `${siteUrl}/assets/images/og-image.png`;
+                        
+                        // Generate Person Schema Markup
+                        const schema = {
+                            "@context": "https://schema.org",
+                            "@type": "Person",
+                            "name": authorDetails.name,
+                            "image": authorAvatar,
+                            "jobTitle": "Journalist",
+                            "worksFor": {
+                                "@type": "NewsMediaOrganization",
+                                "name": "ZPlus News",
+                                "url": siteUrl
+                            },
+                            "sameAs": [
+                                authorDetails.linkedin || '',
+                                authorDetails.twitter || ''
+                            ].filter(Boolean)
+                        };
+                        
+                        const schemaScript = `<script type="application/ld+json" id="author-json-ld">${JSON.stringify(schema)}</script>`;
+                        
+                        html = html
+                            .replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)
+                            .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/is, `<link rel="canonical" href="${currentUrl}" />`)
+                            .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/is, `<meta name="description" content="${pageDesc}" />`)
+                            .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/is, `<meta property="og:title" content="${pageTitle}" />`)
+                            .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/is, `<meta property="og:description" content="${pageDesc}" />`)
+                            .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/?>/is, `<meta property="og:image" content="${authorAvatar}" />`)
+                            .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
+                            .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
+                            .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+                        html = html.replace('</head>', `${schemaScript}\n</head>`);
+                        
+                        // Generate articles list HTML
+                        const articlesHtml = authorArticles.map(a => {
+                            const cleanExcerpt = (a.excerpt || a.content || '')
+                                .replace(/<[^>]*>/g, '')
+                                .replace(/\s+/g, ' ')
+                                .trim()
+                                .substring(0, 160);
+                            return `
+                            <div style="border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                                <h3><a href="/article/${a.slug}">${a.title}</a></h3>
+                                <p style="font-size: 14px; color: #666;">Published: ${a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : 'Recent'}</p>
+                                <p>${cleanExcerpt}...</p>
+                            </div>`;
+                        }).join('');
+                        
+                        const bodyPreRender = `
+                        <div id="root">
+                            <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                <div style="text-align: center; margin-bottom: 40px;">
+                                    <img src="${authorAvatar}" alt="${authorDetails.name}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;" />
+                                    <h1 style="margin: 15px 0 5px 0;">${authorDetails.name}</h1>
+                                    <p style="color: #666; font-size: 16px; max-width: 600px; margin: 0 auto;">${authorDetails.bio || 'Journalist'}</p>
+                                </div>
+                                <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;" />
+                                <h2>Recent Articles</h2>
+                                ${articlesHtml || '<p>No articles found.</p>'}
+                            </div>
+                        </div>`;
+                        
+                        html = html.replace('<div id="root"></div>', bodyPreRender);
+                        res.header('Content-Type', 'text/html');
+                        return res.status(200).send(html);
+                    }
+                } catch (dbErr) {
+                    console.error('Error serving dynamic author profile pre-render:', dbErr.message);
+                }
+            }
+        }
+
         // 0.4 Handle Category Pages Pre-rendering
         // Map URL paths to DB category/field values
         const CATEGORY_META = {
-            '/national-news':      { cat: 'National News',      title: 'National News',       desc: 'Latest national news from India. Breaking stories, government policies, politics and more.' },
-            '/international-news': { cat: 'International News', title: 'International News',  desc: 'Top international news from around the world. Global politics, conflicts, diplomacy and more.' },
-            '/state-news':         { cat: 'State News',         title: 'State News',          desc: 'Latest news from Indian states. Regional updates, state politics, governance and local stories.' },
-            '/polity':             { cat: 'Polity',             title: 'Polity News',          desc: 'Indian polity and political science news. Parliament, elections, democracy and governance updates.' },
-            '/economics':          { cat: 'Economics',          title: 'Economics News',       desc: 'Business and economics news from India. Market updates, economy trends, finance and trade news.' },
-            '/technology':         { cat: 'Technology',         title: 'Technology News',      desc: 'Latest technology news. AI, gadgets, startups, digital India and tech innovation updates.' },
-            '/sports':             { cat: 'Sports',             title: 'Sports News',          desc: 'Latest sports news from India. Cricket, football, Olympics, and all sports updates.' },
-            '/health':             { cat: 'Health',             title: 'Health News',          desc: 'Health news and wellness tips. Medical research, diseases, fitness and healthcare updates from India.' },
-            '/defence':            { cat: 'Defence',            title: 'Defence News',         desc: 'Indian defence and military news. Army, Navy, Air Force, weapons and border security updates.' },
-            '/environment':        { cat: 'Environment',        title: 'Environment News',     desc: 'Environment and climate change news from India. Nature, pollution, sustainability and green energy.' },
-            '/culture':            { cat: 'Culture',            title: 'Culture News',         desc: 'Indian culture and heritage news. Art, music, cinema, literature and cultural events.' },
-            '/spirituality':       { cat: 'Spirituality',       title: 'Spirituality News',    desc: 'Spirituality and religion news from India. Yoga, meditation, temples and spiritual events.' },
-            '/agriculture':        { cat: 'Agriculture',        title: 'Agriculture News',     desc: 'Agriculture news from India. Farming, crops, MSP, rural economy and agri-technology updates.' },
-            '/geography':          { cat: 'Geography',          title: 'Geography News',       desc: 'Geography and geopolitics news. Indian regions, borders, natural resources and geographic events.' },
-            '/religion':           { cat: 'Religion',           title: 'Religion News',        desc: 'Religion news from India. Hindu, Muslim, Sikh, Christian, Buddhist news and religious events.' },
-            '/ai':                 { cat: 'AI',                 title: 'AI & Technology News', desc: 'Artificial intelligence news from India. AI research, machine learning, ChatGPT and AI policy.' },
-            '/science':            { cat: 'Science',            title: 'Science News',         desc: 'Science news from India. ISRO, research, discoveries, space exploration and scientific innovations.' },
-            '/tourism':            { cat: 'Tourism',            title: 'Tourism News',         desc: 'Tourism news from India. Travel destinations, heritage sites, tourism policies and travel tips.' },
-            '/others':             { cat: 'Others',             title: 'Other News',           desc: 'Latest news and updates from ZPluse News covering various topics and categories.' },
-            '/fake-news':          { cat: 'Fake News',          title: 'Fact Check & Fake News', desc: 'Fact-check and fake news busting. Verify viral news, misinformation and rumours from India.' },
-            '/positive-news':      { cat: 'Positive News',      title: 'Positive News',        desc: 'Positive and inspiring news from India. Good news stories, achievements, and uplifting updates.' },
-            '/astrology':          { cat: 'Astrology',          title: 'Astrology News',       desc: 'Daily horoscope, astrology predictions and spiritual news. Kundali, rashifal and jyotish updates.' },
+            '/national-news':      { cat: 'national',      title: 'National News',       desc: 'Latest national news from India. Breaking stories, government policies, politics and more.' },
+            '/international-news': { cat: 'international', title: 'International News',  desc: 'Top international news from around the world. Global politics, conflicts, diplomacy and more.' },
+            '/state-news':         { cat: 'state',         title: 'State News',          desc: 'Latest news from Indian states. Regional updates, state politics, governance and local stories.' },
+            '/polity':             { cat: 'polity',             title: 'Polity News',          desc: 'Indian polity and political science news. Parliament, elections, democracy and governance updates.' },
+            '/economics':          { cat: 'economics',          title: 'Economics News',       desc: 'Business and economics news from India. Market updates, economy trends, finance and trade news.' },
+            '/technology':         { cat: 'technology',         title: 'Technology News',      desc: 'Latest technology news. AI, gadgets, startups, digital India and tech innovation updates.' },
+            '/sports':             { cat: 'sports',             title: 'Sports News',          desc: 'Latest sports news from India. Cricket, football, Olympics, and all sports updates.' },
+            '/health':             { cat: 'health',             title: 'Health News',          desc: 'Health news and wellness tips. Medical research, diseases, fitness and healthcare updates from India.' },
+            '/defence':            { cat: 'defence',            title: 'Defence News',         desc: 'Indian defence and military news. Army, Navy, Air Force, weapons and border security updates.' },
+            '/environment':        { cat: 'environment',        title: 'Environment News',     desc: 'Environment and climate change news from India. Nature, pollution, sustainability and green energy.' },
+            '/culture':            { cat: 'culture',            title: 'Culture News',         desc: 'Indian culture and heritage news. Art, music, cinema, literature and cultural events.' },
+            '/spirituality':       { cat: 'spirituality',       title: 'Spirituality News',    desc: 'Spirituality and religion news from India. Yoga, meditation, temples and spiritual events.' },
+            '/agriculture':        { cat: 'agriculture',        title: 'Agriculture News',     desc: 'Agriculture news from India. Farming, crops, MSP, rural economy and agri-technology updates.' },
+            '/geography':          { cat: 'geography',          title: 'Geography News',       desc: 'Geography and geopolitics news. Indian regions, borders, natural resources and geographic events.' },
+            '/religion':           { cat: 'religion',           title: 'Religion News',        desc: 'Religion news from India. Hindu, Muslim, Sikh, Christian, Buddhist news and religious events.' },
+            '/ai':                 { cat: 'ai',                 title: 'AI & Technology News', desc: 'Artificial intelligence news from India. AI research, machine learning, ChatGPT and AI policy.' },
+            '/science':            { cat: 'science',            title: 'Science News',         desc: 'Science news from India. ISRO, research, discoveries, space exploration and scientific innovations.' },
+            '/tourism':            { cat: 'tourism',            title: 'Tourism News',         desc: 'Tourism news from India. Travel destinations, heritage sites, tourism policies and travel tips.' },
+            '/others':             { cat: 'others',             title: 'Other News',           desc: 'Latest news and updates from ZPluse News covering various topics and categories.' },
+            '/fake-news':          { cat: 'fake-news',          title: 'Fact Check & Fake News', desc: 'Fact-check and fake news busting. Verify viral news, misinformation and rumours from India.' },
+            '/positive-news':      { cat: 'positive',           title: 'Positive News',        desc: 'Positive and inspiring news from India. Good news stories, achievements, and uplifting updates.' },
+            '/astrology':          { cat: 'astrology',          title: 'Astrology News',       desc: 'Daily horoscope, astrology predictions and spiritual news. Kundali, rashifal and jyotish updates.' },
             '/latest':             { cat: null,                 title: 'Latest News',          desc: 'Latest breaking news from India. Most recent news updates, top stories and current affairs.' },
         };
 
@@ -2714,7 +3097,12 @@ app.get('*', async (req, res) => {
                     .limit(15)
                     .lean();
 
-                const pageTitle = `${catMeta.title} | ZPluse News`;
+                // Enforce pattern: "{Category Name} News - Latest {Category} Updates | ZPlus News"
+                let catCleanName = catMeta.title;
+                if (catCleanName.endsWith(' News')) {
+                    catCleanName = catCleanName.replace(' News', '');
+                }
+                const pageTitle = `${catCleanName} News - Latest ${catCleanName} Updates | ZPlus News`;
                 const pageDesc = catMeta.desc;
 
                 html = html
@@ -2726,6 +3114,28 @@ app.get('*', async (req, res) => {
                     .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/is, `<meta property="og:url" content="${currentUrl}" />`)
                     .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:title" content="${pageTitle}" />`)
                     .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${pageDesc}" />`);
+
+                // Generate BreadcrumbList Schema Script
+                const breadcrumbSchema = {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Home",
+                            "item": siteUrl
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": catMeta.title,
+                            "item": currentUrl
+                        }
+                    ]
+                };
+                const breadcrumbScript = `<script type="application/ld+json" id="breadcrumb-json-ld">${JSON.stringify(breadcrumbSchema)}</script>`;
+                html = html.replace('</head>', `${breadcrumbScript}\n</head>`);
 
                 let articlesHtml = '';
                 if (catArticles && catArticles.length > 0) {
@@ -2788,7 +3198,7 @@ app.get('*', async (req, res) => {
                         .trim()
                         .substring(0, 160);
                         
-                    const articleTitle = `${article.title} | ZPluse News`;
+                    const articleTitle = `${article.title} | ZPlus News`;
                     const articleImage = article.image 
                         ? (article.image.startsWith('http') || article.image.startsWith('data:') ? article.image : `${siteUrl}${article.image}`)
                         : `${siteUrl}/assets/images/og-image.png`;
@@ -2804,11 +3214,11 @@ app.get('*', async (req, res) => {
                         "author": [{
                             "@type": "Person",
                             "name": article.author?.name || 'Editorial Team',
-                            "url": siteUrl
+                            "url": `${siteUrl}/author/${slugify(article.author?.name || 'Editorial Team')}`
                         }],
                         "publisher": {
                             "@type": "NewsMediaOrganization",
-                            "name": "ZPluse News",
+                            "name": "ZPlus News",
                             "logo": {
                                 "@type": "ImageObject",
                                 "url": `${siteUrl}/assets/images/logo.png`
@@ -2819,6 +3229,34 @@ app.get('*', async (req, res) => {
                     
                     const schemaScript = `<script type="application/ld+json" id="article-json-ld">${JSON.stringify(schema)}</script>`;
                     
+                    // Generate BreadcrumbList Schema Script
+                    const catInfo = getCategoryInfo(article.category);
+                    const breadcrumbSchema = {
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": siteUrl
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": catInfo.name,
+                                "item": `${siteUrl}${catInfo.path}`
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": article.title,
+                                "item": currentUrl
+                            }
+                        ]
+                    };
+                    const breadcrumbScript = `<script type="application/ld+json" id="breadcrumb-json-ld">${JSON.stringify(breadcrumbSchema)}</script>`;
+
                     // Replace Metadata dynamically
                     html = html
                         .replace(/<title>.*?<\/title>/i, `<title>${articleTitle}</title>`)
@@ -2835,8 +3273,8 @@ app.get('*', async (req, res) => {
                         .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
                         .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:image" content="${articleImage}" />`);
                         
-                    // Inject schema script before </head>
-                    html = html.replace('</head>', `${schemaScript}\n</head>`);
+                    // Inject schema scripts before </head>
+                    html = html.replace('</head>', `${schemaScript}\n${breadcrumbScript}\n</head>`);
                     
                     // Pre-render content inside <div id="root"></div> for AI crawlers
                     const formattedDate = article.publishedAt
@@ -2852,7 +3290,7 @@ app.get('*', async (req, res) => {
             <span style="background: #aa2123; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">${article.category}</span>
             <h1 style="font-size: 36px; margin: 15px 0 10px 0; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3; font-weight: 800;">${article.title}</h1>
             <div style="font-size: 14px; color: #666;">
-                <span>By <strong>${article.author?.name || 'Editorial Team'}</strong></span>
+                <span>By <strong><a href="/author/${slugify(article.author?.name || 'Editorial Team')}">${article.author?.name || 'Editorial Team'}</a></strong></span>
                 <span style="margin: 0 8px;">•</span>
                 <span>${formattedDate}</span>
             </div>
@@ -2865,7 +3303,7 @@ app.get('*', async (req, res) => {
         <footer style="margin-top: 50px; padding: 30px; background: #f9f9f9; border-radius: 12px; display: flex; gap: 20px; align-items: center; border: 1px solid #eee;">
             ${article.author.avatar ? `<img src="${article.author.avatar}" alt="${article.author.name}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;" />` : ''}
             <div>
-                <h3 style="margin: 0 0 5px 0; font-size: 18px;">${article.author.name}</h3>
+                <h3 style="margin: 0 0 5px 0; font-size: 18px;"><a href="/author/${slugify(article.author.name)}" style="color: inherit; text-decoration: none;">${article.author.name}</a></h3>
                 <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.5;">${article.author.bio}</p>
                 <div style="margin-top: 10px; font-size: 14px;">
                     ${article.author.linkedin ? `<a href="${article.author.linkedin}" target="_blank" style="color: #0077b5; text-decoration: none; margin-right: 15px;">LinkedIn</a>` : ''}
@@ -2904,13 +3342,16 @@ app.get('*', async (req, res) => {
                         ]
                     });
                     if (video) {
+                        if (video.slug && videoIdentifier === video.videoId) {
+                            return res.redirect(301, `/video/${video.slug}`);
+                        }
                         const cleanExcerpt = (video.articleContent || video.description || '')
                             .replace(/<[^>]*>/g, '')
                             .replace(/\s+/g, ' ')
                             .trim()
-                            .substring(0, 160) || 'Watch video news on ZPluse News.';
+                            .substring(0, 160) || 'Watch video news on ZPlus News.';
                         
-                        const videoTitle = `${video.title} | ZPluse News`;
+                        const videoTitle = `${video.title} | ZPlus News`;
                         const videoImage = video.thumbnail || `${siteUrl}/assets/images/og-image.png`;
                         
                         // Generate VideoObject Schema Markup
@@ -2925,7 +3366,7 @@ app.get('*', async (req, res) => {
                             "embedUrl": `https://www.youtube.com/embed/${video.videoId}`,
                             "publisher": {
                                 "@type": "NewsMediaOrganization",
-                                "name": "ZPluse News",
+                                "name": "ZPlus News",
                                 "logo": {
                                     "@type": "ImageObject",
                                     "url": `${siteUrl}/assets/images/logo.png`
@@ -2935,6 +3376,34 @@ app.get('*', async (req, res) => {
                         
                         const schemaScript = `<script type="application/ld+json" id="video-json-ld">${JSON.stringify(schema)}</script>`;
                         
+                        // Generate BreadcrumbList Schema Script
+                        const catInfo = getCategoryInfo(video.category);
+                        const breadcrumbSchema = {
+                            "@context": "https://schema.org",
+                            "@type": "BreadcrumbList",
+                            "itemListElement": [
+                                {
+                                    "@type": "ListItem",
+                                    "position": 1,
+                                    "name": "Home",
+                                    "item": siteUrl
+                                },
+                                {
+                                    "@type": "ListItem",
+                                    "position": 2,
+                                    "name": catInfo.name,
+                                    "item": `${siteUrl}${catInfo.path}`
+                                },
+                                {
+                                    "@type": "ListItem",
+                                    "position": 3,
+                                    "name": video.title,
+                                    "item": currentUrl
+                                }
+                            ]
+                        };
+                        const breadcrumbScript = `<script type="application/ld+json" id="breadcrumb-json-ld">${JSON.stringify(breadcrumbSchema)}</script>`;
+
                         // Replace Metadata dynamically
                         html = html
                             .replace(/<title>.*?<\/title>/i, `<title>${videoTitle}</title>`)
@@ -2951,8 +3420,8 @@ app.get('*', async (req, res) => {
                             .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:description" content="${cleanExcerpt}" />`)
                             .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/is, `<meta name="twitter:image" content="${videoImage}" />`);
                             
-                        // Inject schema script before </head>
-                        html = html.replace('</head>', `${schemaScript}\n</head>`);
+                        // Inject schema scripts before </head>
+                        html = html.replace('</head>', `${schemaScript}\n${breadcrumbScript}\n</head>`);
                         
                         // Pre-render content inside <div id="root"></div> for AI crawlers
                         const formattedDate = video.createdAt

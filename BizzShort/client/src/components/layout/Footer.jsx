@@ -40,12 +40,12 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="footer-brand">
                         <Link to="/" className="footer-logo">
-                            <img src="/assets/images/logo.png" alt="ZPluse News" />
-                            <span>ZPluse News</span>
+                            <img src="/assets/images/logo.png" alt="ZPlus News" />
+                            <span>ZPlus News</span>
                         </Link>
                         <p className="footer-description">
                             Your trusted source for cutting-edge tech news, startup insights, and business analysis.
-                            Stay ahead with ZPluse News - your next-gen digital magazine.
+                            Stay ahead with ZPlus News - your next-gen digital magazine.
                         </p>
                         <div className="footer-social">
                             {socialLinks.map((social) => (
@@ -117,7 +117,7 @@ export default function Footer() {
 
                 {/* Footer Bottom */}
                 <div className="footer-bottom">
-                    <p>© {currentYear} ZPluse News. All rights reserved by <a href="https://zpluse.com">Zpluse</a>.</p>
+                    <p>© {currentYear} ZPlus News. All rights reserved by <a href="https://zpluse.com">Zpluse</a>.</p>
                 </div>
             </div>
         </footer>

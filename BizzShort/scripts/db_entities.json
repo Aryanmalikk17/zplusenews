@@ -1,0 +1,2756 @@
+{
+  "articles": [
+    {
+      "slug": "india-us-trade-deal-sparks-farm-sector-debate",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.102Z"
+    },
+    {
+      "slug": "japan-s-political-shift-signals-a-tougher-global-posture",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.153Z"
+    },
+    {
+      "slug": "from-goonda-raj-to-bulldozer-baba-the-changing-narrative-of-uttar-pradesh",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:11.191Z"
+    },
+    {
+      "slug": "bangladesh-elections-2026-how-bnp-won-jamaat-rose-and-what-it-means-for-minorities-india-and-the-region-",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:11.232Z"
+    },
+    {
+      "slug": "japan-s-rightward-turn-and-the-new-indo-pacific-equation",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.277Z"
+    },
+    {
+      "slug": "-chhatrapati-shivaji-maharaj-jayanti-on-february-19",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.319Z"
+    },
+    {
+      "slug": "jharkhand-plane-crash-tragedy-strikes-near-ranchi-rescue-efforts-underway-",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.353Z"
+    },
+    {
+      "slug": "indian-medical-students-in-iran-seek-urgent-help-amid-rising-u-s-iran-tensions",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.398Z"
+    },
+    {
+      "slug": "modi-s-israel-visit-strategic-signaling-in-a-shifting-west-asia",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.433Z"
+    },
+    {
+      "slug": "brazil-floods-and-landslides-leave-trail-of-devastation-in-minas-gerais",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.466Z"
+    },
+    {
+      "slug": "afghanistan-pakistan-conflict-escalates-retaliatory-strikes-border-clashes-and-fears-of-open-war",
+      "category": "international",
+      "updatedAt": "2026-05-26T22:47:41.658Z"
+    },
+    {
+      "slug": "pakistan-afghanistan-conflict-intensifies-airstrikes-border-battles-and-rising-stakes",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.544Z"
+    },
+    {
+      "slug": "middle-east-on-the-brink-",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.586Z"
+    },
+    {
+      "slug": "operation-sindoor-strategy-over-spectacle",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.625Z"
+    },
+    {
+      "slug": "chaos-at-us-missions-karachi-consulate-stormed-baghdad-embassy-protests-rage",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.691Z"
+    },
+    {
+      "slug": "from-retaliation-to-regional-shake-up-iran-s-strike-wave-and-the-new-great-power-chessboard",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.736Z"
+    },
+    {
+      "slug": "from-frost-to-thaw-india-and-canada-hit-reset",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.768Z"
+    },
+    {
+      "slug": "washington-allows-india-to-buy-russian-oil",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.801Z"
+    },
+    {
+      "slug": "blackrock-bleeds-as-arab-money-backs-off-800-billion-wiped-from-u-s-markets",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.848Z"
+    },
+    {
+      "slug": "shadow-war-expands-russia-s-intelligence-pipeline-fuels-iran-s-strike-capability-against-u-s-forces",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:11.882Z"
+    },
+    {
+      "slug": "rupee-under-pressure-indian-currency-hits-record-low-against-the-u-s-dollar",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.916Z"
+    },
+    {
+      "slug": "airspace-shock-uae-suspends-all-emirates-files-until-further-notice",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.948Z"
+    },
+    {
+      "slug": "india-lifts-the-world-cup-a-statement-to-the-cricketing-world",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:11.982Z"
+    },
+    {
+      "slug": "iran-s-new-supreme-leader-a-dynasty-rises-in-the-middle-east",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:12.018Z"
+    },
+    {
+      "slug": "iran-hits-bahrain-s-largest-oil-refinery",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:12.052Z"
+    },
+    {
+      "slug": "bengal-s-political-battle-heats-up-bjp-vs-tmc-power-tussle-ahead-of-assembly-polls",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:12.090Z"
+    },
+    {
+      "slug": "kedarnath",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:12.132Z"
+    },
+    {
+      "slug": "automated-test-fake-news-coverage-1774466454681",
+      "category": "fake-news",
+      "updatedAt": "2026-07-14T04:28:31.670Z"
+    },
+    {
+      "slug": "automated-test-international-coverage-1774466456275",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:06:31.526Z"
+    },
+    {
+      "slug": "automated-test-national-coverage-1774466457209",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:06:31.738Z"
+    },
+    {
+      "slug": "automated-test-state-coverage-1774466458258",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:06:31.829Z"
+    },
+    {
+      "slug": "automated-test-economics-coverage-1774466459005",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:06:31.916Z"
+    },
+    {
+      "slug": "automated-test-polity-coverage-1774466459803",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:06:32.005Z"
+    },
+    {
+      "slug": "automated-test-technology-coverage-1774466460648",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:06:32.096Z"
+    },
+    {
+      "slug": "automated-test-environment-coverage-1774466461455",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:06:32.197Z"
+    },
+    {
+      "slug": "automated-test-sports-coverage-1774466462133",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:06:32.422Z"
+    },
+    {
+      "slug": "automated-test-fake-news-coverage-1774466869785",
+      "category": "fake-news",
+      "updatedAt": "2026-07-13T19:11:45.331Z"
+    },
+    {
+      "slug": "automated-test-international-coverage-1774466870986",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:06:32.618Z"
+    },
+    {
+      "slug": "automated-test-national-coverage-1774466871925",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:06:32.718Z"
+    },
+    {
+      "slug": "automated-test-state-coverage-1774466872594",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:06:32.824Z"
+    },
+    {
+      "slug": "automated-test-economics-coverage-1774466873316",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:06:32.917Z"
+    },
+    {
+      "slug": "automated-test-polity-coverage-1774466874197",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:06:33.004Z"
+    },
+    {
+      "slug": "automated-test-technology-coverage-1774466875083",
+      "category": "technology",
+      "updatedAt": "2026-07-13T18:52:49.003Z"
+    },
+    {
+      "slug": "automated-test-environment-coverage-1774466875808",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:06:33.254Z"
+    },
+    {
+      "slug": "automated-test-sports-coverage-1774466876486",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:06:33.342Z"
+    },
+    {
+      "slug": "quantum-computing-startup-qcore-secures-120m-in-series-b-funding-1774546366187",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:13.503Z"
+    },
+    {
+      "slug": "the-great-uniform-swap-min-aung-hlaing-eyes-the-presidency-1774930817301",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.743Z"
+    },
+    {
+      "slug": "take-the-oil-trump-eyes-iran-s-kharg-island-as-the-ultimate-war-prize-1774954065447",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.775Z"
+    },
+    {
+      "slug": "what-s-the-plan-donald-aussie-pm-wants-to-know-the-point-of-this-war-1774954224541",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.809Z"
+    },
+    {
+      "slug": "the-skies-reopen-direct-flights-resume-between-china-and-north-korea-after-six-year-break-1774954425086",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.843Z"
+    },
+    {
+      "slug": "the-soul-savers-of-manipur-just-some-casual-converts-and-tactical-training-1774954747791",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:13.879Z"
+    },
+    {
+      "slug": "the-ultimate-vip-list-who-s-getting-a-green-pass-through-the-strait-of-hormuz-1774954871316",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.912Z"
+    },
+    {
+      "slug": "the-collateral-cost-how-west-asia-s-war-is-emptying-asia-s-makeup-kits-1774954952132",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:13.949Z"
+    },
+    {
+      "slug": "oasis-of-energy-security-india-claims-60-day-oil-buffer-amid-global-supply-fears-1774955060066",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:13.991Z"
+    },
+    {
+      "slug": "a-presidential-first-donald-trump-s-signature-to-grace-us-dollar-for-250th-anniversary-1774962807966",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.025Z"
+    },
+    {
+      "slug": "submarine-warfare-is-china-mapping-the-seabed-for-a-conflict-with-the-us-1774962920484",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.059Z"
+    },
+    {
+      "slug": "the-new-indo-pacific-doctrine-why-the-pentagon-calls-india-indispensable-1774963077027",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.095Z"
+    },
+    {
+      "slug": "can-iran-cut-the-world-s-internet-the-undersea-cable-threat-explained-1774963182001",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.129Z"
+    },
+    {
+      "slug": "drone-breach-near-indian-coast-guard-base-two-us-nationals-booked-1774963309863",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:14.164Z"
+    },
+    {
+      "slug": "terror-goes-digital-up-ats-cracks-isis-linked-online-module-1775014913571",
+      "category": "state",
+      "updatedAt": "2026-07-05T13:48:17.485Z"
+    },
+    {
+      "slug": "iran-strikes-qatar-s-gas-heart-world-energy-markets-on-edge-1775015083256",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.235Z"
+    },
+    {
+      "slug": "india-rushes-humanitarian-aid-to-kabul-after-deadly-attack-in-pakistan-region-1775023881678",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.278Z"
+    },
+    {
+      "slug": "international-day-of-forests-2026-safeguarding-green-lungs-amid-climate-pressures-1775035369183",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:14.311Z"
+    },
+    {
+      "slug": "sri-lanka-refuses-us-request-to-land-military-aircraft-signals-strategic-balancing-in-indian-ocean-1775035856532",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.344Z"
+    },
+    {
+      "slug": "iran-women-s-football-team-row-sparks-criticism-in-australia-amid-asylum-saga-1775036175494",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:09:14.382Z"
+    },
+    {
+      "slug": "iran-s-shadow-war-hits-the-cloud-aws-bahrain-disrupted-1775105724387",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:14.417Z"
+    },
+    {
+      "slug": "diego-garcia-strike-fog-of-war-or-false-flag-narrative-1775105820743",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.466Z"
+    },
+    {
+      "slug": "russian-oil-tankers-diverted-from-china-to-india-amid-global-energy-crisis-1775105896937",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.520Z"
+    },
+    {
+      "slug": "global-energy-crisis-iea-calls-for-work-from-home-to-curb-fuel-consumption-1775106014164",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.588Z"
+    },
+    {
+      "slug": "russian-tip-off-leads-to-capture-of-cia-linked-mercenaries-new-intelligence-war-unfolds-1775106194391",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:14.628Z"
+    },
+    {
+      "slug": "north-korea-fires-missile-barrage-toward-sea-of-japan-amid-rising-regional-tensions-1775220876412",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.731Z"
+    },
+    {
+      "slug": "india-s-thorium-dream-a-sleeping-giant-1775221021534",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:14.764Z"
+    },
+    {
+      "slug": "crypto-empire-in-the-shadows-chinese-national-arrested-in-kathmandu-scam-bust-1775301420275",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.798Z"
+    },
+    {
+      "slug": "iran-allows-india-bound-lpg-tankers-safe-passage-through-strait-of-hormuz-1775305803035",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:14.925Z"
+    },
+    {
+      "slug": "middle-east-war-disruptions-trigger-lpg-shortage-concerns-across-asia-1775306030054",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:14.963Z"
+    },
+    {
+      "slug": "bengal-s-political-battle-heats-up-bjp-vs-tmc-power-tussle-ahead-of-assembly-polls-1775306285075",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:15.000Z"
+    },
+    {
+      "slug": "rapper-to-power-the-unlikely-political-rise-of-balen-shah-1775306444086",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:15.046Z"
+    },
+    {
+      "slug": "nitish-kumar-may-move-to-rajya-sabha-bihar-politics-eyes-possible-leadership-shift-1775306569477",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:15.080Z"
+    },
+    {
+      "slug": "cartel-kingpin-el-mencho-killed-in-mexico-retaliatory-bloodbath-u-s-warnings-and-concerns-for-world-events-including-fifa-world-cup-2026-1775393725419",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.113Z"
+    },
+    {
+      "slug": "operation-prahar-1775394992120",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.148Z"
+    },
+    {
+      "slug": "indian-navy-set-to-commission-ins-anjadeep-a-new-boost-to-maritime-security-1775395103829",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.243Z"
+    },
+    {
+      "slug": "canada-pm-mark-carney-s-upcoming-india-visit-a-reset-after-years-of-strain-1775395182600",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.282Z"
+    },
+    {
+      "slug": "missiles-markets-megabytes-how-the-middle-east-tension-is-hitting-your-fuel-tank-and-wi-fi-signal-1775395273145",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:15.317Z"
+    },
+    {
+      "slug": "india-condemns-attack-on-un-peacekeepers-in-southern-lebanon-1775395828226",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.353Z"
+    },
+    {
+      "slug": "india-russia-ties-enter-new-strategic-phase-amid-global-uncertainty-1775396031656",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.385Z"
+    },
+    {
+      "slug": "ins-aridhaman-india-s-silent-leap-in-nuclear-deterrence-1775396214541",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.418Z"
+    },
+    {
+      "slug": "uttar-pradesh-a-shift-beyond-politics-1775474397623",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:15.450Z"
+    },
+    {
+      "slug": "nse-s-ipo-move-signals-strategic-shift-as-rothschild-joins-as-advisor-1775474573117",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.484Z"
+    },
+    {
+      "slug": "world-ngo-day-civil-society-at-the-frontlines-of-global-change-1775474720182",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:15.517Z"
+    },
+    {
+      "slug": "ufo-files-and-political-theatre-what-s-really-behind-the-disclosure-talk-1775474981259",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:15.558Z"
+    },
+    {
+      "slug": "the-island-at-the-heart-of-a-strategic-tug-of-war-in-the-indian-ocean-1775475089849",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:15.595Z"
+    },
+    {
+      "slug": "from-the-banks-of-the-ganges-to-the-skyline-of-singapore-1775475631275",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.629Z"
+    },
+    {
+      "slug": "rrts-revolution-how-delhi-meerut-corridor-is-transforming-ncr-mobility-1775475800682",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.666Z"
+    },
+    {
+      "slug": "india-releases-first-comprehensive-terror-activity-report-1775475958809",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.703Z"
+    },
+    {
+      "slug": "yogi-adityanath-s-japan-outreach-11-000-crore-mous-mark-strategic-push-1775476138399",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:15.743Z"
+    },
+    {
+      "slug": "strait-of-hormuz-a-new-order-emerges-in-a-critical-chokepoint-1775543526739",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.777Z"
+    },
+    {
+      "slug": "thorium-breakthrough-india-s-nuclear-leap-signals-a-new-energy-era-1775662875491",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:15.811Z"
+    },
+    {
+      "slug": "heartbeat-detection-technology-from-cold-war-rescue-to-modern-warfare-1775663230127",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.846Z"
+    },
+    {
+      "slug": "ceasefire-or-countdown-india-signals-caution-amid-us-iran-pause-1775663523973",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:15.879Z"
+    },
+    {
+      "slug": "missile-over-japan-north-korea-signals-tension-amid-global-uncertainty-1775663716913",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.929Z"
+    },
+    {
+      "slug": "indian-medical-students-in-iran-seek-urgent-help-amid-rising-u-s-iran-tensions-1775712737817",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.961Z"
+    },
+    {
+      "slug": "iran-s-supreme-leader-ayatollah-ali-khamenei-killed-in-us-israel-military-strikes-1775712891349",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:15.994Z"
+    },
+    {
+      "slug": "from-retaliation-to-regional-shake-up-iran-s-strike-wave-and-the-new-great-power-chessboard-1775713002132",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.030Z"
+    },
+    {
+      "slug": "american-out-u-s-backs-off-from-middle-east-bases-as-war-with-iran-spirals-1775713070783",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.065Z"
+    },
+    {
+      "slug": "from-retaliation-to-regional-shake-up-iran-s-strike-wave-and-the-new-great-power-chessboard-1775994819899",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.110Z"
+    },
+    {
+      "slug": "hezbollah-attack-on-israel-1775994909991",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.144Z"
+    },
+    {
+      "slug": "indian-sailors-killed-as-gulf-shipping-lanes-turn-into-war-zone-1775994993409",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.178Z"
+    },
+    {
+      "slug": "iran-s-new-supreme-leader-a-dynasty-rises-in-the-middle-east-1775995114978",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.211Z"
+    },
+    {
+      "slug": "india-draws-a-hard-line-a-quiet-takedown-a-loud-message-1775995218550",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.249Z"
+    },
+    {
+      "slug": "the-soul-savers-of-manipur-just-some-casual-converts-and-tactical-training-1775995372363",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.282Z"
+    },
+    {
+      "slug": "are-the-us-and-iran-finally-talking-the-high-stakes-meeting-in-pakistan-1776080592283",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.320Z"
+    },
+    {
+      "slug": "us-uk-rift-emerges-over-iran-blockade-in-strait-of-hormuz-1776082032540",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.358Z"
+    },
+    {
+      "slug": "south-china-sea-tensions-escalate-philippines-accuses-china-of-cyanide-sabotage-1776082269364",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:16.397Z"
+    },
+    {
+      "slug": "india-rejects-china-s-renaming-claims-on-arunachal-pradesh-1776085722485",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.434Z"
+    },
+    {
+      "slug": "iran-cleared-to-participate-in-2026-fifa-world-cup-amid-tensions-1776442769571",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:09:16.478Z"
+    },
+    {
+      "slug": "bhutan-s-big-leap-mindfulness-meets-modern-economy-1776442905240",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:16.515Z"
+    },
+    {
+      "slug": "extreme-weather-swings-grip-south-asia-raising-economic-concerns-1776443027766",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.548Z"
+    },
+    {
+      "slug": "apple-leadership-shift-tim-cook-steps-down-john-ternus-to-take-over-1776779093070",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:16.584Z"
+    },
+    {
+      "slug": "ajit-doval-s-riyadh-visit-signals-india-s-quiet-strategy-in-west-asia-crisis-1776779232847",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:16.618Z"
+    },
+    {
+      "slug": "satellite-phone-row-in-srinagar-two-us-nationals-face-legal-action-1776779430498",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.652Z"
+    },
+    {
+      "slug": "moringa-the-miracle-tree-cleaning-water-and-calming-minds-1776876881240",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:16.686Z"
+    },
+    {
+      "slug": "myanmar-s-political-shift-reform-rebranding-or-real-change-1776877092514",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:16.718Z"
+    },
+    {
+      "slug": "colombia-s-blue-shift-trading-oil-for-emerald-waters-1776877280850",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.754Z"
+    },
+    {
+      "slug": "washington-s-direct-line-to-kathmandu-sergio-gor-s-strategic-visit-1777026872864",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:16.796Z"
+    },
+    {
+      "slug": "grey-wave-chessboard-why-india-holds-the-maritime-advantage-1777027153950",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.832Z"
+    },
+    {
+      "slug": "india-china-thaw-pilgrimage-routes-reopen-direct-flights-resume-1777027365382",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.871Z"
+    },
+    {
+      "slug": "india-s-lpg-crisis-a-wake-up-call-for-energy-security-1777119874456",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:16.905Z"
+    },
+    {
+      "slug": "rough-waters-rising-tensions-in-the-east-china-sea-1777183163061",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:16.950Z"
+    },
+    {
+      "slug": "of-handshakes-and-vaccines-why-april-24-mattered-1777183331031",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:16.992Z"
+    },
+    {
+      "slug": "deep-sea-disco-discoveries-from-the-ocean-s-hidden-world-1777183459075",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:17.041Z"
+    },
+    {
+      "slug": "chaos-at-the-hilton-white-house-correspondents-dinner-turns-into-security-scare-1777383820713",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:17.081Z"
+    },
+    {
+      "slug": "deep-sea-secrets-the-silent-rise-of-taiwan-s-narwhal-submarine-1777384088669",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:17.128Z"
+    },
+    {
+      "slug": "ladakh-frontline-update-infrastructure-push-and-strategic-balancing-in-april-2026-1777384368785",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.163Z"
+    },
+    {
+      "slug": "super-el-ni-o-and-its-impact-on-india-1777521987381",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:17.198Z"
+    },
+    {
+      "slug": "impact-of-west-asian-conflicts-on-global-energy-security-and-india-1777522131786",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:17.235Z"
+    },
+    {
+      "slug": "a-political-earthquake-bjp-s-historic-triumph-in-west-bengal-and-what-it-means-for-india-1777982134648",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.268Z"
+    },
+    {
+      "slug": "the-assam-model-bjp-s-historic-hat-trick-and-the-rise-of-himanta-biswa-sarma-1777982436536",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.303Z"
+    },
+    {
+      "slug": "the-fall-of-a-political-dynasty-tvk-s-108-seat-earthquake-ends-tamil-nadu-s-dravidian-duopoly-1777982815596",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.346Z"
+    },
+    {
+      "slug": "red-wave-recedes-congress-led-udf-s-thumping-victory-in-kerala-marks-the-end-of-an-era-1777983113842",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.383Z"
+    },
+    {
+      "slug": "fault-lines-in-the-gulf-uae-iran-hostilities-and-abu-dhabi-s-shock-exit-from-opec-1778070236016",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:17.418Z"
+    },
+    {
+      "slug": "a-strategic-retreat-why-akhilesh-yadav-scrapped-the-i-pac-deal-after-bengal-shockwaves-1778070487769",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:17.463Z"
+    },
+    {
+      "slug": "a-new-axis-in-tamil-nadu-tvk-congress-alliance-buzz-grows-after-vijay-s-raj-bhavan-meeting-1778070790461",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:17.499Z"
+    },
+    {
+      "slug": "blood-on-the-ballot-bengal-erupts-after-polls-as-violence-shadows-bjp-s-rise-1778180369705",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.537Z"
+    },
+    {
+      "slug": "india-and-vietnam-draw-closer-new-mous-signal-a-strategic-shift-in-asia-1778180678806",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:17.584Z"
+    },
+    {
+      "slug": "twin-blasts-trigger-security-alarm-as-dgp-points-to-pakistan-s-isi-1778234420989",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.635Z"
+    },
+    {
+      "slug": "a-silent-threat-at-sea-growing-fears-over-hantavirus-spread-linked-to-cruise-travel-1778243036781",
+      "category": "international",
+      "updatedAt": "2026-07-05T14:12:12.254Z"
+    },
+    {
+      "slug": "a-new-military-mind-at-the-top-general-raja-subramani-appointed-india-s-chief-of-defence-staff-1778331545675",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.726Z"
+    },
+    {
+      "slug": "india-enters-a-new-strategic-era-nuclear-capable-icbm-and-tara-glide-weapon-signal-major-defence-leap-1778331723350",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:17.764Z"
+    },
+    {
+      "slug": "a-saffron-breakthrough-in-bengal-suvendu-adhikari-takes-oath-as-west-bengal-s-first-bjp-chief-minister-1778331879706",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:17.825Z"
+    },
+    {
+      "slug": "india-s-island-power-play-why-the-great-nicobar-project-could-redefine-the-bay-of-bengal-and-malacca-strait-1778332091553",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.867Z"
+    },
+    {
+      "slug": "a-new-era-in-tamil-nadu-joseph-vijay-takes-oath-as-chief-minister-ending-six-decades-of-dravidian-dominance-1778420330156",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.904Z"
+    },
+    {
+      "slug": "power-protection-and-crackdown-tamil-nadu-cm-vijay-unveils-three-big-priorities-on-day-one-1778426456424",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:17.945Z"
+    },
+    {
+      "slug": "victory-turns-into-power-struggle-congress-faces-internal-tussle-over-kerala-chief-minister-choice-1778426750209",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:17.991Z"
+    },
+    {
+      "slug": "major-security-scare-in-bengaluru-gelatin-sticks-found-along-pm-modi-s-route-trigger-high-alert-1778426912481",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:18.031Z"
+    },
+    {
+      "slug": "work-from-home-save-fuel-pm-modi-s-appeal-signals-india-s-push-for-energy-discipline-amid-global-uncertainty-1778512883108",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:18.070Z"
+    },
+    {
+      "slug": "bjp-bets-on-continuity-himanta-biswa-sarma-chosen-again-as-assam-chief-minister-oath-ceremony-tomorrow-1778513034178",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:18.113Z"
+    },
+    {
+      "slug": "a-new-rural-policy-era-vb-gram-g-act-comes-into-force-on-july-1-as-mgnrega-faces-repeal-1778513255134",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:18.177Z"
+    },
+    {
+      "slug": "border-security-and-demography-cm-suvendu-adhikari-s-first-big-administrative-moves-reshape-bengal-s-political-direction-1778514107375",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:18.215Z"
+    },
+    {
+      "slug": "india-leads-global-tech-innovation-2026",
+      "category": "technology",
+      "updatedAt": "2026-07-14T04:31:06.585Z"
+    },
+    {
+      "slug": "vijays-first-moral-crackdown-tamil-nadu-shuts-717-tasmac-liquor-shops",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:18.286Z"
+    },
+    {
+      "slug": "neetug-2026-cancelled-rajasthan-leak-allegations-trigger-nationwide",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:18.328Z"
+    },
+    {
+      "slug": "beijing-summit-trumpxi-meeting-reshapes-global-power-calculations-from",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:18.365Z"
+    },
+    {
+      "slug": "after-10-days-intense-power-struggle-congress-picks-vd-satheesan",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:18.411Z"
+    },
+    {
+      "slug": "can-neet-learn-from-chinas-gaokao-how-beijing-secures-exams-13-crore",
+      "category": "technology",
+      "updatedAt": "2026-05-26T22:22:57.223Z"
+    },
+    {
+      "slug": "eci-expands-electoral-verification-drive-phase-3-sir-begin-across-16",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:18.575Z"
+    },
+    {
+      "slug": "modi-abu-dhabi-why-prime-ministers-uae-visit-matters-turbulent-middle",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:18.633Z"
+    },
+    {
+      "slug": "india-takes-center-stage-dr-s-jaishankar-host-brics-foreign-ministers",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:18.779Z"
+    },
+    {
+      "slug": "from-football-icon-financial-empire-sir-david-beckham-becomes-britains",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:09:18.822Z"
+    },
+    {
+      "slug": "north-bengal-gets-powerful-voice-rathindra-bose-elected-new-speaker",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:18.864Z"
+    },
+    {
+      "slug": "modi-netherlands-why-prime-ministers-visit-matters-india-europe-new",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:18.902Z"
+    },
+    {
+      "slug": "rajasthan-enters-indias-tech-future-state-gets-its-first-semiconductor",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:18.943Z"
+    },
+    {
+      "slug": "road-could-transform-uttar-pradesh-how-shamligorakhpur-expressway-may",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:19.043Z"
+    },
+    {
+      "slug": "indias-first-captagon-seizure-raises-alarm-amit-shah-calls-jihadi-drug",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:19.097Z"
+    },
+    {
+      "slug": "modi-returns-sweden-after-2018-why-visit-matters-changing-global-order",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.183Z"
+    },
+    {
+      "slug": "india-uae-deepen-strategic-partnership-multiple-agreements-signed",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:19.243Z"
+    },
+    {
+      "slug": "andhra-pradeshs-population-push-cm-chandrababu-naidu-announces-30000",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:19.298Z"
+    },
+    {
+      "slug": "piece-chola-history-comes-home-netherlands-return-11th-century",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.396Z"
+    },
+    {
+      "slug": "shockwaves-across-gulf-iranian-drone-strike-uaes-barakah-nuclear",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.437Z"
+    },
+    {
+      "slug": "severe-heatwave-set-scorch-uttar-pradesh-next-week-imd-issues-major",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:19.504Z"
+    },
+    {
+      "slug": "invest-india-pm-modi-courts-dutch-companies-india-pushes-become-global",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:19.544Z"
+    },
+    {
+      "slug": "modis-fivenation-diplomatic-marathon-countries-his-route-what-india",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.640Z"
+    },
+    {
+      "slug": "indias-ambitious-mumbaiahmedabad-bullet-train-project-gets-its-first",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:19.674Z"
+    },
+    {
+      "slug": "supreme-court-denies-bail-umar-khalid-again-delhi-riots-case-returns",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:19.716Z"
+    },
+    {
+      "slug": "norwegian-pm-says-india-can-push-russia-toward-ceasefire-modi-meets",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.756Z"
+    },
+    {
+      "slug": "political-shock-falta-repoll-tmc-candidate-jahangir-khan-withdraws",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:19.792Z"
+    },
+    {
+      "slug": "indiaus-defence-ties-deepen-488-million-apache-m777-support-pact",
+      "category": "technology",
+      "updatedAt": "2026-05-26T18:09:19.830Z"
+    },
+    {
+      "slug": "rupee-under-pressure-how-middle-east-tensions-dragging-indian-currency",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:19.871Z"
+    },
+    {
+      "slug": "heavy-price-war-report-claims-us-lost-42-aircraft-including-fighter",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.910Z"
+    },
+    {
+      "slug": "melodi-takes-over-internet-again-pm-modi-reaches-rome-during-europe",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.947Z"
+    },
+    {
+      "slug": "putin-meets-xi-beijing-after-trump-visit-powerful-signal-new-global",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:19.984Z"
+    },
+    {
+      "slug": "northwestern-india-scorched-brutal-heatwave-temperatures-touch-48c",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:20.022Z"
+    },
+    {
+      "slug": "rise-15yearold-sixhitting-monster-vaibhav-sooryavanshi-becomes",
+      "category": "sports",
+      "updatedAt": "2026-06-13T16:56:26.715Z"
+    },
+    {
+      "slug": "pulwama-attack-linked-terrorist-hamza-burhan-shot-dead-unknown-gunmen",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:20.095Z"
+    },
+    {
+      "slug": "vande-mataram-made-mandatory-all-madrasas-across-west-bengal-sparks",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:20.134Z"
+    },
+    {
+      "slug": "us-secretary-state-marco-rubio-visit-india-may-23-his-first-official",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:20.173Z"
+    },
+    {
+      "slug": "can-elon-musk-become-worlds-first-trillionaire-spacex-ipo-mars-dream",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:20.249Z"
+    },
+    {
+      "slug": "red-alert-issued-severe-heatwave-across-uttar-pradesh-temperatures",
+      "category": "state",
+      "updatedAt": "2026-05-26T18:09:20.291Z"
+    },
+    {
+      "slug": "cockroach-janta-party-how-satirical-political-movement-became-internet",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:20.330Z"
+    },
+    {
+      "slug": "india-successfully-tests-agni1-ballistic-missile-from-odisha-boosting",
+      "category": "defence",
+      "updatedAt": "2026-05-26T18:09:20.380Z"
+    },
+    {
+      "slug": "amit-shah-announces-tough-new-border-security-policy-pakistan",
+      "category": "defence",
+      "updatedAt": "2026-05-26T18:09:20.422Z"
+    },
+    {
+      "slug": "bhojshalakamal-maula-complex-verdict-why-madhya-pradesh-high-court",
+      "category": "religion",
+      "updatedAt": "2026-05-26T18:09:20.464Z"
+    },
+    {
+      "slug": "virat-kohlitravis-head-handshake-snub-sets-ipl-internet-fire-after",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:09:20.567Z"
+    },
+    {
+      "slug": "how-conducting-free-fair-examinations-has-become-indias-biggest",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:20.610Z"
+    },
+    {
+      "slug": "1009-seconds-revolution-gurindervir-singh-ignites-indias-sprinting",
+      "category": "sports",
+      "updatedAt": "2026-05-26T18:09:20.648Z"
+    },
+    {
+      "slug": "24-killed-deadly-train-attack-balochistan-separatist-group-claims",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:20.703Z"
+    },
+    {
+      "slug": "end-era-historic-delhi-gymkhana-club-faces-eviction-notice-amid-power",
+      "category": "culture",
+      "updatedAt": "2026-05-26T18:09:20.756Z"
+    },
+    {
+      "slug": "can-indian-rupee-hit-100-against-dollar-inside-indias-biggest-currency",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:20.795Z"
+    },
+    {
+      "slug": "project-cheetah-how-india-successfully-brought-worlds-fastest-animal",
+      "category": "environment",
+      "updatedAt": "2026-05-26T18:09:20.837Z"
+    },
+    {
+      "slug": "west-bengal-plans-districtwise-detention-centres-illegal-bangladeshi",
+      "category": "national",
+      "updatedAt": "2026-05-26T18:09:20.924Z"
+    },
+    {
+      "slug": "indias-gaganyaan-mission-set-launch-coming-months-marking-historic",
+      "category": "technology",
+      "updatedAt": "2026-07-13T18:09:16.885Z"
+    },
+    {
+      "slug": "india-becomes-worlds-third-largest-solar-power-producer-marking",
+      "category": "economics",
+      "updatedAt": "2026-05-26T18:09:21.006Z"
+    },
+    {
+      "slug": "assam-government-introduces-ucc-bill-assembly-triggering-major",
+      "category": "polity",
+      "updatedAt": "2026-05-26T18:09:21.042Z"
+    },
+    {
+      "slug": "russia-launches-massive-oreshnik-hypersonic-missile-strike-kyiv",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:21.089Z"
+    },
+    {
+      "slug": "nautapa-heatwave-grips-india-temperatures-soar-across-northern-central",
+      "category": "health",
+      "updatedAt": "2026-05-26T18:09:21.124Z"
+    },
+    {
+      "slug": "abraham-accords-middle-east-agreement-changed-regional-politics",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:21.163Z"
+    },
+    {
+      "slug": "quad-foreign-ministers-meet-focuses-indopacific-security-technology",
+      "category": "international",
+      "updatedAt": "2026-05-26T18:09:21.202Z"
+    },
+    {
+      "slug": "congress-power-struggle-karnataka-reaches-delhi-siddaramaiahdk",
+      "category": "polity",
+      "updatedAt": "2026-05-27T06:12:57.363Z"
+    },
+    {
+      "slug": "reverse-migration-begins-from-bengal-bangladesh-after-strict-policy",
+      "category": "national",
+      "updatedAt": "2026-05-27T10:46:27.794Z"
+    },
+    {
+      "slug": "supreme-court-upholds-sir-exercise-calls-important-tool-free-fair",
+      "category": "polity",
+      "updatedAt": "2026-05-27T10:50:43.178Z"
+    },
+    {
+      "slug": "centre-notifies-resolution-highlevel-committee-study-demographic",
+      "category": "religion",
+      "updatedAt": "2026-05-27T11:06:28.291Z"
+    },
+    {
+      "slug": "singapore-court-sentences-byju-raveendran-six-months-jail-marking",
+      "category": "economics",
+      "updatedAt": "2026-05-27T11:21:19.960Z"
+    },
+    {
+      "slug": "how-dk-shivakumar-became-congresss-biggest-organisational-powerhouse",
+      "category": "polity",
+      "updatedAt": "2026-06-01T11:40:42.937Z"
+    },
+    {
+      "slug": "how-rcb-became-champions-again-ipl-2026-strategy-dks-masterplan-kohlis",
+      "category": "sports",
+      "updatedAt": "2026-06-01T11:44:40.234Z"
+    },
+    {
+      "slug": "israels-deepest-push-lebanon-26-years-strategic-fort-near-litani-river",
+      "category": "international",
+      "updatedAt": "2026-06-01T11:53:25.401Z"
+    },
+    {
+      "slug": "indias-37500-crore-coal-gasification-push-strategic-bet-syngas-reduce",
+      "category": "economics",
+      "updatedAt": "2026-06-01T17:44:36.212Z"
+    },
+    {
+      "slug": "can-messis-argentina-defend-world-cup-2026",
+      "category": "sports",
+      "updatedAt": "2026-06-01T17:43:07.429Z"
+    },
+    {
+      "slug": "annamalai-quits-bjp-after-highlevel-delhi-meetings-set-launch-new",
+      "category": "national",
+      "updatedAt": "2026-06-02T12:11:40.227Z"
+    },
+    {
+      "slug": "monsoon-delay-kerala-why-imd-has-repeatedly-changed-onset-date-year",
+      "category": "environment",
+      "updatedAt": "2026-06-02T12:16:11.909Z"
+    },
+    {
+      "slug": "myanmar-assures-india-its-territory-used-against-new-delhis-security",
+      "category": "international",
+      "updatedAt": "2026-06-02T12:22:15.155Z"
+    },
+    {
+      "slug": "trinamool-congress-heading-vertical-split-rumblings-rebellion-after",
+      "category": "polity",
+      "updatedAt": "2026-06-02T12:25:10.772Z"
+    },
+    {
+      "slug": "india-moves-ahead-325-lakh-crore-rafale-mega-deal-94-fighter-jets",
+      "category": "defence",
+      "updatedAt": "2026-06-02T12:28:28.183Z"
+    },
+    {
+      "slug": "israel-lebanon-begin-historic-talks-after-usled-mediation-raising",
+      "category": "international",
+      "updatedAt": "2026-06-04T14:50:26.845Z"
+    },
+    {
+      "slug": "you-could-criticise-abhishek-tmc-rebel-reveals-breaking-point-behind",
+      "category": "polity",
+      "updatedAt": "2026-06-04T14:52:40.486Z"
+    },
+    {
+      "slug": "russia-delivers-fourth-squadron-aienabled-s400-air-defence-system",
+      "category": "defence",
+      "updatedAt": "2026-06-04T14:57:34.301Z"
+    },
+    {
+      "slug": "who-gauri-spratt-bengaluru-entrepreneur-reportedly-set-become-aamir",
+      "category": "culture",
+      "updatedAt": "2026-06-12T09:35:59.249Z"
+    },
+    {
+      "slug": "double-blow-vedantas-week-reckoning",
+      "category": "economics",
+      "updatedAt": "2026-06-05T15:21:14.890Z"
+    },
+    {
+      "slug": "rupee-100-why-economists-say-number-matters-less-than-narrative",
+      "category": "economics",
+      "updatedAt": "2026-06-05T15:23:55.395Z"
+    },
+    {
+      "slug": "empire-dust-how-rajesh-mehtas-golden-legacy-came-under-scrutiny",
+      "category": "national",
+      "updatedAt": "2026-06-05T15:26:38.470Z"
+    },
+    {
+      "slug": "all-eyes-rbi-markets-await-key-policy-decision-amid-inflation-rupee",
+      "category": "economics",
+      "updatedAt": "2026-06-05T15:31:02.477Z"
+    },
+    {
+      "slug": "philippines-longest-night-survivors-face-fear-uncertainty-amid",
+      "category": "environment",
+      "updatedAt": "2026-06-09T08:01:36.238Z"
+    },
+    {
+      "slug": "lifeline-skilled-migrants-indian-diaspora-celebrates-court-decision",
+      "category": "international",
+      "updatedAt": "2026-06-09T08:03:50.253Z"
+    },
+    {
+      "slug": "shamli-conversion-row-deepens-police-book-10-community-leaders-call",
+      "category": "state",
+      "updatedAt": "2026-06-10T12:03:26.805Z"
+    },
+    {
+      "slug": "strait-peace-trump-says-iran-deal-nears-finish-line-hormuz-reopening",
+      "category": "international",
+      "updatedAt": "2026-06-12T08:17:44.274Z"
+    },
+    {
+      "slug": "cracks-within-how-tmcs-growing-mp-revolt-could-trigger-biggest",
+      "category": "polity",
+      "updatedAt": "2026-06-10T11:17:44.879Z"
+    },
+    {
+      "slug": "baby-bust-why-elon-musk-warning-about-indias-falling-birth-rate-why",
+      "category": "national",
+      "updatedAt": "2026-06-09T08:32:36.360Z"
+    },
+    {
+      "slug": "missiles-over-gulf-iran-opens-new-front-against-us-forces-jordan",
+      "category": "international",
+      "updatedAt": "2026-06-10T09:31:30.701Z"
+    },
+    {
+      "slug": "biggest-world-cup-ever-fifa-2026-set-redefine-global-football",
+      "category": "sports",
+      "updatedAt": "2026-06-10T09:35:18.482Z"
+    },
+    {
+      "slug": "quiet-nuclear-shift-sipri-report-suggests-india-may-have-deployed",
+      "category": "defence",
+      "updatedAt": "2026-06-10T09:38:38.131Z"
+    },
+    {
+      "slug": "rawalakot-revolt-shoot-sight-orders-issued-unrest-engulfs-pakistan",
+      "category": "national",
+      "updatedAt": "2026-06-10T09:42:06.708Z"
+    },
+    {
+      "slug": "hardik-pandyas-injury-nightmare-continues-fresh-setback-after-fitness",
+      "category": "sports",
+      "updatedAt": "2026-06-10T09:46:09.795Z"
+    },
+    {
+      "slug": "water-strategic-lever-india-signals-tough-new-stance-indus-waters",
+      "category": "national",
+      "updatedAt": "2026-06-11T05:10:41.081Z"
+    },
+    {
+      "slug": "from-mhow-maryland-major-prabhat-mishra-outshines-officers-from-92",
+      "category": "defence",
+      "updatedAt": "2026-06-12T05:36:48.777Z"
+    },
+    {
+      "slug": "political-milestone-narendra-modi-becomes-indias-longestserving",
+      "category": "polity",
+      "updatedAt": "2026-06-12T05:36:06.687Z"
+    },
+    {
+      "slug": "tmcs-biggest-crisis-since-2011-rajya-sabha-mp-prakash-chik-baraik",
+      "category": "polity",
+      "updatedAt": "2026-06-12T05:35:30.450Z"
+    },
+    {
+      "slug": "celebrity-under-fire-shots-fired-outside-guru-randhawas-delhi-gym",
+      "category": "state",
+      "updatedAt": "2026-06-12T05:34:40.508Z"
+    },
+    {
+      "slug": "supreme-court-refuses-relief-meenakshi-natarajan-says-election",
+      "category": "national",
+      "updatedAt": "2026-06-12T09:17:53.151Z"
+    },
+    {
+      "slug": "spacexs-historic-liftoff-elon-musks-company-raises-record-75-billion",
+      "category": "economics",
+      "updatedAt": "2026-06-12T09:35:22.115Z"
+    },
+    {
+      "slug": "india-draws-red-line-new-delhi-warns-washington-after-us-strikes-hit",
+      "category": "international",
+      "updatedAt": "2026-06-13T06:58:01.442Z"
+    },
+    {
+      "slug": "rare-show-unity-all-28-chief-ministers-attend-niti-aayog-meeting",
+      "category": "national",
+      "updatedAt": "2026-06-12T09:33:33.055Z"
+    },
+    {
+      "slug": "indian-shooting-loses-legend-asian-games-champion-master-coach-jaspal",
+      "category": "sports",
+      "updatedAt": "2026-06-12T09:35:15.214Z"
+    },
+    {
+      "slug": "tragedy-jorhat-five-iaf-personnel-including-two-agniveers-killed-an32",
+      "category": "defence",
+      "updatedAt": "2026-06-13T09:57:24.101Z"
+    },
+    {
+      "slug": "voice-global-south-pm-modi-set-carry-developing-nations-agenda-g7",
+      "category": "international",
+      "updatedAt": "2026-06-14T04:56:47.391Z"
+    },
+    {
+      "slug": "indias-iron-dome-takes-shape-drdo-scores-triple-success-missile",
+      "category": "defence",
+      "updatedAt": "2026-06-13T09:57:05.685Z"
+    },
+    {
+      "slug": "football-fever-its-peak-biggest-fifa-world-cup-ever-captivates-planet",
+      "category": "sports",
+      "updatedAt": "2026-06-13T16:53:15.606Z"
+    },
+    {
+      "slug": "end-era-lutyens-delhi-centre-takes-possession-historic-jaipur-polo",
+      "category": "culture",
+      "updatedAt": "2026-06-14T04:59:26.049Z"
+    },
+    {
+      "slug": "zojila-light-end-tunnel-historic-breakthrough-brings-ladakh-closer",
+      "category": "national",
+      "updatedAt": "2026-06-14T05:04:20.977Z"
+    },
+    {
+      "slug": "from-vice-chief-army-chief-lt-gen-dhiraj-seth-set-lead-indian-army",
+      "category": "defence",
+      "updatedAt": "2026-06-14T05:07:19.346Z"
+    },
+    {
+      "slug": "assam-tightens-aadhaar-rules-new-adult-aadhaar-cards-without-special",
+      "category": "state",
+      "updatedAt": "2026-06-14T05:11:37.174Z"
+    },
+    {
+      "slug": "telegram-takes-centre-court-delhi-high-court-hear-challenge-against",
+      "category": "national",
+      "updatedAt": "2026-06-17T11:19:55.930Z"
+    },
+    {
+      "slug": "merger-mystery-confusion-deepens-tmc-rebels-ncpi-struggle-explain",
+      "category": "polity",
+      "updatedAt": "2026-06-17T11:20:32.546Z"
+    },
+    {
+      "slug": "messi-turns-back-time-argentina-maestro-fires-historic-hattrick-world",
+      "category": "sports",
+      "updatedAt": "2026-06-17T11:19:05.775Z"
+    },
+    {
+      "slug": "dont-air-uddhav-sena-mps-tirade-against-rebels-sparks-fresh-political",
+      "category": "state",
+      "updatedAt": "2026-06-17T11:19:30.070Z"
+    },
+    {
+      "slug": "suvendu-adhikari-plans-revival-historic-bengal-gorkha-force-targets",
+      "category": "state",
+      "updatedAt": "2026-06-17T11:19:30.779Z"
+    },
+    {
+      "slug": "indias-biggest-ipo-yet-mukesh-ambanis-jio-set-test-market-appetite",
+      "category": "economics",
+      "updatedAt": "2026-06-17T11:19:31.564Z"
+    },
+    {
+      "slug": "diplomatic-opening-time-war-iran-us-set-highstakes-switzerland-talks",
+      "category": "international",
+      "updatedAt": "2026-06-18T11:09:44.917Z"
+    },
+    {
+      "slug": "operation-tiger-roars-louder-six-shiv-sena-ubt-mps-skip-parliamentary",
+      "category": "polity",
+      "updatedAt": "2026-06-18T11:09:18.024Z"
+    },
+    {
+      "slug": "pakistan-eyes-return-bay-bengal-submarine-deployment-plan-revives",
+      "category": "defence",
+      "updatedAt": "2026-06-18T11:09:31.017Z"
+    },
+    {
+      "slug": "monsoon-crisis-deepens-rainfall-deficit-touches-40-clouds-stay-away",
+      "category": "environment",
+      "updatedAt": "2026-06-18T11:08:54.018Z"
+    },
+    {
+      "slug": "diplomatic-setback-geneva-collapse-usiran-talks-raises-fears-fragile",
+      "category": "international",
+      "updatedAt": "2026-06-19T08:45:31.407Z"
+    },
+    {
+      "slug": "delhi-high-court-backs-centres-telegram-ban-ahead-neet-retest",
+      "category": "national",
+      "updatedAt": "2026-06-19T08:33:47.900Z"
+    },
+    {
+      "slug": "terror-trail-leads-across-border-isilinked-network-uncovered-ranchi",
+      "category": "religion",
+      "updatedAt": "2026-06-19T08:33:30.715Z"
+    },
+    {
+      "slug": "e20-fuel-under-scanner-bpcl-debunks-viral-ants-fuel-tank-claim",
+      "category": "fake-news",
+      "updatedAt": "2026-06-19T08:33:06.502Z"
+    },
+    {
+      "slug": "from-coal-chemicals-pm-modi-launch-indias-first-commercialscale",
+      "category": "economics",
+      "updatedAt": "2026-06-20T08:40:04.885Z"
+    },
+    {
+      "slug": "fingerprint-scanner-every-pocket-new-mobile-app-gives-police-instant",
+      "category": "national",
+      "updatedAt": "2026-06-20T08:39:35.714Z"
+    },
+    {
+      "slug": "india-climbs-higher-global-financial-governance-secures-fatf",
+      "category": "international",
+      "updatedAt": "2026-06-20T08:39:23.426Z"
+    },
+    {
+      "slug": "new-flashpoint-durand-line-afghanistan-launches-airstrikes-inside",
+      "category": "international",
+      "updatedAt": "2026-06-20T08:39:09.658Z"
+    },
+    {
+      "slug": "indias-oil-security-strategy-action-russian-uae-crude-imports-surge",
+      "category": "economics",
+      "updatedAt": "2026-06-21T13:06:25.632Z"
+    },
+    {
+      "slug": "star-born-vaibhav-suryavanshi-destroys-sri-lanka-smashes-fastest-list",
+      "category": "sports",
+      "updatedAt": "2026-06-21T13:08:19.350Z"
+    },
+    {
+      "slug": "yoga-goes-global-once-again-international-yoga-day-2026-celebrated",
+      "category": "spirituality",
+      "updatedAt": "2026-06-21T13:09:46.122Z"
+    },
+    {
+      "slug": "neet-retest-under-tight-security-thousands-aspirants-appear-amid",
+      "category": "national",
+      "updatedAt": "2026-06-21T13:11:06.846Z"
+    },
+    {
+      "slug": "diplomacy-under-pressure-usiran-talks-begin-switzerland-hormuz-crisis",
+      "category": "international",
+      "updatedAt": "2026-06-21T13:13:04.019Z"
+    },
+    {
+      "slug": "jio-goes-public-reliance-unveils-indias-largestever-ipo-landmark",
+      "category": "economics",
+      "updatedAt": "2026-06-22T15:39:52.258Z"
+    },
+    {
+      "slug": "end-starmer-era-uk-prime-minister-resigns-after-mounting-labour-revolt",
+      "category": "international",
+      "updatedAt": "2026-06-22T15:35:12.325Z"
+    },
+    {
+      "slug": "from-fintech-visionary-messaging-giant-cred-founder-kunal-shah-chosen",
+      "category": "technology",
+      "updatedAt": "2026-06-22T15:37:17.196Z"
+    },
+    {
+      "slug": "inferno-lucknow-deadly-building-blaze-claims-12-lives-triggers",
+      "category": "state",
+      "updatedAt": "2026-06-22T15:39:19.964Z"
+    },
+    {
+      "slug": "matt-henry-reaches-summit-new-zealand-pacer-becomes-joint-world-1-icc",
+      "category": "sports",
+      "updatedAt": "2026-06-25T06:58:35.133Z"
+    },
+    {
+      "slug": "here-newspaperstyle-feature-article-improved-title-global-game-debate",
+      "category": "sports",
+      "updatedAt": "2026-06-25T06:58:23.918Z"
+    },
+    {
+      "slug": "horror-muzaffarnagar-12-bonded-labourers-rescued-after-alleged",
+      "category": "state",
+      "updatedAt": "2026-06-25T06:57:42.911Z"
+    },
+    {
+      "slug": "monsoon-fury-unleashed-flash-floods-landslides-batter-arunachal-one",
+      "category": "environment",
+      "updatedAt": "2026-06-25T06:52:43.275Z"
+    },
+    {
+      "slug": "explosive-claim-raises-global-tensions-analyst-alleges-mossad-plot",
+      "category": "defence",
+      "updatedAt": "2026-06-25T06:52:33.290Z"
+    },
+    {
+      "slug": "passport-proof-citizenship-clarifies-centre-amid-growing-legal-debate",
+      "category": "national",
+      "updatedAt": "2026-06-25T06:48:56.348Z"
+    },
+    {
+      "slug": "double-quake-disaster-rocks-venezuela-powerful-tremors-trigger",
+      "category": "international",
+      "updatedAt": "2026-06-25T06:53:11.757Z"
+    },
+    {
+      "slug": "heatwave-grip-europe-1",
+      "category": "environment",
+      "updatedAt": "2026-06-26T05:07:18.840Z"
+    },
+    {
+      "slug": "fatf-actions-myanmar",
+      "category": "economics",
+      "updatedAt": "2026-06-26T05:07:07.161Z"
+    },
+    {
+      "slug": "france-adopts-new-laws",
+      "category": "international",
+      "updatedAt": "2026-06-26T05:06:55.691Z"
+    },
+    {
+      "slug": "earth-beneath-venezuela-turned-nightmare",
+      "category": "geography",
+      "updatedAt": "2026-06-26T05:06:29.925Z"
+    },
+    {
+      "slug": "trumps-america250-passport-sparks-political-firestorm",
+      "category": "international",
+      "updatedAt": "2026-06-27T09:43:37.155Z"
+    },
+    {
+      "slug": "xi-tightens-grip-china-removes-top-generals-officials-sweeping-purge",
+      "category": "international",
+      "updatedAt": "2026-06-27T09:47:02.637Z"
+    },
+    {
+      "slug": "rising-environmental-problems-northeast-india",
+      "category": "environment",
+      "updatedAt": "2026-06-29T15:55:14.083Z"
+    },
+    {
+      "slug": "earthquake-japan",
+      "category": "international",
+      "updatedAt": "2026-06-29T15:57:03.954Z"
+    },
+    {
+      "slug": "pm-modi-visit-seychelles",
+      "category": "national",
+      "updatedAt": "2026-06-29T15:59:01.306Z"
+    },
+    {
+      "slug": "teesta-turns-geopolitical-battlefield-bangladeshs-china-bet-challenges",
+      "category": "international",
+      "updatedAt": "2026-07-05T14:08:40.280Z"
+    },
+    {
+      "slug": "paraguay-stuns-germany-fourtime-champions-crash-out-world-cup-penalty",
+      "category": "sports",
+      "updatedAt": "2026-07-05T14:11:51.456Z"
+    },
+    {
+      "slug": "south-china-sea-brink-scarborough-shoal-becomes-epicentre-new",
+      "category": "international",
+      "updatedAt": "2026-07-05T13:56:30.693Z"
+    },
+    {
+      "slug": "peace-table-pressure-border-fresh-china-claims-test-indias-resolve",
+      "category": "international",
+      "updatedAt": "2026-07-05T13:58:19.140Z"
+    },
+    {
+      "slug": "beyond-border-disputes-cambodia-laos-unite-against-crossborder-crime",
+      "category": "international",
+      "updatedAt": "2026-07-05T14:03:16.049Z"
+    },
+    {
+      "slug": "indiajapan-summit-2026-strategic-alliance-forged-age-global",
+      "category": "economics",
+      "updatedAt": "2026-07-05T14:09:08.608Z"
+    },
+    {
+      "slug": "g7-summit-2026-global-leaders-unite-tackle-economic-security-supply",
+      "category": "economics",
+      "updatedAt": "2026-07-06T16:21:06.162Z"
+    },
+    {
+      "slug": "teestas-new-course-bangladeshs-china-pivot-reshapes-south-asias",
+      "category": "international",
+      "updatedAt": "2026-07-06T12:57:56.712Z"
+    },
+    {
+      "slug": "england-survive-mexico-scare-storm-world-cup-quarterfinals",
+      "category": "sports",
+      "updatedAt": "2026-07-06T13:11:39.882Z"
+    },
+    {
+      "slug": "nia-charges-hafiz-saeed-pahalgam-terror-attack-expands-crackdown",
+      "category": "defence",
+      "updatedAt": "2026-07-06T13:07:42.672Z"
+    },
+    {
+      "slug": "bloodbath-behind-bars-sri-lanka-prison-clashes-leave-25-dead-over-100",
+      "category": "international",
+      "updatedAt": "2026-07-06T13:11:22.260Z"
+    },
+    {
+      "slug": "guard-honour-skies-indonesian-f16s-sukhoi30s-escort-pm-modis-aircraft",
+      "category": "international",
+      "updatedAt": "2026-07-06T13:10:36.728Z"
+    },
+    {
+      "slug": "jupiter-cancer-why-astrologers-believe-world-could-enter-era-homes",
+      "category": "religion",
+      "updatedAt": "2026-07-12T17:27:20.654Z"
+    },
+    {
+      "slug": "monsoon-edge-el-nio-threat-deepens-indias-rainfall-crisis",
+      "category": "agriculture",
+      "updatedAt": "2026-07-07T15:39:03.190Z"
+    },
+    {
+      "slug": "arunachal-flashpoint-fresh-china-encroachment-claims-reignite-border",
+      "category": "international",
+      "updatedAt": "2026-07-08T07:19:56.358Z"
+    },
+    {
+      "slug": "monsoon-tragedy-wayanad-landslide-tunnel-construction-site-kills-two",
+      "category": "environment",
+      "updatedAt": "2026-07-07T15:42:26.893Z"
+    },
+    {
+      "slug": "brahmos-breakthrough-indonesia-set-acquire-indias-supersonic-missile",
+      "category": "defence",
+      "updatedAt": "2026-07-07T15:44:23.902Z"
+    },
+    {
+      "slug": "sade-sati-explained-why-some-people-fear-while-others-rise-great",
+      "category": "religion",
+      "updatedAt": "2026-07-08T07:56:02.416Z"
+    },
+    {
+      "slug": "baruipur-rapemurder-accused-killed-police-encounter-during-crime-scene",
+      "category": "state",
+      "updatedAt": "2026-07-08T13:39:18.542Z"
+    },
+    {
+      "slug": "argentinas-great-escape-albiceleste-roar-back-stun-egypt-32-reach",
+      "category": "sports",
+      "updatedAt": "2026-07-08T13:49:07.177Z"
+    },
+    {
+      "slug": "djokovic-defies-time-again-serbian-legend-battles-through-fiveset-epic",
+      "category": "sports",
+      "updatedAt": "2026-07-08T13:41:55.425Z"
+    },
+    {
+      "slug": "mass-religious-conversion-racket-busted-muzaffarnagar-14-booked-under",
+      "category": "state",
+      "updatedAt": "2026-07-08T13:44:27.903Z"
+    },
+    {
+      "slug": "venom-road-cobra-halts-bengaluru-traffic-30-minutes-busy-palace-road",
+      "category": "state",
+      "updatedAt": "2026-07-08T13:46:03.536Z"
+    },
+    {
+      "slug": "oil-shock-returns-us-strikes-iran-send-global-crude-prices-soaring",
+      "category": "economics",
+      "updatedAt": "2026-07-08T13:47:47.386Z"
+    },
+    {
+      "slug": "indian-navys-drishti10-uav-crashes-near-porbandar-inquiry-launched",
+      "category": "defence",
+      "updatedAt": "2026-07-09T15:13:10.261Z"
+    },
+    {
+      "slug": "dhamaal-5-confirmed-comedy-franchise-set-another-laugh-riot-after",
+      "category": "culture",
+      "updatedAt": "2026-07-09T15:14:34.576Z"
+    },
+    {
+      "slug": "power-from-waste-japan-turns-seawater-sewage-next-generation-clean",
+      "category": "technology",
+      "updatedAt": "2026-07-09T15:16:08.863Z"
+    },
+    {
+      "slug": "nuclear-partnership-reforged-india-australia-seal-landmark-uranium",
+      "category": "international",
+      "updatedAt": "2026-07-09T15:18:57.325Z"
+    },
+    {
+      "slug": "nature-succeeds-where-policy-struggled-monsoon-rains-transform-delhis",
+      "category": "environment",
+      "updatedAt": "2026-07-11T11:13:02.473Z"
+    },
+    {
+      "slug": "indian-navy-commissions-ins-mahendragiri-sixth-stealth-frigate",
+      "category": "defence",
+      "updatedAt": "2026-07-11T11:12:54.032Z"
+    },
+    {
+      "slug": "indianew-zealand-relations-enter-new-era-pm-modi-elevates-ties",
+      "category": "international",
+      "updatedAt": "2026-07-11T11:10:18.264Z"
+    },
+    {
+      "slug": "tragedy-vietnam-15-indian-tourists-killed-after-speedboat-capsizes",
+      "category": "national",
+      "updatedAt": "2026-07-11T11:12:20.314Z"
+    },
+    {
+      "slug": "1-lakh-crore-naval-leap-indian-navy-unveils-next-wave-warship-projects",
+      "category": "defence",
+      "updatedAt": "2026-07-12T10:50:46.410Z"
+    },
+    {
+      "slug": "attack-off-oman-coast-ten-indian-crew-members-rescued-one-still",
+      "category": "international",
+      "updatedAt": "2026-07-12T10:45:26.470Z"
+    },
+    {
+      "slug": "lvarez-ignites-argentina-rocket-strike-sends-messi-albiceleste-world",
+      "category": "sports",
+      "updatedAt": "2026-07-12T10:47:45.013Z"
+    },
+    {
+      "slug": "middle-east-brink-us-strikes-iran-tehran-closes-strait-hormuz",
+      "category": "international",
+      "updatedAt": "2026-07-12T10:49:52.244Z"
+    },
+    {
+      "slug": "indias-hydrogen-revolution-rails-six-things-every-passenger-should",
+      "category": "national",
+      "updatedAt": "2026-07-13T13:41:48.464Z"
+    },
+    {
+      "slug": "suvendu-adhikari-backs-kolkata-airport-mosque-removal-calls-national",
+      "category": "polity",
+      "updatedAt": "2026-07-13T13:44:14.660Z"
+    },
+    {
+      "slug": "spirit-economy-how-liquor-became-one-uttar-pradeshs-biggest-revenue",
+      "category": "economics",
+      "updatedAt": "2026-07-13T19:03:02.899Z"
+    },
+    {
+      "slug": "iran-unleashes-i4-i-operations-after-surprise-us-strikes-raising-fears",
+      "category": "international",
+      "updatedAt": "2026-07-14T04:51:58.473Z"
+    },
+    {
+      "slug": "12-houses-astrology-explained-understanding-blueprint-life-through",
+      "category": "religion",
+      "updatedAt": "2026-07-14T11:28:11.402Z"
+    },
+    {
+      "slug": "famous-temples-uttarakhand-spiritual-journey-through-devbhoomi",
+      "category": "religion",
+      "updatedAt": "2026-07-14T11:20:09.802Z"
+    },
+    {
+      "slug": "what-vector-image-complete-guide-vector-graphics-formats-software-uses",
+      "category": "technology",
+      "updatedAt": "2026-07-15T05:11:54.824Z"
+    }
+  ],
+  "videos": [
+    {
+      "slug": "ireland-sets-biggest-total-t20-wc-2026-vs-t20worldcup",
+      "videoId": "yrLZasG4_kI",
+      "updatedAt": "2026-02-15T11:33:49.555Z"
+    },
+    {
+      "slug": "rain-threatens-india-versus-pakistan-t20-world-cup-clash",
+      "videoId": "7DvvWART2-4",
+      "updatedAt": "2026-02-15T11:33:49.771Z"
+    },
+    {
+      "slug": "indian-passport-ranking-2026-good-news-bad-news-henley-passport-index",
+      "videoId": "dh0mpphniDY",
+      "updatedAt": "2026-02-15T11:33:49.980Z"
+    },
+    {
+      "slug": "14th-february-black-day-india-pulwamaattack-breakingnews-viral",
+      "videoId": "CvlWWRMFGpg",
+      "updatedAt": "2026-02-15T11:33:50.169Z"
+    },
+    {
+      "slug": "100",
+      "videoId": "mk1e_fJAbEA",
+      "updatedAt": "2026-02-15T11:33:50.357Z"
+    },
+    {
+      "slug": "australia-secured-comprehensive-67run-victory-over-ireland-cricket",
+      "videoId": "leNY67iShn8",
+      "updatedAt": "2026-02-15T11:33:50.546Z"
+    },
+    {
+      "slug": "chaudhary-ajit-singh-iit-engineer-farmer-leader",
+      "videoId": "uAPghXv5Avw",
+      "updatedAt": "2026-02-15T11:33:50.734Z"
+    },
+    {
+      "slug": "maharishi-dayanand-saraswati-jayanti-2026-breakingnews-event-tranding",
+      "videoId": "PWhsK767IYA",
+      "updatedAt": "2026-02-15T11:33:50.923Z"
+    },
+    {
+      "slug": "us-indiaus-trade-deal",
+      "videoId": "9rGg-M-JQdM",
+      "updatedAt": "2026-02-15T11:33:51.111Z"
+    },
+    {
+      "slug": "t20-world-cup-2026-points-table",
+      "videoId": "G1xHsBKSTi4",
+      "updatedAt": "2026-02-15T11:33:51.300Z"
+    },
+    {
+      "slug": "shipping-corporation-india-shares-20-upper-circuit-sci-market-news",
+      "videoId": "FjLZUn6ktJU",
+      "updatedAt": "2026-02-15T11:33:51.488Z"
+    },
+    {
+      "slug": "safer-internet-day-sid-2026-viral-breakingnews-travel-trending-news",
+      "videoId": "qk2joVh1Oh4",
+      "updatedAt": "2026-02-15T11:33:51.677Z"
+    },
+    {
+      "slug": "bbl-shaheen-rizwan-babar-big-bash-league",
+      "videoId": "vzJNNNK97MI",
+      "updatedAt": "2026-02-15T11:33:51.865Z"
+    },
+    {
+      "slug": "international-kite-festival-2026-ahmedabad-pm-modi-inaugurates",
+      "videoId": "rrXqAl6vbx0",
+      "updatedAt": "2026-02-15T11:33:52.054Z"
+    },
+    {
+      "slug": "iran-protest-2026-khamenei-vs-people-trump-warning",
+      "videoId": "33J0lQY7sDo",
+      "updatedAt": "2026-02-15T11:33:52.242Z"
+    },
+    {
+      "slug": "unbelievable-cricket-comeback-182run-partnership-stuns-hyderabad",
+      "videoId": "J5sPaze0pfo",
+      "updatedAt": "2026-02-15T11:33:52.430Z"
+    },
+    {
+      "slug": "jaipur-indian-army-parade-rehearsal-26-january-2026",
+      "videoId": "AiBvvMQ5wIs",
+      "updatedAt": "2026-02-15T11:33:52.619Z"
+    },
+    {
+      "slug": "ipl-2026-mustafizur-rahman-bangladesh",
+      "videoId": "IdC0YOWU3HA",
+      "updatedAt": "2026-02-15T11:33:52.807Z"
+    },
+    {
+      "slug": "indian-army-infantry-drill-republic-day-practice",
+      "videoId": "A011F4nPEew",
+      "updatedAt": "2026-02-15T11:33:53.000Z"
+    },
+    {
+      "slug": "delhi-smog-crisis-rich-indians-leave-doctors-warn-common-people",
+      "videoId": "QvfrF1HwKQI",
+      "updatedAt": "2026-02-15T11:33:53.188Z"
+    },
+    {
+      "slug": "indian-armys-silent-warriors-firstever-animal-contingent-republic-day",
+      "videoId": "74vva9pUQoY",
+      "updatedAt": "2026-02-15T11:33:53.377Z"
+    },
+    {
+      "slug": "iran-crisis-inflation-protests-market-shutdowns-explained",
+      "videoId": "aOp-ZHvY6TI",
+      "updatedAt": "2026-02-15T11:33:53.565Z"
+    },
+    {
+      "slug": "yashasvi-jaiswal-shams-mulani-5wicket-heroics-mumbai-smat-big-boost",
+      "videoId": "AldZaAy9SII",
+      "updatedAt": "2026-02-15T11:33:53.753Z"
+    },
+    {
+      "slug": "bangladesh-ex-pm-khaleda-zia-dies-80-life-politics-legal-cases",
+      "videoId": "RoNSbs3zhEA",
+      "updatedAt": "2026-02-15T11:33:53.941Z"
+    },
+    {
+      "slug": "boxing-day-test-2-mcg-pitch-shock-ashes-2025",
+      "videoId": "VYyus4Kr8sU",
+      "updatedAt": "2026-02-15T11:33:54.129Z"
+    },
+    {
+      "slug": "smriti-mandhana-shafali-verma-india-womens-t20i",
+      "videoId": "_thGEgiWBWc",
+      "updatedAt": "2026-02-15T11:33:54.317Z"
+    },
+    {
+      "slug": "25",
+      "videoId": "zO9HehcTPTY",
+      "updatedAt": "2026-02-15T11:33:54.506Z"
+    },
+    {
+      "slug": "top-3-most-selling-cars-india",
+      "videoId": "l4jXDJK3qro",
+      "updatedAt": "2026-02-15T11:33:54.694Z"
+    },
+    {
+      "slug": "income-tax-bill-2025-explained-new-tax-slabs-digital-powers-ai",
+      "videoId": "hljPH30NKfg",
+      "updatedAt": "2026-02-15T11:33:54.883Z"
+    },
+    {
+      "slug": "west-indies-vs-new-zealand-test-match-draw",
+      "videoId": "DZG03hufEsQ",
+      "updatedAt": "2026-02-15T11:33:55.071Z"
+    },
+    {
+      "slug": "mgnrega-vikshit-bharat-rozgar-bill-2025-explained-rural-jobs-impact",
+      "videoId": "SWgeOUz7HA8",
+      "updatedAt": "2026-02-15T11:33:55.260Z"
+    },
+    {
+      "slug": "yamuna-expressway-accident-dense-fog-causes-massive-pileup-13-dead-up",
+      "videoId": "u4nFRg0pkqs",
+      "updatedAt": "2026-02-15T11:33:55.449Z"
+    },
+    {
+      "slug": "messi-kolkata-visit-chaos-fans-angry-posters-torn-political-fallout",
+      "videoId": "jhSVgFdqzdY",
+      "updatedAt": "2026-02-15T11:33:55.637Z"
+    },
+    {
+      "slug": "south-africa-vs-india-cricket-match-update",
+      "videoId": "008SSSKEPvQ",
+      "updatedAt": "2026-02-15T11:33:55.826Z"
+    },
+    {
+      "slug": "kohlirohit-salary-cut-shubman-gill-promotion-bcci-contract-2025-big",
+      "videoId": "IyYGkTnn85o",
+      "updatedAt": "2026-02-15T11:33:56.014Z"
+    },
+    {
+      "slug": "t20-world-cup-tickets-official-booking-start-2026-venue-price-pass",
+      "videoId": "thEh2rwes20",
+      "updatedAt": "2026-02-15T11:33:56.202Z"
+    },
+    {
+      "slug": "ram-mandir-dispute-explained",
+      "videoId": "GzVx5Y15M0s",
+      "updatedAt": "2026-02-15T11:33:56.391Z"
+    },
+    {
+      "slug": "india-witnessing-psychological-renaissance-breakingnews-news-live",
+      "videoId": "YSuULMVKTKI",
+      "updatedAt": "2026-02-15T11:33:56.580Z"
+    },
+    {
+      "slug": "india-witnessing-psychological-renaissance-pm-modiat-hindustan-times",
+      "videoId": "Cx28dZeyOwY",
+      "updatedAt": "2026-02-15T11:33:56.768Z"
+    },
+    {
+      "slug": "trump-new-10-tariff-impact-india-2026",
+      "videoId": "ISgX03q6tiM",
+      "updatedAt": "2026-02-22T11:57:06.839Z"
+    },
+    {
+      "slug": "vs",
+      "videoId": "CSqyPUrNl7U",
+      "updatedAt": "2026-02-22T11:57:07.062Z"
+    },
+    {
+      "slug": "kashmir-files-operation-sindoor-movie-vivek-agnihotri",
+      "videoId": "mwWK0vKRdM0",
+      "updatedAt": "2026-02-22T11:57:07.269Z"
+    },
+    {
+      "slug": "us-iran-nuclear-deal-jd-vance",
+      "videoId": "B-68TG4X46Q",
+      "updatedAt": "2026-02-22T11:57:07.476Z"
+    },
+    {
+      "slug": "mary-kom-divorce-war-husband-affairs-mary-5-crore-scam",
+      "videoId": "n2EGt7mtvYE",
+      "updatedAt": "2026-02-22T11:57:07.683Z"
+    },
+    {
+      "slug": "dhurandhar-2-effect-pakistan",
+      "videoId": "tvo02gmZaTk",
+      "updatedAt": "2026-03-24T17:56:09.841Z"
+    },
+    {
+      "slug": "25-happened-india",
+      "videoId": "V9S9Tapf84g",
+      "updatedAt": "2026-03-24T17:56:10.065Z"
+    },
+    {
+      "slug": "panic-pakistan-after-dhurandhar-2-pakistan-police-searching-hamza",
+      "videoId": "93QKQHGcAGE",
+      "updatedAt": "2026-03-24T17:56:10.275Z"
+    },
+    {
+      "slug": "2000",
+      "videoId": "FSjKK7houys",
+      "updatedAt": "2026-03-24T17:56:10.481Z"
+    },
+    {
+      "slug": "sanjay-singh-campaign-bally",
+      "videoId": "RQx7FiX8ZdE",
+      "updatedAt": "2026-03-24T17:56:10.687Z"
+    },
+    {
+      "slug": "police-action-protesters",
+      "videoId": "N-vOJXgMhIE",
+      "updatedAt": "2026-03-24T17:56:10.892Z"
+    },
+    {
+      "slug": "cash-votes",
+      "videoId": "U5RNTR6igMU",
+      "updatedAt": "2026-03-24T17:56:11.099Z"
+    },
+    {
+      "slug": "breaking-news-today-top-headlines-zpluse-newsnews-viralvideo-hindinews",
+      "videoId": "YizJsXnqzZg",
+      "updatedAt": "2026-03-24T17:56:11.306Z"
+    },
+    {
+      "slug": "andhra-pradesh-truck-accident",
+      "videoId": "D19sYk8VItI",
+      "updatedAt": "2026-03-24T17:56:11.511Z"
+    },
+    {
+      "slug": "proud-indian-moment-army",
+      "videoId": "YL5_SMs8ftM",
+      "updatedAt": "2026-03-24T17:56:11.718Z"
+    },
+    {
+      "slug": "bjp-workers-attacked-south-24-parganas",
+      "videoId": "s5hOPiPRZh4",
+      "updatedAt": "2026-03-24T17:56:11.923Z"
+    },
+    {
+      "slug": "mobile-aiims-rishikesh-cheating-caught",
+      "videoId": "5lITI0T_pPI",
+      "updatedAt": "2026-03-24T17:56:12.129Z"
+    },
+    {
+      "slug": "ev-7",
+      "videoId": "yMptJ1DTvrA",
+      "updatedAt": "2026-03-24T17:56:12.335Z"
+    },
+    {
+      "slug": "multiple-explosions-rock-kabul-pakistani-jets-hover-reports-march-16",
+      "videoId": "HqfS7JHsD28",
+      "updatedAt": "2026-03-24T17:56:12.541Z"
+    },
+    {
+      "slug": "loc-indian-army",
+      "videoId": "ygvi8Rq8Gv0",
+      "updatedAt": "2026-03-24T17:56:12.748Z"
+    },
+    {
+      "slug": "dubai-airport-under-attack",
+      "videoId": "4olVxbkewIg",
+      "updatedAt": "2026-03-24T17:56:12.954Z"
+    },
+    {
+      "slug": "400-killed-pakistans-cowardly-airstrike-kabul-hospital",
+      "videoId": "F74RJ2FCVpI",
+      "updatedAt": "2026-03-24T17:56:13.160Z"
+    },
+    {
+      "slug": "6-harish-rana",
+      "videoId": "3wXF_pdvxuw",
+      "updatedAt": "2026-03-24T17:56:13.366Z"
+    },
+    {
+      "slug": "devbhoomi-uttarakhand",
+      "videoId": "ZNGct6qzhho",
+      "updatedAt": "2026-03-24T17:56:13.572Z"
+    },
+    {
+      "slug": "harish-rana",
+      "videoId": "tG2obYhNv88",
+      "updatedAt": "2026-03-24T17:56:13.778Z"
+    },
+    {
+      "slug": "brigade-rally-2026",
+      "videoId": "Lpl-QKwgjII",
+      "updatedAt": "2026-03-24T17:56:13.984Z"
+    },
+    {
+      "slug": "bengal-election-2026-brigade-ground-full",
+      "videoId": "zi6RlxZjLZg",
+      "updatedAt": "2026-03-24T17:56:14.202Z"
+    },
+    {
+      "slug": "brigade-ground-full-bengal-election-2026",
+      "videoId": "YT6w3UQaHqU",
+      "updatedAt": "2026-03-24T17:56:14.408Z"
+    },
+    {
+      "slug": "boycott-bjp-bengal-election-2026",
+      "videoId": "OopY0LvsB88",
+      "updatedAt": "2026-03-24T17:56:14.614Z"
+    },
+    {
+      "slug": "west-bengal-election",
+      "videoId": "IKUQ_u8qE0c",
+      "updatedAt": "2026-03-24T17:56:14.821Z"
+    },
+    {
+      "slug": "pm-modi-latest-news-covid-reminder-pm-modis-rundown-middle-east-war",
+      "videoId": "jWB7A_MhhE8",
+      "updatedAt": "2026-03-25T07:45:03.146Z"
+    },
+    {
+      "slug": "global-tech-consortium-unveils-nextgen-ai-infrastructure-2026",
+      "videoId": "AnaBQacfH50",
+      "updatedAt": "2026-03-26T17:27:05.879Z"
+    },
+    {
+      "slug": "",
+      "videoId": "UK460boWanc",
+      "updatedAt": "2026-05-11T20:53:28.952Z"
+    },
+    {
+      "slug": "jodhpur-schools-exposed",
+      "videoId": "PlD-mrpcygo",
+      "updatedAt": "2026-05-11T20:53:29.198Z"
+    },
+    {
+      "slug": "street-ice-cream-reality",
+      "videoId": "5LCwO2CSSr4",
+      "updatedAt": "2026-05-11T20:53:29.423Z"
+    },
+    {
+      "slug": "expose",
+      "videoId": "GuhIvd5fctQ",
+      "updatedAt": "2026-05-11T20:53:29.647Z"
+    },
+    {
+      "slug": "bjp-bengal",
+      "videoId": "YMDJuvOzAv4",
+      "updatedAt": "2026-05-11T20:53:29.871Z"
+    },
+    {
+      "slug": "tmc",
+      "videoId": "k8NorBwOFh8",
+      "updatedAt": "2026-05-11T20:53:30.096Z"
+    },
+    {
+      "slug": "-1",
+      "videoId": "n3Vn828Ei5A",
+      "updatedAt": "2026-05-11T20:53:30.320Z"
+    },
+    {
+      "slug": "tmc-tmc-office",
+      "videoId": "ZlIjz2xPTyc",
+      "updatedAt": "2026-05-11T20:53:30.544Z"
+    },
+    {
+      "slug": "-2",
+      "videoId": "rFxCcLpUb9w",
+      "updatedAt": "2026-05-11T20:53:30.768Z"
+    },
+    {
+      "slug": "1",
+      "videoId": "SHpFUJeskwc",
+      "updatedAt": "2026-05-11T20:53:30.993Z"
+    },
+    {
+      "slug": "bjp-bengal-1",
+      "videoId": "O6Ov--AWR48",
+      "updatedAt": "2026-05-11T20:53:31.218Z"
+    },
+    {
+      "slug": "-3",
+      "videoId": "Bi0H0td7USw",
+      "updatedAt": "2026-05-11T20:53:31.442Z"
+    },
+    {
+      "slug": "west-bengal-election-1",
+      "videoId": "eZ1KnehLwuM",
+      "updatedAt": "2026-05-11T20:53:31.665Z"
+    },
+    {
+      "slug": "bengal-violence-chandrakant-rath-shot-dead-kolkata-pa",
+      "videoId": "YO-KKAi-VC4",
+      "updatedAt": "2026-05-11T20:53:31.888Z"
+    },
+    {
+      "slug": "tmc-acting-skill-day-day-west-bengal-election-2026",
+      "videoId": "ReZRMRfqVxw",
+      "updatedAt": "2026-05-11T20:53:32.113Z"
+    },
+    {
+      "slug": "netaji-bengal-public-actionbulldozer",
+      "videoId": "4EWa6LP4dOI",
+      "updatedAt": "2026-05-11T20:53:32.336Z"
+    },
+    {
+      "slug": "crpf-west-bengal",
+      "videoId": "XEF_vv3wsjg",
+      "updatedAt": "2026-05-11T20:53:32.560Z"
+    },
+    {
+      "slug": "women-safety-risk",
+      "videoId": "ULnI7wJ3Jxg",
+      "updatedAt": "2026-05-11T20:53:32.783Z"
+    },
+    {
+      "slug": "viral-video-indian-railways",
+      "videoId": "_do5BCaKbKw",
+      "updatedAt": "2026-05-11T20:53:33.008Z"
+    },
+    {
+      "slug": "-4",
+      "videoId": "1stoLvcVlek",
+      "updatedAt": "2026-05-11T20:53:33.234Z"
+    },
+    {
+      "slug": "evm",
+      "videoId": "x7shRwTTZgQ",
+      "updatedAt": "2026-05-11T20:53:33.458Z"
+    },
+    {
+      "slug": "hindinews-viral-news-topnews-latestnews",
+      "videoId": "qYdIU7Tsuvk",
+      "updatedAt": "2026-05-11T20:53:33.682Z"
+    },
+    {
+      "slug": "election-breaking-news",
+      "videoId": "zDMoO1zzshA",
+      "updatedAt": "2026-05-11T20:53:33.906Z"
+    },
+    {
+      "slug": "trendingviralmustwatchwatchnowupdatebignewsshockingexclusive",
+      "videoId": "7ZGYj0fgICs",
+      "updatedAt": "2026-05-11T20:53:34.130Z"
+    },
+    {
+      "slug": "trendingviralmustwatchwatchnowupdatebignewsshockingexclusive-1",
+      "videoId": "8Vs0LNcLyQc",
+      "updatedAt": "2026-05-11T20:53:34.354Z"
+    },
+    {
+      "slug": "trendingviralmustwatchwatchnowupdatebignewsshockingexclusive-2",
+      "videoId": "zL1a6aM9m0k",
+      "updatedAt": "2026-05-11T20:53:34.578Z"
+    },
+    {
+      "slug": "system-failed",
+      "videoId": "uzssjX1dqlg",
+      "updatedAt": "2026-05-11T20:53:34.802Z"
+    },
+    {
+      "slug": "news-breakingnews-viral",
+      "videoId": "1eisOewgJXg",
+      "updatedAt": "2026-05-11T20:53:35.026Z"
+    },
+    {
+      "slug": "superpower-bangladesh",
+      "videoId": "o3FJKT8s-K8",
+      "updatedAt": "2026-05-11T20:53:35.251Z"
+    },
+    {
+      "slug": "abhayas-mother-contests-election",
+      "videoId": "L0vDoCEDw0o",
+      "updatedAt": "2026-05-11T20:53:35.473Z"
+    },
+    {
+      "slug": "news-breakingnews-cricket-viral",
+      "videoId": "yPukudCJDIs",
+      "updatedAt": "2026-05-11T20:53:35.697Z"
+    },
+    {
+      "slug": "breakingnews-news-khamenei-usiranwar",
+      "videoId": "5v-Xa-ghYJA",
+      "updatedAt": "2026-05-11T20:53:35.920Z"
+    },
+    {
+      "slug": "breaking-news-today-latest-news-update-2026-news-viral-topnews",
+      "videoId": "3IClBv-FZgw",
+      "updatedAt": "2026-05-11T20:53:36.144Z"
+    },
+    {
+      "slug": "bullet-jaipur-viral-video",
+      "videoId": "ktHse2_Mosw",
+      "updatedAt": "2026-05-11T20:53:36.368Z"
+    },
+    {
+      "slug": "60-lakh-fine-irctc",
+      "videoId": "WwwE6yRHJVQ",
+      "updatedAt": "2026-05-11T20:53:36.593Z"
+    },
+    {
+      "slug": "india-breaking-news-today-latest-update-breakingnews-news-viral",
+      "videoId": "sR-a1wxmisY",
+      "updatedAt": "2026-05-11T20:53:36.817Z"
+    },
+    {
+      "slug": "bengal-elections-2026-bjptmc",
+      "videoId": "lwc-j8WJ-VU",
+      "updatedAt": "2026-05-11T20:53:37.041Z"
+    },
+    {
+      "slug": "-5",
+      "videoId": "9m90kGsDYoY",
+      "updatedAt": "2026-05-11T20:53:37.264Z"
+    },
+    {
+      "slug": "sp-55-black-marketing-exposed",
+      "videoId": "9PcbXOdKbpI",
+      "updatedAt": "2026-05-11T20:53:37.490Z"
+    },
+    {
+      "slug": "indias-lpg-cylinder-shortage-why-restaurants-canteens-struggling-news",
+      "videoId": "ayjfNfBeSuY",
+      "updatedAt": "2026-05-11T20:53:37.714Z"
+    },
+    {
+      "slug": "lpg-shortage-10",
+      "videoId": "RPxLLf4digk",
+      "updatedAt": "2026-05-11T20:53:37.937Z"
+    },
+    {
+      "slug": "13-harish-rana-case-supreme-court-euthanasia-verdict",
+      "videoId": "-zCWiX_gESs",
+      "updatedAt": "2026-05-11T20:53:38.161Z"
+    },
+    {
+      "slug": "esma-lpg-petrol-crisis",
+      "videoId": "F-4lV28SaCw",
+      "updatedAt": "2026-05-11T20:53:38.384Z"
+    },
+    {
+      "slug": "20-soldiers-dead",
+      "videoId": "KA_8gBEnh8w",
+      "updatedAt": "2026-05-11T20:53:38.608Z"
+    },
+    {
+      "slug": "deputy-cm-nishant-politics",
+      "videoId": "j_DvWLFTH1A",
+      "updatedAt": "2026-05-11T20:53:38.832Z"
+    },
+    {
+      "slug": "wadh-balochistan-holi-celebration",
+      "videoId": "i7_NyKn0vhQ",
+      "updatedAt": "2026-05-11T20:53:39.068Z"
+    },
+    {
+      "slug": "iranian-women-dancing-freedom-iran",
+      "videoId": "szsGFcyo2us",
+      "updatedAt": "2026-05-11T20:53:39.292Z"
+    },
+    {
+      "slug": "iranian-women-dancing-indian-women-crying",
+      "videoId": "adoX9nXrd8k",
+      "updatedAt": "2026-05-11T20:53:39.516Z"
+    },
+    {
+      "slug": "kashmir-banega-hezbollah-kashmir",
+      "videoId": "0NnjSmgj9Pg",
+      "updatedAt": "2026-05-11T20:53:39.740Z"
+    },
+    {
+      "slug": "pakistan-vs-afghanistan-pakistan-afghanistan-borderconflict",
+      "videoId": "3ZTu9TzJiP8",
+      "updatedAt": "2026-05-11T20:53:39.963Z"
+    },
+    {
+      "slug": "khamenei-death-iran-celebrating-khameneis-death",
+      "videoId": "3TktMqZ-P6g",
+      "updatedAt": "2026-05-11T20:53:40.188Z"
+    },
+    {
+      "slug": "another-american-base-hit-qatar-qatar-us-army-danger",
+      "videoId": "5APSAt-onto",
+      "updatedAt": "2026-05-11T20:53:40.411Z"
+    },
+    {
+      "slug": "indiaus-trade-deal-pause-50-tariff-gurdaspur-update-operation-prahar-z",
+      "videoId": "VFphoxg9x7U",
+      "updatedAt": "2026-05-11T20:53:40.635Z"
+    },
+    {
+      "slug": "khamenei-death-truth-london-video",
+      "videoId": "bzXvyyoDwOQ",
+      "updatedAt": "2026-05-11T20:53:40.859Z"
+    },
+    {
+      "slug": "khamenei-death-kashmir",
+      "videoId": "_l19OdyY94s",
+      "updatedAt": "2026-05-11T20:53:41.082Z"
+    },
+    {
+      "slug": "truth-pakistan-protests",
+      "videoId": "E9UhO1Uq1g4",
+      "updatedAt": "2026-05-11T20:53:41.307Z"
+    },
+    {
+      "slug": "us-consulate-attacked",
+      "videoId": "fBAZw_MuIAQ",
+      "updatedAt": "2026-05-11T20:53:41.530Z"
+    },
+    {
+      "slug": "cia-headquarters-dubai-attacked",
+      "videoId": "4wFmQODzRGI",
+      "updatedAt": "2026-05-11T20:53:41.754Z"
+    },
+    {
+      "slug": "iran-strikes-us-navy-bahrain",
+      "videoId": "T2HSNde8NEs",
+      "updatedAt": "2026-05-11T20:53:41.978Z"
+    },
+    {
+      "slug": "israel-us-attack-iran-30",
+      "videoId": "6sz7kUH-jF8",
+      "updatedAt": "2026-05-11T20:53:42.203Z"
+    },
+    {
+      "slug": "pakistan-taliban-300-dead-pak-vs-afghan-war-explained",
+      "videoId": "LyTBRt0ARpc",
+      "updatedAt": "2026-05-11T20:53:42.427Z"
+    },
+    {
+      "slug": "taliban-attack-pakistan-army",
+      "videoId": "1YC4BcJQWIk",
+      "updatedAt": "2026-05-11T20:53:42.651Z"
+    },
+    {
+      "slug": "israel-pm-modi-masterstroke",
+      "videoId": "IIUKUd9NOi4",
+      "updatedAt": "2026-05-11T20:53:42.874Z"
+    },
+    {
+      "slug": "jharkhand-air-ambulance-crash-breakingnews-jharkhand-jharkhandnews",
+      "videoId": "pd0RibOrtio",
+      "updatedAt": "2026-05-11T20:53:43.097Z"
+    },
+    {
+      "slug": "speech-se-pehle-batti-gul-donald-trump-sotu-2026",
+      "videoId": "rge42lRHqYY",
+      "updatedAt": "2026-05-11T20:53:43.321Z"
+    },
+    {
+      "slug": "rahul-gandhi-ai-impact-summit-youth-congress-mess",
+      "videoId": "4mfmyxGkth8",
+      "updatedAt": "2026-05-11T20:53:43.544Z"
+    },
+    {
+      "slug": "subscribe-more-fast-furious-news-breakingnews-viral-nationalnews-india",
+      "videoId": "nkXPOtB3kgQ",
+      "updatedAt": "2026-05-11T20:53:43.768Z"
+    },
+    {
+      "slug": "israel-parliament-pm-modi-netanyahu",
+      "videoId": "kR5FZ_AVYNA",
+      "updatedAt": "2026-05-11T20:53:43.992Z"
+    },
+    {
+      "slug": "border-security-amit-shah-indias-first-villages",
+      "videoId": "FpfiHZwBWJU",
+      "updatedAt": "2026-05-11T20:53:44.217Z"
+    },
+    {
+      "slug": "don-mexico-cartel-boss-el-mencho",
+      "videoId": "UTw9PnPqbUU",
+      "updatedAt": "2026-05-11T20:53:44.440Z"
+    },
+    {
+      "slug": "mexico-violence-el-mencho-killed",
+      "videoId": "yI-4TlTME40",
+      "updatedAt": "2026-05-11T20:53:44.664Z"
+    },
+    {
+      "slug": "kargil-war-1999-india-vs-pakistan-operation-vijay",
+      "videoId": "Nr1WGL7b_Eg",
+      "updatedAt": "2026-05-11T20:53:44.888Z"
+    },
+    {
+      "slug": "top-news-today-daily-news-roundup",
+      "videoId": "bLZ5OsRKb9I",
+      "updatedAt": "2026-07-06T16:27:26.441Z"
+    },
+    {
+      "slug": "breaking-news-top-10-news-today",
+      "videoId": "Pq7GlKH5WSU",
+      "updatedAt": "2026-07-06T16:27:26.881Z"
+    },
+    {
+      "slug": "pm-modi-west-asia-nasa-artemis-iii-mission",
+      "videoId": "j4sMvf5mYqI",
+      "updatedAt": "2026-07-06T16:27:27.319Z"
+    },
+    {
+      "slug": "train-molester-caught",
+      "videoId": "yO7IoXpWeJ4",
+      "updatedAt": "2026-07-06T16:27:27.758Z"
+    },
+    {
+      "slug": "uk-11",
+      "videoId": "9sELj74ZSsU",
+      "updatedAt": "2026-07-06T16:27:28.196Z"
+    },
+    {
+      "slug": "lpg-price-hike-neet-us",
+      "videoId": "TTcrznllH3g",
+      "updatedAt": "2026-07-06T16:27:28.635Z"
+    },
+    {
+      "slug": "gdp-77-us",
+      "videoId": "opciA_DtAhk",
+      "updatedAt": "2026-07-06T16:27:29.073Z"
+    },
+    {
+      "slug": "tmc-rbi",
+      "videoId": "uAxzVaulyPg",
+      "updatedAt": "2026-07-06T16:27:29.512Z"
+    },
+    {
+      "slug": "tmc-breaking-news",
+      "videoId": "608X2ymkC5A",
+      "updatedAt": "2026-07-06T16:27:29.953Z"
+    },
+    {
+      "slug": "tmc-west-bengal",
+      "videoId": "FTlnuWQPJBw",
+      "updatedAt": "2026-07-06T16:27:30.391Z"
+    },
+    {
+      "slug": "-6",
+      "videoId": "nT3VRx1AwF8",
+      "updatedAt": "2026-07-06T16:27:30.829Z"
+    },
+    {
+      "slug": "5",
+      "videoId": "7iM84SzLv8E",
+      "updatedAt": "2026-07-06T16:27:32.576Z"
+    },
+    {
+      "slug": "thook-jihad-mumbai-fayaz-shaikh-kausar-shaikh",
+      "videoId": "jK2GUIFd34c",
+      "updatedAt": "2026-07-06T16:27:33.015Z"
+    },
+    {
+      "slug": "7-train",
+      "videoId": "GnF6Z1FivdM",
+      "updatedAt": "2026-07-06T16:27:33.453Z"
+    },
+    {
+      "slug": "tmc-bengal-violence-dubrajpur-news",
+      "videoId": "UaW96vEZfMM",
+      "updatedAt": "2026-07-06T16:27:33.893Z"
+    },
+    {
+      "slug": "-7",
+      "videoId": "wOdIdF8WhGU",
+      "updatedAt": "2026-07-06T16:27:34.332Z"
+    },
+    {
+      "slug": "hezbollah-israel-eid-gift-lebanon-airstrike-israel-vs-hezbollah",
+      "videoId": "hPk3PtzZ0LU",
+      "updatedAt": "2026-07-06T16:27:36.296Z"
+    },
+    {
+      "slug": "rcb-ed-ipl",
+      "videoId": "xvbaycsNi6g",
+      "updatedAt": "2026-07-06T16:27:36.735Z"
+    },
+    {
+      "slug": "haridwar-haryana-viral-video",
+      "videoId": "iUsT6Wq1V5Y",
+      "updatedAt": "2026-07-06T16:27:37.175Z"
+    },
+    {
+      "slug": "tourists-cctv-viral-video-uttarakhand",
+      "videoId": "yxS-pevYmKs",
+      "updatedAt": "2026-07-06T16:27:37.613Z"
+    },
+    {
+      "slug": "tmc-bappa-sheikh-parade-diamond-harbour-viral",
+      "videoId": "RXFN981txfw",
+      "updatedAt": "2026-07-06T16:27:38.052Z"
+    },
+    {
+      "slug": "west-bengal-rohingya-illegal-migrant",
+      "videoId": "OkzNEKXGCQU",
+      "updatedAt": "2026-07-06T16:27:38.491Z"
+    },
+    {
+      "slug": "-8",
+      "videoId": "kMKkvtIboIo",
+      "updatedAt": "2026-07-06T16:27:38.929Z"
+    },
+    {
+      "slug": "-9",
+      "videoId": "DpRpBMslYZo",
+      "updatedAt": "2026-07-06T16:27:41.117Z"
+    },
+    {
+      "slug": "ssc-gd-paper-leak-prayagraj-exam-centre-viral-video",
+      "videoId": "TiiDLftTM30",
+      "updatedAt": "2026-07-06T16:27:43.515Z"
+    },
+    {
+      "slug": "tmc-end-bengal",
+      "videoId": "fs_nv_MevVA",
+      "updatedAt": "2026-07-06T16:27:43.953Z"
+    },
+    {
+      "slug": "leak",
+      "videoId": "YSB_60V6d3c",
+      "updatedAt": "2026-07-06T16:27:44.393Z"
+    },
+    {
+      "slug": "tmc-office-bengal-police-raid",
+      "videoId": "nPSgalEJ_aU",
+      "updatedAt": "2026-07-06T16:27:44.832Z"
+    },
+    {
+      "slug": "reservation-policy-systemic-negligence",
+      "videoId": "IIyXn7nxzts",
+      "updatedAt": "2026-07-06T16:27:45.270Z"
+    },
+    {
+      "slug": "court-10-land-jihad",
+      "videoId": "9s7stY9jwqU",
+      "updatedAt": "2026-07-06T16:27:45.708Z"
+    },
+    {
+      "slug": "bangladesh-border-bsf-victory-rally",
+      "videoId": "qoBA5fBGv54",
+      "updatedAt": "2026-07-06T16:27:46.147Z"
+    },
+    {
+      "slug": "3000",
+      "videoId": "5IQAPqrmXJk",
+      "updatedAt": "2026-07-06T16:27:46.588Z"
+    },
+    {
+      "slug": "jee-counselling-heatwave",
+      "videoId": "t7ltSzKRcy0",
+      "updatedAt": "2026-07-06T16:27:47.026Z"
+    },
+    {
+      "slug": "superpower-bangladeshs-new-medical-miracle",
+      "videoId": "mJhol4YaQxQ",
+      "updatedAt": "2026-07-06T16:27:47.465Z"
+    },
+    {
+      "slug": "kolkata-police-action-bengal",
+      "videoId": "CMMi36Si4do",
+      "updatedAt": "2026-07-06T16:27:47.905Z"
+    },
+    {
+      "slug": "48-hours-ground-report",
+      "videoId": "cH98FEiCXU8",
+      "updatedAt": "2026-07-06T16:27:48.344Z"
+    },
+    {
+      "slug": "police",
+      "videoId": "_P6JduYzqSM",
+      "updatedAt": "2026-07-06T16:27:48.792Z"
+    },
+    {
+      "slug": "182-neet",
+      "videoId": "GBVuF7E4Yj8",
+      "updatedAt": "2026-07-06T16:27:49.233Z"
+    },
+    {
+      "slug": "cbse-result-out-cbi-action-neet-leak-goldsilver-prices-skyrocket",
+      "videoId": "ooaHEQa0_sw",
+      "updatedAt": "2026-07-06T16:27:49.672Z"
+    },
+    {
+      "slug": "neet-ipl",
+      "videoId": "46mfWdRWziQ",
+      "updatedAt": "2026-07-06T16:27:50.111Z"
+    },
+    {
+      "slug": "vip",
+      "videoId": "7Qq82Uj-pF0",
+      "updatedAt": "2026-07-06T16:27:50.550Z"
+    },
+    {
+      "slug": "west-bengal-tmc-tmc-neta-sukumar-roy-jailed",
+      "videoId": "4AyTfLnGnLI",
+      "updatedAt": "2026-07-06T16:27:50.989Z"
+    },
+    {
+      "slug": "kolkata-police-massive-crackdown-park-circus-1",
+      "videoId": "QTRg5ucF-HA",
+      "updatedAt": "2026-07-06T16:27:51.429Z"
+    },
+    {
+      "slug": "caught-camera",
+      "videoId": "GSVXYugHhNQ",
+      "updatedAt": "2026-07-06T16:27:51.867Z"
+    },
+    {
+      "slug": "super-power-bangladesh",
+      "videoId": "VGO1mfXUdNs",
+      "updatedAt": "2026-07-06T16:27:52.306Z"
+    },
+    {
+      "slug": "-10",
+      "videoId": "j_tjNks7q-k",
+      "updatedAt": "2026-07-06T16:27:52.744Z"
+    },
+    {
+      "slug": "topsia-bulldozer-action",
+      "videoId": "YXihMmM0Xks",
+      "updatedAt": "2026-07-06T16:27:55.365Z"
+    },
+    {
+      "slug": "dm-reels",
+      "videoId": "6akCCX5xeiY",
+      "updatedAt": "2026-07-06T16:27:55.803Z"
+    },
+    {
+      "slug": "-11",
+      "videoId": "22v0iexMda0",
+      "updatedAt": "2026-07-06T16:27:56.241Z"
+    },
+    {
+      "slug": "-12",
+      "videoId": "cI0PQA1-FE4",
+      "updatedAt": "2026-07-06T16:27:59.089Z"
+    },
+    {
+      "slug": "video-online-shopping-fraud-exposed",
+      "videoId": "BFMhI4eZn3M",
+      "updatedAt": "2026-07-06T16:28:02.148Z"
+    },
+    {
+      "slug": "latest-hindi-news",
+      "videoId": "3y1wVVvlVkw",
+      "updatedAt": "2026-07-06T16:28:02.587Z"
+    },
+    {
+      "slug": "suvendu-adhikari-yogi-model",
+      "videoId": "UoIz21JV-ts",
+      "updatedAt": "2026-07-06T16:28:03.026Z"
+    }
+  ]
+}

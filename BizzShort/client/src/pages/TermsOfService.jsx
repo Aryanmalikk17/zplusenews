@@ -23,9 +23,9 @@ export default function TermsOfService() {
                     <div className="policy-container">
                         <h2>1. Agreement to Terms</h2>
                         <p>
-                            Welcome to ZPluse News (https://www.zplusenews.com). These Terms of Service ("Terms") 
+                            Welcome to ZPlus News (https://www.zplusenews.com). These Terms of Service ("Terms") 
                             govern your access to and use of the website, mobile applications, API integrations, and 
-                            other digital services (collectively, the "Services") operated by ZPluse News.
+                            other digital services (collectively, the "Services") operated by ZPlus News.
                         </p>
                         <p>
                             By accessing or using our Services, you agree to be bound by these Terms and our Privacy Policy. 
@@ -38,7 +38,7 @@ export default function TermsOfService() {
                             Unless otherwise indicated, the Services and all source code, databases, functionality, 
                             software, website designs, audio, video, text, photographs, and graphics on the site (collectively, the "Content") 
                             and the trademarks, service marks, and logos contained therein (the "Marks") are owned or controlled by 
-                            ZPluse News or licensed to us, and are protected by copyright, trademark laws, and other intellectual 
+                            ZPlus News or licensed to us, and are protected by copyright, trademark laws, and other intellectual 
                             property rights in India and internationally.
                         </p>
                         <p>
@@ -96,7 +96,7 @@ export default function TermsOfService() {
 
                         <h2>7. Limitation of Liability</h2>
                         <p>
-                            IN NO EVENT WILL ZPLUSE NEWS OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR 
+                            IN NO EVENT WILL ZPLUS NEWS OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR 
                             ANY DIRECT, INDIRECT, CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST 
                             PROFIT, LOST REVENUE, LOSS OF DATA, OR OTHER DAMAGES ARISING FROM YOUR USE OF THE SERVICES, EVEN IF WE HAVE 
                             BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
@@ -124,7 +124,7 @@ export default function TermsOfService() {
                             use of the Services, please contact us at:
                         </p>
                         <p style={{ marginLeft: '20px' }}>
-                            <strong>ZPluse News Team</strong><br />
+                            <strong>ZPlus News Team</strong><br />
                             Email: contact@zplusenews.com<br />
                             Address: New Delhi, Delhi, India - 110001
                         </p>

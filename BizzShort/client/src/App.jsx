@@ -13,6 +13,8 @@ const Events = lazy(() => import('./pages/Events'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Videos = lazy(() => import('./pages/Videos'));
+const Author = lazy(() => import('./pages/Author'));
+const EditorialPolicy = lazy(() => import('./pages/EditorialPolicy'));
 
 // Category Pages
 const FakeNews = lazy(() => import('./pages/FakeNews'));
@@ -100,10 +102,16 @@ export default function App() {
             <Route path="contests" element={<Contests />} />
             <Route path="events" element={<Events />} />
             <Route path="about" element={<About />} />
+            <Route path="about-us" element={<About />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="contact-us" element={<Contact />} />
             <Route path="videos" element={<Videos />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsOfService />} />
+            <Route path="terms-of-service" element={<TermsOfService />} />
+            <Route path="author/:slug" element={<Author />} />
+            <Route path="editorial-policy" element={<EditorialPolicy />} />
           </Route>
 
           {/* Admin Routes (No Layout) */}
