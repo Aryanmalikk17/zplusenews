@@ -1004,7 +1004,22 @@ function ContentModal({ type, categories, editingItem, onClose, onSuccess }) {
 
             onSuccess();
         } catch (error) {
-            alert(`Failed to ${editingItem ? 'update' : 'create'} ${type}: ${error.message || error}`);
+            console.error(`Error saving ${type}:`, error);
+            let errMsg = 'Unknown error occurred';
+            if (typeof error === 'string') {
+                errMsg = error;
+            } else if (error) {
+                if (error.errors && Array.isArray(error.errors)) {
+                    errMsg = error.errors.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+                } else if (error.error) {
+                    errMsg = error.error;
+                } else if (error.message) {
+                    errMsg = error.message;
+                } else {
+                    errMsg = JSON.stringify(error);
+                }
+            }
+            alert(`Failed to ${editingItem ? 'update' : 'create'} ${type}: ${errMsg}`);
         } finally {
             setLoading(false);
         }

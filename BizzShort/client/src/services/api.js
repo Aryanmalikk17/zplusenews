@@ -14,6 +14,16 @@ const api = axios.create({
 // Request interceptor - attach Bearer token only for legacy user (non-admin) endpoints
 api.interceptors.request.use(
   (config) => {
+    // If the data is FormData, remove Content-Type so the browser sets it automatically with boundary
+    if (config.data instanceof FormData) {
+      if (config.headers) {
+        delete config.headers['Content-Type'];
+        if (typeof config.headers.delete === 'function') {
+          config.headers.delete('Content-Type');
+        }
+      }
+    }
+
     // Admin auth is now via httpOnly cookie (sent automatically by withCredentials).
     // Only attach Bearer token for regular user sessions if present.
     const userToken = localStorage.getItem('zplusenews_token');
