@@ -227,6 +227,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Configure Multer for File Uploads
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
@@ -250,9 +255,9 @@ let isCloudinaryConfigured = false;
 
 if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
     cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
+        api_key: process.env.CLOUDINARY_API_KEY.trim(),
+        api_secret: process.env.CLOUDINARY_API_SECRET.trim()
     });
     isCloudinaryConfigured = true;
     console.log("☁️ Cloudinary configured successfully. Images will be stored in Cloudinary.");
@@ -1272,7 +1277,7 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
     }
 
     try {
-        const { title, slug, category, excerpt, content, author, tags, videoUrl, image, isTicker, tickerCategory, calendarDate } = req.body;
+        const { title, slug, category, excerpt, content, author, tags, videoUrl, image, isTicker, tickerCategory, calendarDate, publishedAt } = req.body;
 
         let parsedAuthor = author;
         if (typeof author === 'string') {
@@ -1295,7 +1300,8 @@ app.post('/api/articles', protect, conditionalUpload('image'), ...articleValidat
             videoUrl,
             isTicker: isTicker === 'true' || isTicker === true,
             tickerCategory: tickerCategory || 'none',
-            calendarDate: calendarDate ? new Date(calendarDate) : undefined
+            calendarDate: calendarDate ? new Date(calendarDate) : undefined,
+            publishedAt: publishedAt ? new Date(publishedAt) : undefined
         };
 
         // Handle image: File upload takes precedence, otherwise use URL from body
