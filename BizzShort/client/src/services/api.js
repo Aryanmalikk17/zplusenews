@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance with base configuration
 // withCredentials: true is REQUIRED so the browser sends the httpOnly adminToken cookie
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
   withCredentials: true,
   headers: {

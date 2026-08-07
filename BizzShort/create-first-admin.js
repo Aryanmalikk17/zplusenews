@@ -97,7 +97,7 @@ const createAdmin = async () => {
         console.log('📧 Email:', admin.email);
         console.log('👤 Name:', admin.name);
         console.log('🔓 Status: APPROVED');
-        console.log('\nYou can now login at: https://bizzshort.onrender.com/admin-login.html\n');
+        console.log(`\nYou can now login at: ${process.env.SITE_URL || 'http://localhost:3000'}/admin-login.html\n`);
         
         rl.close();
         process.exit(0);

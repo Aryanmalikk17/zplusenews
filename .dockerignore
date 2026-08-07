@@ -1,0 +1,14 @@
+node_modules/
+BizzShort/node_modules/
+BizzShort/client/node_modules/
+BizzShort/client/dist/
+.env
+.env.production
+BizzShort/.env
+BizzShort/.env.production
+BizzShort/.env.example
+.git/
+.gitignore
+.agent/
+.github/
+**/.DS_Store

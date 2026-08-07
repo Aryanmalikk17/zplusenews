@@ -2,7 +2,7 @@ const https = require('https');
 const http = require('http');
 
 // Configuration
-const API_BASE = 'https://bizzshort.onrender.com/api';
+const API_BASE = process.env.API_BASE || 'http://localhost:3000/api';
 // Using the handle provided in index.html
 const YT_HANDLE = '@bizz_short';
 // Channel ID resolving logic implies we might need a key or use a public RSS bridge.

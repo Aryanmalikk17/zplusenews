@@ -8,7 +8,7 @@
 const https = require('https');
 const mongoose = require('mongoose');
 
-const BACKEND_URL = process.env.BACKEND_URL || 'https://bizzshort.onrender.com';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 

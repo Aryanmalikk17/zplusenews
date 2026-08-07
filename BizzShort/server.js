@@ -119,6 +119,27 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ============ SECURITY MIDDLEWARE (Only for API routes) ============
+
+// CORS Configuration with whitelist
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
+
+if (allowedOrigins.length === 0) {
+    // Default allowed origins if not configured
+    allowedOrigins.push(
+        'https://zplusenews.com',
+        'https://www.zplusenews.com',
+        'http://zplusenews.com',
+        'http://www.zplusenews.com',
+        'http://localhost:3000',
+        'http://localhost:5173'
+    );
+}
+
+console.log('CORS allowed origins:', allowedOrigins);
+
 // Set security headers - Configured to allow Vite-generated assets
 const isProd = process.env.NODE_ENV === 'production';
 app.use(helmet({
@@ -132,7 +153,13 @@ app.use(helmet({
                 : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", "blob:", "https://cdnjs.cloudflare.com", "https://www.googletagmanager.com"],
             imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
-            connectSrc: ["'self'", "https://zplusenews.com", "https://www.zplusenews.com", "https://zplusenews.onrender.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+            connectSrc: [
+                "'self'", 
+                "https://fonts.googleapis.com", 
+                "https://fonts.gstatic.com",
+                ...(process.env.SITE_URL ? [process.env.SITE_URL] : []),
+                ...allowedOrigins.filter(o => o.startsWith('http'))
+            ],
             frameSrc: ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
             workerSrc: ["'self'", "blob:"],
             mediaSrc: ["'self'", "https:", "blob:"],
@@ -172,38 +199,26 @@ const authLimiter = rateLimit({
 // Data sanitization against NoSQL query injection (API routes only)
 app.use('/api/', mongoSanitize());
 
-// CORS Configuration with whitelist
-const allowedOrigins = (process.env.CORS_ORIGIN || '')
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
-
-if (allowedOrigins.length === 0) {
-    // Default allowed origins if not configured
-    allowedOrigins.push(
-        'https://zplusenews.com',
-        'https://www.zplusenews.com',
-        'http://zplusenews.com',
-        'http://www.zplusenews.com',
-        'https://zplusenews.onrender.com',
-        'http://localhost:3000',
-        'http://localhost:5173'
-    );
-}
-
-console.log('CORS allowed origins:', allowedOrigins);
-
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps, curl, or same-origin)
         if (!origin) return callback(null, true);
+        
+        let siteDomain = '';
+        if (process.env.SITE_URL) {
+            try {
+                siteDomain = new URL(process.env.SITE_URL).hostname;
+            } catch (e) {
+                // Ignore invalid URL
+            }
+        }
         
         // Check if origin matches any allowed origin
         const isAllowed = allowedOrigins.some(allowed => {
             // Exact match or wildcard subdomain matching
             return origin === allowed || 
                    origin.endsWith('.zplusenews.com') ||
-                   origin.endsWith('.zplusenews.onrender.com');
+                   (siteDomain && origin.endsWith(`.${siteDomain}`));
         });
         
         if (isAllowed || process.env.NODE_ENV === 'development') {
@@ -221,7 +236,6 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
-// Body parsing middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -3495,6 +3509,6 @@ app.get('*', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT} (MongoDB Mode)`);
 });
